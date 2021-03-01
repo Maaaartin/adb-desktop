@@ -5,15 +5,16 @@
   "scripts": {
     "build": "concurrently \"yarn build:main\" \"yarn build:renderer\"",
     "build:main": "cross-env NODE_ENV=production webpack --config ./.erb/configs/webpack.config.main.prod.babel.js",
-    "build:renderer": "cross-env NODE_ENV=production webpack --config ./.erb/configs/webpack.config.renderer.prod.babel.js",
+    "build:renderer": "yarn run watch:css && cross-env NODE_ENV=production webpack --config ./.erb/configs/webpack.config.renderer.prod.babel.js",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir src",
     "lint": "cross-env NODE_ENV=development eslint . --cache --ext .js,.jsx,.ts,.tsx",
-    "package": "rm -rf src/dist && yarn build && electron-builder build --publish never",
+    "package": "shx rm -rf src/dist && yarn build && electron-builder build --publish never",
     "postinstall": "node -r @babel/register .erb/scripts/CheckNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.babel.js && opencollective-postinstall && yarn-deduplicate yarn.lock",
     "start": "node -r @babel/register ./.erb/scripts/CheckPortInUse.js && cross-env yarn start:renderer",
     "start:main": "cross-env NODE_ENV=development electron -r ./.erb/scripts/BabelRegister ./src/main.dev.ts",
-    "start:renderer": "cross-env NODE_ENV=development webpack serve --config ./.erb/configs/webpack.config.renderer.dev.babel.js",
-    "test": "jest"
+    "start:renderer": "yarn run watch:css && cross-env NODE_ENV=development webpack serve --config ./.erb/configs/webpack.config.renderer.dev.babel.js",
+    "test": "jest",
+    "watch:css": "postcss src/frontend/assets/tailwind.css -o src/frontend/assets/main.css"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -180,14 +181,17 @@
     "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/history": "4.7.6",
     "@types/jest": "^26.0.15",
+    "@types/lodash": "^4.14.168",
     "@types/node": "14.14.10",
     "@types/react": "^16.9.44",
     "@types/react-dom": "^16.9.9",
+    "@types/react-redux": "^7.1.16",
     "@types/react-router-dom": "^5.1.6",
     "@types/react-test-renderer": "^16.9.3",
     "@types/webpack-env": "^1.15.2",
     "@typescript-eslint/eslint-plugin": "^4.8.1",
     "@typescript-eslint/parser": "^4.8.1",
+    "autoprefixer": "^10.2.4",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.1.0",
     "babel-loader": "^8.2.2",
@@ -224,19 +228,22 @@
     "eslint-plugin-react": "^7.20.6",
     "eslint-plugin-react-hooks": "^4.0.8",
     "file-loader": "^6.0.0",
-    "husky": "^4.2.5",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^26.1.0",
     "lint-staged": "^10.2.11",
     "mini-css-extract-plugin": "^1.3.1",
     "node-sass": "^5.0.0",
     "opencollective-postinstall": "^2.0.3",
+    "postcss": "^8.2.6",
+    "postcss-cli": "^8.3.1",
     "prettier": "^2.0.5",
     "react-refresh": "^0.9.0",
     "react-test-renderer": "^17.0.1",
     "rimraf": "^3.0.0",
     "sass-loader": "^10.1.0",
+    "shx": "^0.3.3",
     "style-loader": "^2.0.0",
+    "tailwindcss": "^2.0.3",
     "terser-webpack-plugin": "^5.0.3",
     "typescript": "^4.0.5",
     "url-loader": "^4.1.0",
@@ -248,14 +255,29 @@
     "yarn-deduplicate": "^3.1.0"
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/lab": "^4.0.0-alpha.57",
+    "adb-ts": "^1.2.0",
+    "bluebird": "^3.7.2",
     "electron-debug": "^3.1.0",
     "electron-log": "^4.2.4",
     "electron-updater": "^4.3.4",
+    "emulator-ts": "^1.0.0",
+    "fireworks": "^2.2.7",
+    "fs": "^0.0.1-security",
     "history": "^5.0.0",
+    "lodash": "^4.17.20",
+    "path": "^0.12.7",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "react-router-dom": "^5.2.0",
+    "react-draggable": "^4.4.3",
+    "react-flexbox-grid": "^2.1.2",
+    "react-icons": "^4.1.0",
+    "react-redux": "^7.2.2",
+    "redux": "^4.0.5",
+    "redux-thunk": "^2.3.0",
     "regenerator-runtime": "^0.13.5",
+    "remove": "^0.1.5",
     "source-map-support": "^0.5.19"
   },
   "devEngines": {
@@ -289,10 +311,5 @@
     "baseBranches": [
       "next"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   }
 }

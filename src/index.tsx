@@ -1,5 +1,13 @@
 import React from 'react';
 import { render } from 'react-dom';
-import App from './App';
+import { Provider } from 'react-redux';
+import './frontend/assets/custom.css';
+import './frontend/assets/main.css';
+import store from './frontend/redux/store';
+import Root from './frontend/Root';
 
-render(<App />, document.getElementById('root'));
+
+render(
+  <Provider store={store}>
+    <Root></Root>
+  </Provider>, document.getElementById('root'));

@@ -1,0 +1,8 @@
+body {
+  background-color: #6c7580;
+  color: white;
+  overflow: hidden;
+}
+.react-draggable {
+  float: left;
+}

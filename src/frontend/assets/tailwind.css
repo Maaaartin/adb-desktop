@@ -1,0 +1,14 @@
+@tailwind base;
+
+@tailwind components;
+
+@tailwind utilities;
+
+@layer utilities {
+  .m-1\/4 {
+    margin: 25%;
+  }
+   .m-1\/20 {
+    margin: 5%;
+  }
+}

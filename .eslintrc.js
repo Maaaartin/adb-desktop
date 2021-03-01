@@ -3,6 +3,16 @@ module.exports = {
   rules: {
     // A temporary hack related to IDE not resolving correct package.json
     'import/no-extraneous-dependencies': 'off',
+    'react/prefer-stateless-function': 'off',
+    'prettier/prettier': 'off',
+    'react/sort-comp': 'off',
+    'class-methods-use-this': 'off',
+    '@typescript-eslint/lines-between-class-members': 'off',
+    'react/no-unused-state': 'warn',
+    '@typescript-eslint/no-shadow': 'off',
+    'import/no-cycle': 'off',
+    'no-restricted-syntax': 'off',
+    'react/jsx-key': 'off'
   },
   parserOptions: {
     ecmaVersion: 2020,
