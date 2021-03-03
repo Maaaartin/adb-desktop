@@ -28,7 +28,7 @@ const DeviceCards = (props: any) => {
                 marginBottom: '5px',
               }}
             >
-              <CardHeader title={id} />
+              <CardHeader title={id} className="break-all" />
               <CardContent>
                 {device.state}
                 <Row>

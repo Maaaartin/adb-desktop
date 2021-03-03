@@ -25,10 +25,10 @@ const AdbStatusPanel = (props: any) => {
       title={'ADB'}
     >
       <Row style={{ height: '30%' }}>
-        <Col sm={2}>
+        <Col className="ml-3">
           <Typography>ADB</Typography>
         </Col>
-        <Col sm={10}>
+        <Col className="ml-1">
           <FaCircle size="20" color={color} />
         </Col>
       </Row>

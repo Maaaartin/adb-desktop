@@ -120,7 +120,7 @@ class Tabs extends Component<Props, State> {
           <div
             key={index}
             style={{ width: '95%' }}
-            className={`rounded-lg bg-gray-400${
+            className={`ml-4 rounded-lg bg-gray-400${
               selected === tab.id ? '' : ' hidden'
             }`}
           >

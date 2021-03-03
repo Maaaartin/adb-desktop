@@ -151,13 +151,13 @@ class Root extends Component<any, any> {
           between="xs"
           className="text-black bg-gray-400 sticky bottom-0"
         >
-          <Col sm={3}>
+          <Col xs={3}>
             <AdbStatusDisplay />
           </Col>
-          <Col sm={3}>
+          <Col xs={3}>
             <Link>Docs</Link>
           </Col>
-          <Col sm={3} className="font-mono text-right">
+          <Col xs={3} className="font-mono text-right mr-2">
             © Martin Svoboda
           </Col>
         </Row>
