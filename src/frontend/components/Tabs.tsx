@@ -70,65 +70,68 @@ class Tabs extends Component<Props, State> {
 
   render() {
     const { tabs, selected, dragged } = this.state;
-    return [
-      <Row>
-        <ul className="overflow-scroll table">
-          {tabs.map((tab, index) => {
-            return (
-              <Draggable
-                axis="both"
-                handle=".handle"
-                defaultPosition={{ x: 0, y: 0 }}
-                position={{ x: 0, y: 0 }}
-                grid={[25, 25]}
-                scale={1}
-                onStop={this.onStop}
-                onDrag={() => this.onDrag(tab.id)}
-              >
-                <li
+    return (
+      <div style={{ height: '100%' }}>
+        <Row>
+          <ul className="overflow-scroll table">
+            {tabs.map((tab, index) => {
+              return (
+                <Draggable
                   key={index}
-                  className="float-left handle cursor-pointer p-2 overflow-hidden"
-                  id={tab.id}
-                  onClick={() => this.onSelect(tab.id)}
+                  axis="both"
+                  handle=".handle"
+                  defaultPosition={{ x: 0, y: 0 }}
+                  position={{ x: 0, y: 0 }}
+                  grid={[25, 25]}
+                  scale={1}
+                  onStop={this.onStop}
+                  onDrag={() => this.onDrag(tab.id)}
                 >
-                  {dragged === tab.id ? (
-                    '|'
-                  ) : (
-                    <Chip
-                      style={
-                        dragged && dragged != tab.id
-                          ? {
-                              backgroundColor: 'transparent',
-                              border: 'solid 1px',
-                            }
-                          : selected === tab.id
-                          ? { backgroundColor: '#b1b3b5' }
-                          : {}
-                      }
-                      label={tab.name}
-                      onDelete={() => this.onClose(tab.id)}
-                    />
-                  )}
-                </li>
-              </Draggable>
-            );
-          })}
-        </ul>
-      </Row>,
-      <Row>
-        {tabs.map((tab, index) => (
-          <div
-            key={index}
-            style={{ width: '95%' }}
-            className={`ml-4 rounded-lg bg-gray-400${
-              selected === tab.id ? '' : ' hidden'
-            }`}
-          >
-            {tab.content}
-          </div>
-        ))}
-      </Row>,
-    ];
+                  <li
+                    key={index}
+                    className="float-left handle cursor-pointer p-2 overflow-hidden"
+                    id={tab.id}
+                    onClick={() => this.onSelect(tab.id)}
+                  >
+                    {dragged === tab.id ? (
+                      '|'
+                    ) : (
+                      <Chip
+                        style={
+                          dragged && dragged != tab.id
+                            ? {
+                                backgroundColor: 'transparent',
+                                border: 'solid 1px',
+                              }
+                            : selected === tab.id
+                            ? { backgroundColor: '#b1b3b5' }
+                            : {}
+                        }
+                        label={tab.name}
+                        onDelete={() => this.onClose(tab.id)}
+                      />
+                    )}
+                  </li>
+                </Draggable>
+              );
+            })}
+          </ul>
+        </Row>
+        <Row style={{ height: 'calc(100% - 115px)' }}>
+          {tabs.map((tab, index) => (
+            <div
+              key={index}
+              style={{ width: '95%', height: '95%' }}
+              className={`ml-4 rounded-lg bg-gray-400${
+                selected === tab.id ? '' : ' hidden'
+              }`}
+            >
+              {tab.content}
+            </div>
+          ))}
+        </Row>
+      </div>
+    );
   }
 }
 

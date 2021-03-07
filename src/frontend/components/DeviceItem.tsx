@@ -16,6 +16,7 @@ type Props<T> = {
   createItem?: (item: [string, T]) => any;
   onSearch?: (item: [string, T], text: string) => boolean;
   valueToString?: (item: [string, T]) => string;
+  serial: string;
 } & DetailedHTMLProps<HTMLAttributes, any>;
 
 type State<T> = {
@@ -62,6 +63,7 @@ class DeviceItem<T> extends Component<Props<T>, State<T>> {
       getter,
       tabAdd,
       valueToString,
+      serial,
     } = this.props as PropsRedux<T>;
     const { open, collection, search } = this.state;
     const hasProps = !!onSearch && !!getter && !!createItem;
@@ -101,6 +103,8 @@ class DeviceItem<T> extends Component<Props<T>, State<T>> {
                             createItem={createItem}
                             onSearch={onSearch}
                             valueToString={valueToString}
+                            tag={tag}
+                            serial={serial}
                           />
                         )
                       )

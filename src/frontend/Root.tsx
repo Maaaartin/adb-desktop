@@ -7,7 +7,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { ipcRenderer as ipc } from 'electron';
-import { get as getProp } from 'lodash';
+import { get as getProp, isEmpty as emp } from 'lodash';
 import React, { Component } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
 import { FaAndroid, FaCog, FaTerminal } from 'react-icons/fa';
@@ -52,6 +52,7 @@ class Root extends Component<any, any> {
     } = props as PropsRedux;
 
     ipc.on(ADB_SETTINGS_LOAD, (event, data) => {
+      if (emp(data)) this.onSelect('settings');
       loadAdbSettings(data);
     });
 
@@ -83,8 +84,7 @@ class Root extends Component<any, any> {
     this.onSelect = this.onSelect.bind(this);
   }
 
-  onSelect(props: { type: string; id?: string }) {
-    const { type, id } = props;
+  onSelect(type: string) {
     const { tabAdd, tabDel } = this.props as PropsRedux;
     switch (type) {
       case 'settings':
@@ -113,24 +113,24 @@ class Root extends Component<any, any> {
 
   render() {
     return (
-      <div className="relative">
-        <Row top="xs" style={{ height: 'calc(100vh - 0px)' }}>
+      <div className="h-screen">
+        <Row top="xs" style={{ height: 'calc(100% - 80px)' }}>
           <Col sm={3} style={{ marginRight: '17px' }}>
             <Divider />
             <MenuList>
-              <MenuItem onClick={() => this.onSelect({ type: 'settings' })}>
+              <MenuItem onClick={() => this.onSelect('settings')}>
                 <ListItemIcon>
                   <FaCog size="25" />
                 </ListItemIcon>
                 <Typography variant="inherit">Settings</Typography>
               </MenuItem>
-              <MenuItem onClick={() => this.onSelect({ type: 'devices' })}>
+              <MenuItem onClick={() => this.onSelect('devices')}>
                 <ListItemIcon>
                   <FaAndroid size="25" />
                 </ListItemIcon>
                 <Typography variant="inherit">Devices</Typography>
               </MenuItem>
-              <MenuItem onClick={() => this.onSelect({ type: 'adb' })}>
+              <MenuItem onClick={() => this.onSelect('adb')}>
                 <ListItemIcon>
                   <FaTerminal size="25" />
                 </ListItemIcon>
@@ -141,11 +141,12 @@ class Root extends Component<any, any> {
             <DeviceCards />
             <Divider />
           </Col>
-          <Col sm={8}>
+          <Col sm={8} className="h-full">
             <Tabs />
           </Col>
         </Row>
         <Row
+          style={{ height: '80px' }}
           middle="xs"
           top="xs"
           between="xs"

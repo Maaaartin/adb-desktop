@@ -15,8 +15,11 @@ import Scrollable from './Scrollable';
 const DeviceCards = (props: any) => {
   const { devices, tabAdd, tabDel } = props as PropsRedux;
   return (
-    <Scrollable>
-      <div className="overflow-y-scroll pr-1">
+    <Scrollable className="pt-1 pb-1">
+      <div
+        className="overflow-hidden overflow-y-scroll pr-1"
+        style={{ height: 'calc(77vh - 80px)' }}
+      >
         {devices.map((device, index) => {
           const { id, state } = device;
           const isEmulator = state === 'emulator';

@@ -176,7 +176,7 @@ class Console extends Component<Props, State> {
     const { logs, cmd, firework, execution } = this.state;
     const { id, openShell, tag } = this.props;
     return (
-      <div className=" font-mono" style={{ width: '149%' }}>
+      <div className="font-mono h-full w-full">
         {firework && (
           <Fireworks
             {...{
@@ -199,7 +199,7 @@ class Console extends Component<Props, State> {
         <ul
           ref={this.list}
           className="border border-solid border-white-500 bg-black overflow-scroll overflow-x-hidden whitespace-pre-wrap"
-          style={{ width: '67%', height: 'calc(70vh - 100px)' }}
+          style={{ width: '100%', height: 'calc(100% - 60px)' }}
         >
           {logs.map((line, index) => {
             return (

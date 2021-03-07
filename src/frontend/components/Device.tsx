@@ -118,6 +118,7 @@ const Device = (props: Props) => {
       <Divider />
       <Collapse in={open}>
         <DeviceItem
+          serial={id}
           tag="Battery"
           getter={(cb) => {
             getBattery(id, (err, output: Dictionary<any>) => {
@@ -135,6 +136,7 @@ const Device = (props: Props) => {
           valueToString={(item) => item[0]}
         />
         <DeviceItem
+          serial={id}
           tag="Properties"
           getter={(cb) => {
             getProps(id, (err, output: Dictionary<any>) => {
@@ -152,8 +154,9 @@ const Device = (props: Props) => {
           valueToString={(item) => item[0]}
         />
 
-        <DeviceItem tag="Settings">
+        <DeviceItem tag="Settings" serial={id}>
           <DeviceItem
+            serial={id}
             tag="Global"
             style={{ marginLeft: '5px' }}
             getter={(cb) => {
@@ -172,6 +175,7 @@ const Device = (props: Props) => {
             valueToString={(item) => item[0]}
           />
           <DeviceItem
+            serial={id}
             style={{ marginLeft: '5px' }}
             tag="System"
             getter={(cb) => {
@@ -190,6 +194,7 @@ const Device = (props: Props) => {
             valueToString={(item) => item[0]}
           />
           <DeviceItem
+            serial={id}
             style={{ marginLeft: '5px' }}
             tag="Secure"
             getter={(cb) => {
@@ -209,6 +214,7 @@ const Device = (props: Props) => {
           />
         </DeviceItem>
         <DeviceItem
+          serial={id}
           tag="Features"
           getter={(cb) => {
             getFeatures(id, (err, output: Dictionary<any>) => {
@@ -227,6 +233,7 @@ const Device = (props: Props) => {
           valueToString={(item) => item[0]}
         />
         <DeviceItem
+          serial={id}
           tag="Packages"
           getter={(cb: (output: Dictionary<string>) => void) => {
             getPackages(id, (err, output) => {

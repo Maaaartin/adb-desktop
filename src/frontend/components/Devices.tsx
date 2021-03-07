@@ -18,7 +18,7 @@ const Devices = (props: any) => {
         {emp(devices) ? (
           <span>No devices connected</span>
         ) : (
-          devices.map((d) => <Device device={d} />)
+          devices.map((d, index) => <Device key={index} device={d} />)
         )}
       </Grid>
     </Scrollable>

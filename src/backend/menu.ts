@@ -3,16 +3,45 @@ import AdbDevice from 'adb-ts/lib/device';
 import {
   app,
   BrowserWindow,
-  ipcMain as ipc, Menu,
-  MenuItemConstructorOptions, shell
+  ipcMain as ipc,
+  Menu,
+  MenuItemConstructorOptions,
+  shell,
 } from 'electron';
-import { EXEC_ADB, GET_BATTERY, EXEC_DEVICE, EXEC_EMULATOR, EXEC_MONKEY, OPEN_ADB, OPEN_ADB_SHELL, OPEN_EMULATOR, SAVE_HISTORY, GET_PROPS, GET_SETTINGS, GET_FEATURES, GET_PACKAGES, GET_SETTINGS_GLOBAL, GET_SETTINGS_SECURE, GET_SETTINGS_SYSTEM, TOGGLE_ADB } from '../constants';
-import { ADB_SETTINGS_LOAD, ADB_SETTINGS_WRITE, DEVICE_CHANGE, LOAD_HISTORY, LOAD_TOKEN, WRITE_TOKEN, ADB_STATUS, WRITE_CONSOLE_SETTINGS, LOAD_CONSOLE_SETTINGS } from '../frontend/redux/actionTypes';
+import {
+  EXEC_ADB,
+  GET_BATTERY,
+  EXEC_DEVICE,
+  EXEC_EMULATOR,
+  EXEC_MONKEY,
+  OPEN_ADB,
+  OPEN_ADB_SHELL,
+  OPEN_EMULATOR,
+  SAVE_HISTORY,
+  GET_PROPS,
+  GET_SETTINGS,
+  GET_FEATURES,
+  GET_PACKAGES,
+  GET_SETTINGS_GLOBAL,
+  GET_SETTINGS_SECURE,
+  GET_SETTINGS_SYSTEM,
+  TOGGLE_ADB,
+} from '../constants';
+import {
+  ADB_SETTINGS_LOAD,
+  ADB_SETTINGS_WRITE,
+  DEVICE_CHANGE,
+  LOAD_HISTORY,
+  LOAD_TOKEN,
+  WRITE_TOKEN,
+  ADB_STATUS,
+  WRITE_CONSOLE_SETTINGS,
+  LOAD_CONSOLE_SETTINGS,
+} from '../frontend/redux/actionTypes';
 import AdbHandler from './adb';
 import EmulatorHandler from './emulator';
 import OpenShell from './OpenShell';
 import Preferences from './Preferences';
-
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -41,23 +70,24 @@ export default class MenuBuilder {
       // const dev1: AdbDevice = {
       //   id: 'one',
       //   state: 'device',
-      //   transport: 'usb'
-      // }
+      //   transport: 'usb',
+      // };
       // const dev2: AdbDevice = {
       //   id: 'twho',
       //   state: 'device',
-      //   transport: 'usb'
-      // }
+      //   transport: 'usb',
+      // };
       // const dev3: AdbDevice = {
       //   id: 'three',
       //   state: 'device',
-      //   transport: 'usb'
-      // }
+      //   transport: 'usb',
+      // };
       // const dev4: AdbDevice = {
       //   id: 'foud',
       //   state: 'device',
-      //   transport: 'usb'
-      // }
+      //   transport: 'usb',
+      // };
+
       // this.send(DEVICE_CHANGE, { id: dev1.id, data: dev1 });
       // this.send(DEVICE_CHANGE, { id: dev2.id, data: dev2 });
       // this.send(DEVICE_CHANGE, { id: dev3.id, data: dev3 });
@@ -96,7 +126,7 @@ export default class MenuBuilder {
       this.send(ADB_STATUS, {
         running: true,
         error: null,
-        status: 'starting'
+        status: 'starting',
       });
     });
 
@@ -104,7 +134,7 @@ export default class MenuBuilder {
       this.send(ADB_STATUS, {
         running: true,
         error: null,
-        status: 'running'
+        status: 'running',
       });
     });
 
@@ -112,7 +142,7 @@ export default class MenuBuilder {
       this.send(ADB_STATUS, {
         running: false,
         error: null,
-        status: 'stopped'
+        status: 'stopped',
       });
     });
 
@@ -120,7 +150,7 @@ export default class MenuBuilder {
       this.send(ADB_STATUS, {
         running: false,
         error: err,
-        status: 'error'
+        status: 'error',
       });
     });
   }
@@ -197,8 +227,7 @@ export default class MenuBuilder {
       const running = this.adbHandler.running;
       if (running) {
         this.adbHandler.stop();
-      }
-      else {
+      } else {
         this.adbHandler.start();
       }
     });
@@ -225,15 +254,16 @@ export default class MenuBuilder {
       Promise.all([
         client.listSettings(serial, 'global'),
         client.listSettings(serial, 'secure'),
-        client.listSettings(serial, 'system')
+        client.listSettings(serial, 'system'),
       ])
         .then((res) => {
           this.send(GET_SETTINGS, {
-            id, output: {
+            id,
+            output: {
               global: res[0],
               secure: res[1],
-              system: res[2]
-            }
+              system: res[2],
+            },
           });
         })
         .catch((error) => {
@@ -243,23 +273,29 @@ export default class MenuBuilder {
 
     ipc.on(GET_SETTINGS_GLOBAL, (event, data) => {
       const { serial, id } = data;
-      this.adbHandler.getClient().listSettings(serial, 'global', (error, value) => {
-        this.send(GET_SETTINGS_GLOBAL, { id, output: value || {}, error });
-      });
+      this.adbHandler
+        .getClient()
+        .listSettings(serial, 'global', (error, value) => {
+          this.send(GET_SETTINGS_GLOBAL, { id, output: value || {}, error });
+        });
     });
 
     ipc.on(GET_SETTINGS_SECURE, (event, data) => {
       const { serial, id } = data;
-      this.adbHandler.getClient().listSettings(serial, 'secure', (error, value) => {
-        this.send(GET_SETTINGS_SECURE, { id, output: value || {}, error });
-      });
+      this.adbHandler
+        .getClient()
+        .listSettings(serial, 'secure', (error, value) => {
+          this.send(GET_SETTINGS_SECURE, { id, output: value || {}, error });
+        });
     });
 
     ipc.on(GET_SETTINGS_SYSTEM, (event, data) => {
       const { serial, id } = data;
-      this.adbHandler.getClient().listSettings(serial, 'system', (error, value) => {
-        this.send(GET_SETTINGS_SYSTEM, { id, output: value || {}, error });
-      });
+      this.adbHandler
+        .getClient()
+        .listSettings(serial, 'system', (error, value) => {
+          this.send(GET_SETTINGS_SYSTEM, { id, output: value || {}, error });
+        });
     });
 
     ipc.on(GET_FEATURES, (event, data) => {
@@ -448,7 +484,7 @@ export default class MenuBuilder {
 
     const subMenuView =
       process.env.NODE_ENV === 'development' ||
-        process.env.DEBUG_PROD === 'true'
+      process.env.DEBUG_PROD === 'true'
         ? subMenuViewDev
         : subMenuViewProd;
 
@@ -477,43 +513,43 @@ export default class MenuBuilder {
         label: '&View',
         submenu:
           process.env.NODE_ENV === 'development' ||
-            process.env.DEBUG_PROD === 'true'
+          process.env.DEBUG_PROD === 'true'
             ? [
-              {
-                label: '&Reload',
-                accelerator: 'Ctrl+R',
-                click: () => {
-                  this.mainWindow.webContents.reload();
+                {
+                  label: '&Reload',
+                  accelerator: 'Ctrl+R',
+                  click: () => {
+                    this.mainWindow.webContents.reload();
+                  },
                 },
-              },
-              {
-                label: 'Toggle &Full Screen',
-                accelerator: 'F11',
-                click: () => {
-                  this.mainWindow.setFullScreen(
-                    !this.mainWindow.isFullScreen()
-                  );
+                {
+                  label: 'Toggle &Full Screen',
+                  accelerator: 'F11',
+                  click: () => {
+                    this.mainWindow.setFullScreen(
+                      !this.mainWindow.isFullScreen()
+                    );
+                  },
                 },
-              },
-              {
-                label: 'Toggle &Developer Tools',
-                accelerator: 'Alt+Ctrl+I',
-                click: () => {
-                  this.mainWindow.webContents.toggleDevTools();
+                {
+                  label: 'Toggle &Developer Tools',
+                  accelerator: 'Alt+Ctrl+I',
+                  click: () => {
+                    this.mainWindow.webContents.toggleDevTools();
+                  },
                 },
-              },
-            ]
+              ]
             : [
-              {
-                label: 'Toggle &Full Screen',
-                accelerator: 'F11',
-                click: () => {
-                  this.mainWindow.setFullScreen(
-                    !this.mainWindow.isFullScreen()
-                  );
+                {
+                  label: 'Toggle &Full Screen',
+                  accelerator: 'F11',
+                  click: () => {
+                    this.mainWindow.setFullScreen(
+                      !this.mainWindow.isFullScreen()
+                    );
+                  },
                 },
-              },
-            ],
+              ],
       },
       {
         label: 'Help',

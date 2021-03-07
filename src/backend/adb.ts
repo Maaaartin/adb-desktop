@@ -1,3 +1,4 @@
+import { clone } from 'lodash';
 import { AdbClient, AdbClientOptions, IAdbDevice, Tracker } from 'adb-ts';
 import Monkey from 'adb-ts/lib/monkey/client';
 import { Dictionary } from 'lodash';
@@ -49,6 +50,7 @@ export default class AdbHandler extends EventEmitter {
   }
 
   start(options?: AdbClientOptions) {
+    options = clone(options);
     if (options) {
       Preferences.save('adb', options);
       this.adb = new AdbClient(options);
@@ -57,8 +59,7 @@ export default class AdbHandler extends EventEmitter {
       this.stop(() => {
         this.startInternal();
       });
-    }
-    else {
+    } else {
       this.startInternal();
     }
   }
@@ -76,7 +77,7 @@ export default class AdbHandler extends EventEmitter {
   }
 
   getAdbOptions(): AdbClientOptions {
-    return Preferences.get('adb')
+    return Preferences.get('adb');
   }
 
   getMonkey(serial: string, cb?: (err: Error, monkey: Monkey) => void) {
@@ -106,13 +107,11 @@ export default class AdbHandler extends EventEmitter {
             }
           });
         }
-      })
-        .catch(() => {
-          return internal(serial);
-        });
-    }
-    return internal(serial)
-      .nodeify(cb);
+      }).catch(() => {
+        return internal(serial);
+      });
+    };
+    return internal(serial).nodeify(cb);
   }
 
   on(event: 'remove', listener: (device: IAdbDevice) => void): this;
