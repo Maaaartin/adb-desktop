@@ -9,13 +9,19 @@ import IconBtn from './IconBtn';
 import { Tab, tabAdd } from '../redux/actions';
 import { connect, ConnectedProps } from 'react-redux';
 import MetaWindow from './MetaWindow';
+import StyledValue from './StyledValue';
 
 type Props<T> = {
   getter?: (cb: (output: Dictionary<T>) => void) => void;
   tag: string;
-  createItem?: (item: [string, T]) => any;
   onSearch?: (item: [string, T], text: string) => boolean;
   valueToString?: (item: [string, T]) => string;
+  itemMaker?: {
+    createKey?: (item: [string, T]) => string;
+    createValue?: (item: [string, T]) => string;
+    delimiter?: string;
+    styleValue?: boolean;
+  };
   serial: string;
 } & DetailedHTMLProps<HTMLAttributes, any>;
 
@@ -56,7 +62,7 @@ class DeviceItem<T> extends Component<Props<T>, State<T>> {
     const {
       style,
       className,
-      createItem,
+      itemMaker,
       children,
       tag,
       onSearch,
@@ -66,7 +72,7 @@ class DeviceItem<T> extends Component<Props<T>, State<T>> {
       serial,
     } = this.props as PropsRedux<T>;
     const { open, collection, search } = this.state;
-    const hasProps = !!onSearch && !!getter && !!createItem;
+    const hasProps = !!onSearch && !!getter && !!itemMaker;
     const arr = Object.entries(collection).filter((item) => {
       if (!onSearch || !search) return true;
       else return onSearch(item, search);
@@ -92,7 +98,7 @@ class DeviceItem<T> extends Component<Props<T>, State<T>> {
                 onClick={() => {
                   getter &&
                     onSearch &&
-                    createItem &&
+                    itemMaker &&
                     valueToString &&
                     tabAdd(
                       new Tab(
@@ -100,7 +106,7 @@ class DeviceItem<T> extends Component<Props<T>, State<T>> {
                         (
                           <MetaWindow
                             getter={getter}
-                            createItem={createItem}
+                            itemMaker={itemMaker}
                             onSearch={onSearch}
                             valueToString={valueToString}
                             tag={tag}
@@ -140,7 +146,14 @@ class DeviceItem<T> extends Component<Props<T>, State<T>> {
                     key={index}
                     className={index % 2 === 0 ? 'bg-gray-400' : ''}
                   >
-                    {createItem?.(item)}
+                    {itemMaker && [
+                      itemMaker.createKey && itemMaker.createKey(item),
+                      itemMaker.delimiter && itemMaker.delimiter,
+                      itemMaker.createValue &&
+                        (itemMaker.styleValue
+                          ? StyledValue(itemMaker.createValue(item))
+                          : itemMaker.createValue(item)),
+                    ]}
                   </li>
                 );
               })}

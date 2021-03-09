@@ -27,7 +27,6 @@ import EmulatorConsole from './consoles/EmulatorConsole';
 import MonkeyConsole from './consoles/MonkeyConsole';
 import DeviceItem from './DeviceItem';
 import IconBtn from './IconBtn';
-import StyledValue from './StyledValue';
 
 type Props = { device: AdbDevice };
 
@@ -125,12 +124,11 @@ const Device = (props: Props) => {
               cb(output);
             });
           }}
-          createItem={(item: [string, any]) => {
-            return (
-              <>
-                {item[0]}: {StyledValue(item[1])}
-              </>
-            );
+          itemMaker={{
+            createKey: (item: [string, any]) => item[0],
+            createValue: (item: [string, any]) => item[1],
+            delimiter: ': ',
+            styleValue: true,
           }}
           onSearch={(item, text) => item[0].includes(text)}
           valueToString={(item) => item[0]}
@@ -143,12 +141,11 @@ const Device = (props: Props) => {
               cb(output);
             });
           }}
-          createItem={(item: [string, any]) => {
-            return (
-              <>
-                {item[0]}: {StyledValue(item[1])}
-              </>
-            );
+          itemMaker={{
+            createKey: (item: [string, any]) => item[0],
+            createValue: (item: [string, any]) => item[1],
+            delimiter: ': ',
+            styleValue: true,
           }}
           onSearch={(item, text) => item[0].includes(text)}
           valueToString={(item) => item[0]}
@@ -164,12 +161,11 @@ const Device = (props: Props) => {
                 cb(output);
               });
             }}
-            createItem={(item: [string, any]) => {
-              return (
-                <>
-                  {item[0]}: {StyledValue(item[1])}
-                </>
-              );
+            itemMaker={{
+              createKey: (item: [string, any]) => item[0],
+              createValue: (item: [string, any]) => item[1],
+              delimiter: ': ',
+              styleValue: true,
             }}
             onSearch={(item, text) => item[0].includes(text)}
             valueToString={(item) => item[0]}
@@ -183,12 +179,11 @@ const Device = (props: Props) => {
                 cb(output);
               });
             }}
-            createItem={(item: [string, any]) => {
-              return (
-                <>
-                  {item[0]}: {StyledValue(item[1])}
-                </>
-              );
+            itemMaker={{
+              createKey: (item: [string, any]) => item[0],
+              createValue: (item: [string, any]) => item[1],
+              delimiter: ': ',
+              styleValue: true,
             }}
             onSearch={(item, text) => item[0].includes(text)}
             valueToString={(item) => item[0]}
@@ -202,12 +197,11 @@ const Device = (props: Props) => {
                 cb(output);
               });
             }}
-            createItem={(item: [string, any]) => {
-              return (
-                <>
-                  {item[0]}: {StyledValue(item[1])}
-                </>
-              );
+            itemMaker={{
+              createKey: (item: [string, any]) => item[0],
+              createValue: (item: [string, any]) => item[1],
+              delimiter: ': ',
+              styleValue: true,
             }}
             onSearch={(item, text) => item[0].includes(text)}
             valueToString={(item) => item[0]}
@@ -221,13 +215,12 @@ const Device = (props: Props) => {
               cb(output);
             });
           }}
-          createItem={(item: [string, any]) => {
-            return (
-              <span>
-                {item[0]}
-                {item[1] !== true && <span>: {StyledValue(item[1])}</span>}
-              </span>
-            );
+          itemMaker={{
+            createKey: (item: [string, any]) => item[0],
+            createValue: (item: [string, any]) =>
+              item[1] !== true ? item[1] : '',
+            delimiter: ': ',
+            styleValue: true,
           }}
           onSearch={(item, text) => item[0].includes(text)}
           valueToString={(item) => item[0]}
@@ -242,7 +235,9 @@ const Device = (props: Props) => {
               cb(map);
             });
           }}
-          createItem={(item) => item[1]}
+          itemMaker={{
+            createValue: (item: [string, any]) => item[1],
+          }}
           onSearch={(item, text) => (item[1] as string).includes(text)}
           valueToString={(item) => item[1] as string}
         />
