@@ -26,6 +26,14 @@ import {
   GET_SETTINGS_SECURE,
   GET_SETTINGS_SYSTEM,
   TOGGLE_ADB,
+  SET_PROP,
+  PUT_SETTING_GLOBAL,
+  PUT_SETTING_SECURE,
+  PUT_SETTING_SYSTEM,
+  GET_SETTING_GLOBAL,
+  GET_SETTING_SECURE,
+  GET_SETTING_SYSTEM,
+  GET_PROP,
 } from '../constants';
 import {
   ADB_SETTINGS_LOAD,
@@ -58,11 +66,12 @@ export default class MenuBuilder {
     this.adbHandler = new AdbHandler();
     this.emulatorHandler = new EmulatorHandler();
 
-    this.hookGet();
+    this.hookGetters();
     this.hookWindow();
     this.hookActions();
     this.hookExec();
     this.hookAdbHandler();
+    this.hookSetters();
   }
 
   private hookWindow() {
@@ -233,7 +242,7 @@ export default class MenuBuilder {
     });
   }
 
-  private hookGet() {
+  private hookGetters() {
     ipc.on(GET_BATTERY, (event, data) => {
       const { serial, id } = data;
       this.adbHandler.getClient().batteryStatus(serial, (error, value) => {
@@ -310,6 +319,92 @@ export default class MenuBuilder {
       this.adbHandler.getClient().listPackages(serial, (error, value) => {
         this.send(GET_PACKAGES, { id, output: value || [], error });
       });
+    });
+
+    ipc.on(GET_SETTING_GLOBAL, (event, data) => {
+      const { serial, id, key } = data;
+      this.adbHandler
+        .getClient()
+        .getSetting(serial, 'global', key, (error, value) => {
+          this.send(GET_SETTING_GLOBAL, {
+            id,
+            output: value,
+            error,
+          });
+        });
+    });
+
+    ipc.on(GET_SETTING_SECURE, (event, data) => {
+      const { serial, id, key } = data;
+      this.adbHandler
+        .getClient()
+        .getSetting(serial, 'secure', key, (error, value) => {
+          this.send(GET_SETTING_SECURE, {
+            id,
+            output: value,
+            error,
+          });
+        });
+    });
+
+    ipc.on(GET_SETTING_SYSTEM, (event, data) => {
+      const { serial, id, key } = data;
+      this.adbHandler
+        .getClient()
+        .getSetting(serial, 'system', key, (error, value) => {
+          this.send(GET_SETTING_SYSTEM, {
+            id,
+            output: value,
+            error,
+          });
+        });
+    });
+
+    ipc.on(GET_PROP, (event, data) => {
+      const { serial, id, key } = data;
+      this.adbHandler.getClient().getProp(serial, key, (error, value) => {
+        this.send(GET_PROP, {
+          id,
+          output: value,
+          error,
+        });
+      });
+    });
+  }
+
+  private hookSetters() {
+    ipc.on(SET_PROP, (event, data) => {
+      const { serial, id, key, value } = data;
+      this.adbHandler.getClient().setProp(serial, key, value, (error) => {
+        this.send(SET_PROP, { error, id });
+      });
+    });
+
+    ipc.on(PUT_SETTING_GLOBAL, (event, data) => {
+      const { serial, id, key, value } = data;
+      this.adbHandler
+        .getClient()
+        .putSetting(serial, 'global', key, value, (error) => {
+          this.send(PUT_SETTING_GLOBAL, { error, id });
+        });
+    });
+
+    ipc.on(PUT_SETTING_SECURE, (event, data) => {
+      const { serial, id, key, value } = data;
+      this.adbHandler
+        .getClient()
+        .putSetting(serial, 'secure', key, value, (error) => {
+          this.send(PUT_SETTING_SECURE, { error, id });
+        });
+    });
+
+    ipc.on(PUT_SETTING_SYSTEM, (event, data) => {
+      const { serial, id, key, value } = data;
+      this.adbHandler
+        .getClient()
+        .putSetting(serial, 'system', key, value, (error) => {
+          this.send(PUT_SETTING_SYSTEM, { error, id });
+        });
     });
   }
 

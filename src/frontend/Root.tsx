@@ -18,7 +18,7 @@ import DeviceCards from './components/DeviceCards';
 import Devices from './components/Devices';
 import Settings from './components/Settings';
 import Tabs from './components/Tabs';
-import { saveHistory } from './ipc';
+import { saveHistory } from './ipc/send';
 import {
   deviceChange,
   loadAdbSettings,

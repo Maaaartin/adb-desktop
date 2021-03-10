@@ -19,7 +19,8 @@ import {
   getSettingsGlobal,
   getSettingsSecure,
   getSettingsSystem,
-} from '../ipc';
+  getProp,
+} from '../ipc/getters';
 import { Tab, tabAdd, tabDel } from '../redux/actions';
 import CollapseButton from './CollapseButton';
 import DeviceConsole from './consoles/DeviceConsole';
@@ -146,6 +147,9 @@ const Device = (props: Props) => {
             createValue: (item: [string, any]) => item[1],
             delimiter: ': ',
             styleValue: true,
+            itemGetter: (key, cb) => {
+              getProp(id, key, cb);
+            },
           }}
           onSearch={(item, text) => item[0].includes(text)}
           valueToString={(item) => item[0]}

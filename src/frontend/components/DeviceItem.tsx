@@ -10,6 +10,7 @@ import { Tab, tabAdd } from '../redux/actions';
 import { connect, ConnectedProps } from 'react-redux';
 import MetaWindow from './MetaWindow';
 import StyledValue from './StyledValue';
+import Li from './Li';
 
 type Props<T> = {
   getter?: (cb: (output: Dictionary<T>) => void) => void;
@@ -21,6 +22,8 @@ type Props<T> = {
     createValue?: (item: [string, T]) => string;
     delimiter?: string;
     styleValue?: boolean;
+    itemSetter?: (value: string, cb?: (err: Error) => void) => void;
+    itemGetter?: (key: string, cb?: (err: Error, output: any) => void) => void;
   };
   serial: string;
 } & DetailedHTMLProps<HTMLAttributes, any>;
@@ -142,10 +145,7 @@ class DeviceItem<T> extends Component<Props<T>, State<T>> {
             <ul>
               {arr.map((item, index) => {
                 return (
-                  <li
-                    key={index}
-                    className={index % 2 === 0 ? 'bg-gray-400' : ''}
-                  >
+                  <Li index={index}>
                     {itemMaker && [
                       itemMaker.createKey && itemMaker.createKey(item),
                       itemMaker.delimiter && itemMaker.delimiter,
@@ -154,7 +154,7 @@ class DeviceItem<T> extends Component<Props<T>, State<T>> {
                           ? StyledValue(itemMaker.createValue(item))
                           : itemMaker.createValue(item)),
                     ]}
-                  </li>
+                  </Li>
                 );
               })}
             </ul>

@@ -4,7 +4,7 @@ import React from 'react';
 import { Col, Row } from 'react-flexbox-grid';
 import { FaCircle } from 'react-icons/fa';
 import { connect, ConnectedProps } from 'react-redux';
-import { toggleAdb } from '../ipc';
+import { toggleAdb } from '../ipc/send';
 import { AdbStatus, setAdbStatus } from '../redux/actions';
 
 const AdbStatusPanel = (props: any) => {
