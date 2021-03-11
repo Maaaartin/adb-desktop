@@ -4,6 +4,7 @@ import React, { Component, KeyboardEvent } from 'react';
 import { FaLink } from 'react-icons/fa';
 import { connect, ConnectedProps } from 'react-redux';
 import { addHistory, loadConsoleSettings } from '../redux/actions';
+import BlinkCursor from './BlinkCursor';
 import IconBtn from './IconBtn';
 
 type State = {
@@ -224,6 +225,7 @@ class Console extends Component<Props, State> {
                 className="text-white bg-black border-0 w-0"
               />
               <span className="break-all">{cmd}</span>
+              <BlinkCursor></BlinkCursor>
             </div>
           </li>
         </ul>

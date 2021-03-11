@@ -12,7 +12,7 @@ const Li = (
       key={index}
       style={{
         backgroundColor: index % 2 === 0 ? '#8f97a1' : '#9a9fa6',
-        height: '30px',
+        minHeight: '30px',
         ...style,
       }}
     >

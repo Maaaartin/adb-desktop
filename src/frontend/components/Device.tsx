@@ -9,7 +9,7 @@ import AdbDevice from 'adb-ts/lib/device';
 import { Dictionary } from 'lodash';
 import React, { useState } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
-import { FaMobileAlt, FaRobot, FaTerminal } from 'react-icons/fa';
+import { FaAnkh, FaMobileAlt, FaRobot, FaTerminal } from 'react-icons/fa';
 import { connect, ConnectedProps } from 'react-redux';
 import {
   getBattery,
@@ -20,7 +20,16 @@ import {
   getSettingsSecure,
   getSettingsSystem,
   getProp,
+  getSettingGlobal,
+  getSettingSecure,
+  getSettingSystem,
 } from '../ipc/getters';
+import {
+  setProp,
+  putSettingGlobal,
+  putSettingSecure,
+  putSettingSystem,
+} from '../ipc/setters';
 import { Tab, tabAdd, tabDel } from '../redux/actions';
 import CollapseButton from './CollapseButton';
 import DeviceConsole from './consoles/DeviceConsole';
@@ -147,9 +156,8 @@ const Device = (props: Props) => {
             createValue: (item: [string, any]) => item[1],
             delimiter: ': ',
             styleValue: true,
-            itemGetter: (key, cb) => {
-              getProp(id, key, cb);
-            },
+            itemGetter: (key, cb) => getProp(id, key, cb),
+            itemSetter: (key, value, cb) => setProp(id, key, value, cb),
           }}
           onSearch={(item, text) => item[0].includes(text)}
           valueToString={(item) => item[0]}
@@ -170,6 +178,9 @@ const Device = (props: Props) => {
               createValue: (item: [string, any]) => item[1],
               delimiter: ': ',
               styleValue: true,
+              itemGetter: (key, cb) => getSettingGlobal(id, key, cb),
+              itemSetter: (key, value, cb) =>
+                putSettingGlobal(id, key, value, cb),
             }}
             onSearch={(item, text) => item[0].includes(text)}
             valueToString={(item) => item[0]}
@@ -188,6 +199,9 @@ const Device = (props: Props) => {
               createValue: (item: [string, any]) => item[1],
               delimiter: ': ',
               styleValue: true,
+              itemGetter: (key, cb) => getSettingSystem(id, key, cb),
+              itemSetter: (key, value, cb) =>
+                putSettingSystem(id, key, value, cb),
             }}
             onSearch={(item, text) => item[0].includes(text)}
             valueToString={(item) => item[0]}
@@ -206,6 +220,9 @@ const Device = (props: Props) => {
               createValue: (item: [string, any]) => item[1],
               delimiter: ': ',
               styleValue: true,
+              itemGetter: (key, cb) => getSettingSecure(id, key, cb),
+              itemSetter: (key, value, cb) =>
+                putSettingSecure(id, key, value, cb),
             }}
             onSearch={(item, text) => item[0].includes(text)}
             valueToString={(item) => item[0]}

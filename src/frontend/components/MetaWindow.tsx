@@ -19,7 +19,11 @@ type Props<T> = {
     createValue?: (item: [string, T]) => string;
     delimiter?: string;
     styleValue?: boolean;
-    itemSetter?: (value: string, cb?: (err: Error) => void) => void;
+    itemSetter?: (
+      key: string,
+      value: string,
+      cb?: (err: Error) => void
+    ) => void;
     itemGetter?: (key: string, cb?: (err: Error, output: any) => void) => void;
   };
 };
@@ -91,7 +95,7 @@ const MetaWindow: <T>(props: Props<T>) => ReactElement = (props) => {
                 item={item}
                 itemMaker={itemMaker}
                 onSetValue={(value) => {
-                  itemSetter?.(value, (err) => {
+                  itemSetter?.(item[0], value, (err) => {
                     if (err) {
                       // alert
                     } else

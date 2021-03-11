@@ -30,7 +30,10 @@ const SettableLi = <T extends unknown>(props: {
     <Li
       index={index}
       onClick={() => {
-        if (!active) setActive(true);
+        if (!active) {
+          setActive(true);
+          setValue(createValue?.(item) || '');
+        }
       }}
     >
       <Row style={{ margin: 0 }} className="pl-1 whitespace-pre-wrap">
@@ -38,7 +41,7 @@ const SettableLi = <T extends unknown>(props: {
         {createValue && delimiter && <Col>{delimiter}</Col>}
         {active && createValue && onSetValue ? (
           <>
-            <Col className="ml-2">
+            <Col className="ml-2 font-mono">
               <TextField
                 style={{ height: '10px' }}
                 value={value}
