@@ -4,12 +4,11 @@ import React, { Component, KeyboardEvent } from 'react';
 import { FaLink } from 'react-icons/fa';
 import { connect, ConnectedProps } from 'react-redux';
 import { addHistory, loadConsoleSettings } from '../redux/actions';
-import BlinkCursor from './BlinkCursor';
+import HiddenInput from './HiddenInput';
 import IconBtn from './IconBtn';
 
 type State = {
   logs: { isCommand?: boolean; value: string }[];
-  cmd: string;
   firework: boolean;
   execution: boolean;
 };
@@ -31,13 +30,12 @@ class Console extends Component<Props, State> {
     super(props);
     this.state = {
       logs: [],
-      cmd: '',
       firework: false,
       execution: false,
     };
 
-    this.onKeyDown = this.onKeyDown.bind(this);
     this.focus = this.focus.bind(this);
+    this.onEnter = this.onEnter.bind(this);
   }
 
   componentDidMount() {
@@ -73,109 +71,81 @@ class Console extends Component<Props, State> {
     } else return [{ value: value || '' }];
   }
 
-  onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
-    switch (e.key) {
-      case 'Enter':
+  onEnter(cmd: string) {
+    const { logs } = this.state;
+    switch (cmd) {
+      case 'exit':
         {
-          const { logs, cmd } = this.state;
-          switch (cmd) {
-            case 'exit':
-              {
-                const { onExit } = this.props;
-                onExit?.();
-              }
-              break;
-            case 'cls':
-              {
-                this.setState({ logs: [], cmd: '' });
-              }
-              break;
-            case 'hello':
-              {
-                logs.push({ value: cmd, isCommand: true });
-                logs.push({ value: 'Hi! Hope you are having a good day' });
-                this.setState({ logs, cmd: '' });
-              }
-              break;
-            case 'blow it up':
-              {
-                logs.push({ value: cmd, isCommand: true });
-                this.setState({ firework: true, cmd: '' });
-                setTimeout(() => {
-                  this.setState({ firework: false });
-                }, 3000);
-              }
-              break;
-            case 'help':
-              {
-                const { id, addHistory, exec } = this.props as PropsRedux;
-                logs.push({ value: cmd, isCommand: true });
-                logs.push(
-                  { value: `${this.formatHelp('exit', 'close the console')}` },
-                  { value: `${this.formatHelp('cls', 'clear the console')}` },
-                  { value: `${this.formatHelp('help', 'display help')}` }
-                );
-                this.setState({ logs, cmd: '', execution: true });
-                addHistory(cmd);
-                exec({ id, cmd }, (error, output) => {
-                  if (error) {
-                    this.setState({ execution: false });
-                    return;
-                  } else {
-                    logs.push(...this.parseExec(output));
-                    this.setState({ logs, execution: false }, () =>
-                      this.focus()
-                    );
-                  }
-                });
-              }
-              break;
-            default:
-              {
-                const { id, addHistory, exec } = this.props as PropsRedux;
-                logs.push({ value: cmd, isCommand: true });
-                exec({ id, cmd }, (error, output) => {
-                  if (error) {
-                    logs.push(...this.parseExec(error.message));
-                  } else {
-                    logs.push(...this.parseExec(output));
-                  }
-                  this.setState({ logs, execution: false }, () => this.focus());
-                });
-                addHistory(cmd);
-                this.setState({ logs, cmd: '', execution: true });
-              }
-              break;
-          }
-          this.focus();
+          const { onExit } = this.props;
+          onExit?.();
         }
         break;
-      case 'ArrowDown':
+      case 'cls':
         {
-          const { cmd } = this.state;
-          const { history } = this.props as PropsRedux;
-          const index = history.indexOf(cmd);
-          this.setState({ cmd: history[index + 1] || '' });
+          this.setState({ logs: [] });
         }
         break;
-      case 'ArrowUp':
+      case 'hello':
         {
-          const { cmd } = this.state;
-          const { history } = this.props as PropsRedux;
-          const index = history.indexOf(cmd);
-          if (!cmd) {
-            this.setState({ cmd: history[history.length - 1] });
-          } else {
-            this.setState({ cmd: history[index - 1] });
-          }
+          logs.push({ value: cmd, isCommand: true });
+          logs.push({ value: 'Hi! Hope you are having a good day' });
+          this.setState({ logs });
+        }
+        break;
+      case 'blow it up':
+        {
+          logs.push({ value: cmd, isCommand: true });
+          this.setState({ firework: true });
+          setTimeout(() => {
+            this.setState({ firework: false });
+          }, 3000);
+        }
+        break;
+      case 'help':
+        {
+          const { id, addHistory, exec } = this.props as PropsRedux;
+          logs.push({ value: cmd, isCommand: true });
+          logs.push(
+            { value: `${this.formatHelp('exit', 'close the console')}` },
+            { value: `${this.formatHelp('cls', 'clear the console')}` },
+            { value: `${this.formatHelp('help', 'display help')}` }
+          );
+          this.setState({ logs, execution: true });
+          addHistory(cmd);
+          exec({ id, cmd }, (error, output) => {
+            if (error) {
+              this.setState({ execution: false });
+              return;
+            } else {
+              logs.push(...this.parseExec(output));
+              this.setState({ logs, execution: false }, () => this.focus());
+            }
+          });
+        }
+        break;
+      default:
+        {
+          const { id, addHistory, exec } = this.props as PropsRedux;
+          logs.push({ value: cmd, isCommand: true });
+          exec({ id, cmd }, (error, output) => {
+            if (error) {
+              logs.push(...this.parseExec(error.message));
+            } else {
+              logs.push(...this.parseExec(output));
+            }
+            this.setState({ logs, execution: false }, () => this.focus());
+          });
+          addHistory(cmd);
+          this.setState({ logs, execution: true });
         }
         break;
     }
+    this.focus();
   }
 
   render() {
-    const { logs, cmd, firework, execution } = this.state;
-    const { id, openShell, tag } = this.props;
+    const { logs, firework } = this.state;
+    const { id, openShell, tag, history } = this.props as PropsRedux;
     return (
       <div className="font-mono h-full w-full">
         {firework && (
@@ -215,17 +185,10 @@ class Console extends Component<Props, State> {
           <li onClick={() => this.focus()}>
             <div>
               <span className="text-gray-500">{`${tag || id}> `}</span>
-              <input
-                disabled={execution}
-                ref={this.input}
-                onKeyDown={this.onKeyDown}
-                value={cmd}
-                onChange={(event) => this.setState({ cmd: event.target.value })}
-                type="text"
-                className="text-white bg-black border-0 w-0"
-              />
-              <span className="break-all">{cmd}</span>
-              <BlinkCursor></BlinkCursor>
+              <HiddenInput
+                history={history}
+                onEnter={(value) => this.onEnter(value)}
+              ></HiddenInput>
             </div>
           </li>
         </ul>
