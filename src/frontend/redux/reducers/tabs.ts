@@ -1,13 +1,15 @@
 import { clone } from 'lodash';
-import { Action } from ".";
+import { Action } from '.';
 import { Tab } from '../actions';
-import { TAB_ADD, TAB_DEL } from "../actionTypes";
+import { TAB_ADD, TAB_DEL } from '../actionTypes';
 
-const initialState: { list: Tab[] } = {
-  list: []
+type State = { list: Tab[] };
+
+const initialState: State = {
+  list: [],
 };
 
-export default function (state = initialState, action: Action) {
+export default function (state = initialState, action: Action): State {
   const list = clone(state.list);
   switch (action.type) {
     case TAB_ADD: {
@@ -16,7 +18,7 @@ export default function (state = initialState, action: Action) {
       list.push(action.payload);
       return {
         ...state,
-        list: list
+        list: list,
       };
     }
     case TAB_DEL: {
@@ -24,7 +26,7 @@ export default function (state = initialState, action: Action) {
       if (match) list.splice(list.indexOf(match), 1);
       return {
         ...state,
-        list: list
+        list: list,
       };
     }
     default:

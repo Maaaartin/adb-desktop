@@ -11,6 +11,7 @@ import { connect, ConnectedProps } from 'react-redux';
 import MetaWindow from './MetaWindow';
 import StyledValue from './StyledValue';
 import Li from './Li';
+import { GlobalState } from '../redux/reducers';
 
 type Props<T> = {
   getter?: (cb: (output: Dictionary<T>) => void) => void;
@@ -19,7 +20,7 @@ type Props<T> = {
   valueToString?: (item: [string, T]) => string;
   itemMaker?: {
     createKey?: (item: [string, T]) => string;
-    createValue?: (item: [string, T]) => string;
+    createValue?: (item: [string, T]) => any;
     delimiter?: string;
     styleValue?: boolean;
     itemSetter?: (
@@ -113,9 +114,9 @@ class DeviceItem<T> extends Component<Props<T>, State<T>> {
                         (
                           <MetaWindow
                             getter={getter}
-                            itemMaker={itemMaker}
-                            onSearch={onSearch}
-                            valueToString={valueToString}
+                            itemMaker={itemMaker as any}
+                            onSearch={onSearch as any}
+                            valueToString={valueToString as any}
                             tag={tag}
                             serial={serial}
                           />
@@ -170,7 +171,7 @@ class DeviceItem<T> extends Component<Props<T>, State<T>> {
   }
 }
 
-const mapStateToProps = (state: Dictionary<any>) => {
+const mapStateToProps = (state: GlobalState) => {
   return state;
 };
 

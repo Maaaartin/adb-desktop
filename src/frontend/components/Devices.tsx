@@ -1,9 +1,9 @@
-import AdbDevice from 'adb-ts/lib/device';
-import { get as getProp, isEmpty as emp } from 'lodash';
+import { isEmpty as emp } from 'lodash';
 import React from 'react';
 import { Grid } from 'react-flexbox-grid';
 import { connect, ConnectedProps } from 'react-redux';
 import { deviceChange, tabAdd } from '../redux/actions';
+import { GlobalState } from '../redux/reducers';
 import Device from './Device';
 import Scrollable from './Scrollable';
 
@@ -25,9 +25,9 @@ const Devices = (props: any) => {
   );
 };
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: GlobalState) => {
   return {
-    devices: getProp(state, 'devices.list', []) as AdbDevice[],
+    devices: state.devices.list,
   };
 };
 

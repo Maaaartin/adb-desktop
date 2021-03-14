@@ -1,18 +1,28 @@
-import React, { Component, KeyboardEvent } from 'react';
+import React, { Component, KeyboardEvent, useState } from 'react';
 
 type State = {
-  blink: boolean;
   start: string;
   end: string;
   markedStart: string;
   markedEnd: string;
+  focused: boolean;
 };
 
 type Props = {
-  ref?: React.RefObject<HTMLInputElement>;
+  ref?: React.RefObject<HiddenInput>;
   initValue?: string;
   history?: string[];
   onEnter?: (value: string) => void;
+  onEscape?: (value?: string) => void;
+  markedColor?: string;
+};
+
+const BlinkCursor = () => {
+  const [blink, setBlink] = useState(false);
+  setTimeout(() => {
+    setBlink(!blink);
+  }, 500);
+  return <span className={blink ? 'opacity-0' : ''}>|</span>;
 };
 
 class HiddenInput extends Component<Props, State> {
@@ -21,11 +31,11 @@ class HiddenInput extends Component<Props, State> {
     super(props);
     const start = props.initValue || '';
     this.state = {
-      blink: false,
       start: start,
       end: '',
       markedEnd: '',
       markedStart: '',
+      focused: true,
     };
 
     this.onKeyDown = this.onKeyDown.bind(this);
@@ -39,23 +49,32 @@ class HiddenInput extends Component<Props, State> {
 
   componentDidMount() {
     this.focus();
-    setInterval(() => {
-      const { blink } = this.state;
-      this.setState({ blink: !blink });
-    }, 500);
+  }
+
+  getEmptyMarked() {
+    return { markedEnd: '', markedStart: '' };
   }
 
   getValue() {
-    const { start, end, markedEnd, markedStart } = this.state;
-    return start.concat(markedStart, markedEnd, end);
+    const { start, end } = this.state;
+    return start.concat(this.getMarked(), end);
+  }
+
+  isMarked() {
+    const { markedEnd, markedStart } = this.state;
+    return markedEnd || markedStart;
   }
 
   focus() {
+    const { start, end, markedEnd, markedStart } = this.state;
+    this.setState({
+      start: start.concat(markedStart),
+      end: end.concat(markedEnd),
+      markedEnd: '',
+      markedStart: '',
+      focused: true,
+    });
     this.input.current?.focus();
-  }
-
-  componentDidUpdate() {
-    this.focus();
   }
 
   getMarked() {
@@ -66,6 +85,12 @@ class HiddenInput extends Component<Props, State> {
   handleKeyDown(key: string) {
     const { start, end, markedEnd, markedStart } = this.state;
     switch (key) {
+      case 'Escape':
+        {
+          const { onEscape } = this.props;
+          onEscape?.(this.getValue());
+        }
+        break;
       case 'Enter':
         {
           const { onEnter } = this.props;
@@ -86,13 +111,13 @@ class HiddenInput extends Component<Props, State> {
       case 'ArrowUp':
         {
           const { history } = this.props;
-          const value = this.getValue();
           if (history) {
+            const value = this.getValue();
             const index = history.indexOf(value);
             if (!value) {
               this.setState({ start: history[history.length - 1] });
             } else {
-              this.setState({ start: history[index - 1] });
+              this.setState({ start: history[index - 1] || '' });
             }
           }
         }
@@ -113,8 +138,7 @@ class HiddenInput extends Component<Props, State> {
           this.setState({
             start: newStart,
             end: newEnd,
-            markedEnd: '',
-            markedStart: '',
+            ...this.getEmptyMarked(),
           });
         }
         break;
@@ -122,7 +146,7 @@ class HiddenInput extends Component<Props, State> {
         {
           let newStart: string;
           let newEnd: string;
-          if (markedEnd || markedStart) {
+          if (this.isMarked()) {
             newEnd = end;
             newStart = start.concat(this.getMarked());
           } else {
@@ -133,19 +157,20 @@ class HiddenInput extends Component<Props, State> {
           this.setState({
             start: newStart,
             end: newEnd,
-            markedEnd: '',
-            markedStart: '',
+            ...this.getEmptyMarked(),
           });
         }
         break;
       case 'Backspace':
         {
-          this.setState({ start: start.slice(0, start.length - 1) });
+          if (this.isMarked()) this.setState(this.getEmptyMarked());
+          else this.setState({ start: start.slice(0, start.length - 1) });
         }
         break;
       case 'Delete':
         {
-          this.setState({ end: end.slice(1) });
+          if (this.isMarked()) this.setState(this.getEmptyMarked());
+          else this.setState({ end: end.slice(1) });
         }
         break;
       default:
@@ -202,14 +227,11 @@ class HiddenInput extends Component<Props, State> {
 
   onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     const { key } = e;
-
     if (e.ctrlKey) {
       this.handleCtrlKey(key);
     } else {
       this.handleKeyDown(key);
     }
-
-    this.focus();
   }
 
   onPaste(e: React.ClipboardEvent<HTMLInputElement>) {
@@ -218,13 +240,7 @@ class HiddenInput extends Component<Props, State> {
   }
 
   handleBlur() {
-    const { start, end, markedEnd, markedStart } = this.state;
-    this.setState({
-      start: start.concat(markedStart),
-      end: end.concat(markedEnd),
-      markedEnd: '',
-      markedStart: '',
-    });
+    this.setState({ focused: false });
   }
 
   handleCopy() {
@@ -233,14 +249,16 @@ class HiddenInput extends Component<Props, State> {
 
   handleCut() {
     this.handleCopy();
-    this.setState({ markedEnd: '', markedStart: '' });
+    this.setState(this.getEmptyMarked());
   }
 
   render() {
-    const { blink, start, end, markedEnd, markedStart } = this.state;
+    const { markedColor } = this.props;
+    const { start, end, markedEnd, markedStart, focused } = this.state;
     return (
       <span className="break-all" onClick={() => this.focus()}>
         <input
+          onChange={() => null}
           onCut={this.handleCut}
           onCopy={this.handleCopy}
           onPaste={this.onPaste}
@@ -252,9 +270,13 @@ class HiddenInput extends Component<Props, State> {
           onBlur={this.handleBlur}
         />
         <span>{start}</span>
-        <span className="bg-gray-400">{markedStart}</span>
-        <span className={blink ? 'opacity-0' : ''}>|</span>
-        <span className="bg-gray-400">{markedEnd}</span>
+        <span className="bg-gray-400" style={{ backgroundColor: markedColor }}>
+          {markedStart}
+        </span>
+        {focused && <BlinkCursor />}
+        <span className="bg-gray-400" style={{ backgroundColor: markedColor }}>
+          {markedEnd}
+        </span>
         <span>{end}</span>
       </span>
     );

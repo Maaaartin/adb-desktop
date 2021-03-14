@@ -6,8 +6,9 @@ import './frontend/assets/main.css';
 import store from './frontend/redux/store';
 import Root from './frontend/Root';
 
-
 render(
   <Provider store={store}>
-    <Root></Root>
-  </Provider>, document.getElementById('root'));
+    <Root />
+  </Provider>,
+  document.getElementById('root')
+);

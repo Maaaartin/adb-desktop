@@ -1,10 +1,11 @@
 import { Chip } from '@material-ui/core';
-import { floor, get as getProp, sortBy, isEmpty as emp } from 'lodash';
+import { floor, get as getProp, isEmpty as emp, sortBy } from 'lodash';
 import React, { Component } from 'react';
 import Draggable from 'react-draggable';
 import { Row } from 'react-flexbox-grid';
 import { connect, ConnectedProps } from 'react-redux';
 import { Tab, tabAdd, tabDel } from '../redux/actions';
+import { GlobalState } from '../redux/reducers';
 
 type Props = { tabs: Tab[] };
 type State = { tabs: Tab[]; selected: string; dragged: string };
@@ -135,9 +136,9 @@ class Tabs extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: GlobalState) => {
   return {
-    tabs: getProp(state, 'tabs.list', []),
+    tabs: state.tabs.list,
   };
 };
 

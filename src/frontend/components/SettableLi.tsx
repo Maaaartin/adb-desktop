@@ -1,21 +1,15 @@
-import { TextField } from '@material-ui/core';
 import React, { useState } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
-import { FaTimes } from 'react-icons/fa';
+import { ItemMaker } from '../types';
+import HiddenInput from './HiddenInput';
 import Li from './Li';
 import StyledValue from './StyledValue';
 
-// TODO make type file
 const SettableLi = <T extends unknown>(props: {
   item: [string, T];
   index: number;
   onSetValue?: (value: string) => void;
-  itemMaker: {
-    createKey?: (item: [string, T]) => string;
-    createValue?: (item: [string, T]) => string;
-    delimiter?: string;
-    styleValue?: boolean;
-  };
+  itemMaker: ItemMaker<T>;
 }) => {
   const {
     index,
@@ -32,7 +26,7 @@ const SettableLi = <T extends unknown>(props: {
       onClick={() => {
         if (!active) {
           setActive(true);
-          setValue(createValue?.(item) || '');
+          setValue(createValue ? `${createValue(item)}` : '');
         }
       }}
     >
@@ -42,27 +36,18 @@ const SettableLi = <T extends unknown>(props: {
         {active && createValue && onSetValue ? (
           <>
             <Col className="ml-2 font-mono">
-              <TextField
-                style={{ height: '10px' }}
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    setActive(false);
-                    setValue('');
-                    onSetValue(value);
-                  } else if (e.key === 'Escape') {
-                    setActive(false);
-                    setValue('');
-                  }
+              <HiddenInput
+                markedColor="black"
+                initValue={`${value}`}
+                onEnter={(value) => {
+                  setActive(false);
+                  setValue('');
+                  onSetValue(value);
                 }}
-                type="text"
-              />
-            </Col>
-            <Col>
-              <FaTimes
-                className="cursor-pointer"
-                onClick={() => setActive(false)}
+                onEscape={() => {
+                  setActive(false);
+                  setValue('');
+                }}
               />
             </Col>
           </>
@@ -70,8 +55,8 @@ const SettableLi = <T extends unknown>(props: {
           <Col>
             {createValue &&
               (styleValue
-                ? StyledValue(createValue?.(item))
-                : createValue?.(item))}
+                ? StyledValue(createValue(item))
+                : `${createValue(item)}`)}
           </Col>
         )}
       </Row>

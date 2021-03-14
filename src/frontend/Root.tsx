@@ -6,6 +6,7 @@ import {
   MenuList,
   Typography,
 } from '@material-ui/core';
+import Notifications, { error } from 'react-notification-system-redux';
 import { ipcRenderer as ipc } from 'electron';
 import { get as getProp, isEmpty as emp } from 'lodash';
 import React, { Component } from 'react';
@@ -18,26 +19,25 @@ import DeviceCards from './components/DeviceCards';
 import Devices from './components/Devices';
 import Settings from './components/Settings';
 import Tabs from './components/Tabs';
-import { saveHistory } from './ipc/send';
 import {
   deviceChange,
   loadAdbSettings,
   loadConsoleSettings,
-  loadHistory,
   loadToken,
   setAdbStatus,
   Tab,
   tabAdd,
   tabDel,
+  writeConsoleSettings,
 } from './redux/actions';
 import {
   ADB_SETTINGS_LOAD,
   ADB_STATUS,
   DEVICE_CHANGE,
   LOAD_CONSOLE_SETTINGS,
-  LOAD_HISTORY,
   LOAD_TOKEN,
 } from './redux/actionTypes';
+import { GlobalState } from './redux/reducers';
 
 class Root extends Component<any, any> {
   constructor(props: PropsRedux) {
@@ -45,7 +45,6 @@ class Root extends Component<any, any> {
     const {
       loadAdbSettings,
       deviceChange,
-      loadHistory,
       loadToken,
       setAdbStatus,
       loadConsoleSettings,
@@ -58,10 +57,6 @@ class Root extends Component<any, any> {
 
     ipc.on(DEVICE_CHANGE, (event, data) => {
       deviceChange(data);
-    });
-
-    ipc.on(LOAD_HISTORY, (event, data) => {
-      loadHistory(data);
     });
 
     ipc.on(LOAD_TOKEN, (event, data) => {
@@ -77,12 +72,14 @@ class Root extends Component<any, any> {
     });
 
     window.addEventListener('beforeunload', () => {
-      const { history } = this.props as PropsRedux;
-      saveHistory(history);
+      const { writeConsoleSettings, console } = this.props as PropsRedux;
+      writeConsoleSettings(console);
     });
 
     this.onSelect = this.onSelect.bind(this);
   }
+
+  componentDidMount() {}
 
   onSelect(type: string) {
     const { tabAdd, tabDel } = this.props as PropsRedux;
@@ -112,8 +109,10 @@ class Root extends Component<any, any> {
   }
 
   render() {
+    const { notifications } = this.props as PropsRedux;
     return (
       <div className="h-screen">
+        <Notifications notifications={notifications}></Notifications>
         <Row top="xs" style={{ height: 'calc(100% - 80px)' }}>
           <Col sm={3} style={{ marginRight: '17px' }}>
             <Divider />
@@ -167,9 +166,10 @@ class Root extends Component<any, any> {
   }
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: GlobalState) => {
   return {
-    history: getProp(state, 'history.list', []),
+    console: state.console,
+    notifications: state.notifications,
   };
 };
 
@@ -177,11 +177,12 @@ const mapDispatchToProps = {
   deviceChange,
   loadAdbSettings,
   tabAdd,
-  loadHistory,
   tabDel,
   loadToken,
   setAdbStatus,
   loadConsoleSettings,
+  notifError: error,
+  writeConsoleSettings,
 };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);

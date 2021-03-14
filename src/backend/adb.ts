@@ -77,7 +77,9 @@ export default class AdbHandler extends EventEmitter {
   }
 
   getAdbOptions(): AdbClientOptions {
-    return Preferences.get('adb');
+    const options = Preferences.get('adb');
+    options.port = options.port || 5037;
+    return options;
   }
 
   getMonkey(serial: string, cb?: (err: Error, monkey: Monkey) => void) {

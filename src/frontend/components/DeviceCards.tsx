@@ -1,11 +1,10 @@
 import { Card, CardContent, CardHeader } from '@material-ui/core';
-import AdbDevice from 'adb-ts/lib/device';
-import { get as getProp } from 'lodash';
 import React from 'react';
 import { Col, Row } from 'react-flexbox-grid';
 import { FaMobileAlt, FaRobot, FaTerminal } from 'react-icons/fa';
 import { connect, ConnectedProps } from 'react-redux';
 import { Tab, tabAdd, tabDel } from '../redux/actions';
+import { GlobalState } from '../redux/reducers';
 import DeviceConsole from './consoles/DeviceConsole';
 import EmulatorConsole from './consoles/EmulatorConsole';
 import MonkeyConsole from './consoles/MonkeyConsole';
@@ -101,9 +100,9 @@ const DeviceCards = (props: any) => {
   );
 };
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: GlobalState) => {
   return {
-    devices: getProp(state, 'devices.list', []) as AdbDevice[],
+    devices: state.devices.list,
   };
 };
 

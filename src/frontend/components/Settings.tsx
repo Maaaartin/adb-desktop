@@ -20,6 +20,7 @@ import {
   loadConsoleSettings,
   writeConsoleSettings,
 } from '../redux/actions';
+import { GlobalState } from '../redux/reducers';
 import CollapseButton from './CollapseButton';
 
 type State = {
@@ -29,6 +30,7 @@ type State = {
   openAdb: boolean;
   openEmulator: boolean;
   openConsole: boolean;
+  historyLen: number;
 };
 
 class Settings extends Component<any, State> {
@@ -41,12 +43,14 @@ class Settings extends Component<any, State> {
       openEmulator: false,
       lines: 0,
       openConsole: false,
+      historyLen: [],
     };
     this.onChangeFile = this.onChangeFile.bind(this);
     this.onPortChange = this.onPortChange.bind(this);
     this.onHostChange = this.onHostChange.bind(this);
     this.onTokenChange = this.onTokenChange.bind(this);
     this.onLinesChange = this.onLinesChange.bind(this);
+    this.onHistoryLenChange = this.onHistoryLenChange.bind(this);
   }
 
   componentDidUpdate(prevProps: PropsRedux, prevState: State) {
@@ -143,6 +147,10 @@ class Settings extends Component<any, State> {
     this.setState({ lines: Number(event.target.value) });
   }
 
+  onHistoryLenChange(event: ChangeEvent<HTMLInputElement>) {
+    this.setState({ historyLen: Number(event.target.value) });
+  }
+
   render() {
     const {
       adb: { bin, host, port },
@@ -151,6 +159,7 @@ class Settings extends Component<any, State> {
       openEmulator,
       openConsole,
       lines,
+      historyLen,
     } = this.state;
     return (
       <Card style={{ backgroundColor: '#dddd' }} className="w-full mb-1">
@@ -212,12 +221,24 @@ class Settings extends Component<any, State> {
             tag="Console"
           />
           <Collapse in={openConsole}>
-            <TextField
-              type="number"
-              label={'number of lines'}
-              value={lines}
-              onChange={this.onLinesChange}
-            />
+            <Row>
+              <Col xs={6}>
+                <TextField
+                  type="number"
+                  label={'number of lines'}
+                  value={lines}
+                  onChange={this.onLinesChange}
+                />
+              </Col>
+              <Col xs={6}>
+                <TextField
+                  type="number"
+                  label={'max command history length'}
+                  value={historyLen}
+                  onChange={this.onHistoryLenChange}
+                />
+              </Col>
+            </Row>
           </Collapse>
         </CardContent>
       </Card>
@@ -225,11 +246,12 @@ class Settings extends Component<any, State> {
   }
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: GlobalState) => {
   return {
-    adb: getProp(state, 'settings.adb', {}) as AdbClientOptions,
-    token: getProp(state, 'settings.token', '') as string,
-    lines: getProp(state, 'settings.console.lines', 0) as number,
+    adb: state.adb.settings,
+    token: state.emulator.token,
+    lines: state.console.lines,
+    historyLen: state.console.history.length,
   };
 };
 

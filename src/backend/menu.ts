@@ -17,7 +17,6 @@ import {
   OPEN_ADB,
   OPEN_ADB_SHELL,
   OPEN_EMULATOR,
-  SAVE_HISTORY,
   GET_PROPS,
   GET_SETTINGS,
   GET_FEATURES,
@@ -39,7 +38,6 @@ import {
   ADB_SETTINGS_LOAD,
   ADB_SETTINGS_WRITE,
   DEVICE_CHANGE,
-  LOAD_HISTORY,
   LOAD_TOKEN,
   WRITE_TOKEN,
   ADB_STATUS,
@@ -105,9 +103,6 @@ export default class MenuBuilder {
       const options = this.adbHandler.getAdbOptions();
       this.adbHandler.start(options);
       this.send(ADB_SETTINGS_LOAD, options);
-
-      const history = Object.values(Preferences.get('history'));
-      this.send(LOAD_HISTORY, history);
 
       this.emulatorHandler.getToken((token) => {
         this.send(LOAD_TOKEN, token);
@@ -214,10 +209,6 @@ export default class MenuBuilder {
 
     ipc.on(OPEN_EMULATOR, (event, data) => {
       OpenShell.emulator(data);
-    });
-
-    ipc.on(SAVE_HISTORY, (event, data) => {
-      Preferences.save('history', data);
     });
 
     ipc.on(WRITE_TOKEN, (event, data) => {
@@ -448,7 +439,7 @@ export default class MenuBuilder {
 
   buildDarwinTemplate(): MenuItemConstructorOptions[] {
     const subMenuAbout: DarwinMenuItemConstructorOptions = {
-      label: 'Electron',
+      label: 'AdbDesktop',
       submenu: [
         {
           label: 'About ElectronReact',

@@ -1,9 +1,9 @@
 import { Fireworks } from 'fireworks/lib/react';
-import { get as getProp } from 'lodash';
-import React, { Component, KeyboardEvent } from 'react';
+import React, { Component } from 'react';
 import { FaLink } from 'react-icons/fa';
 import { connect, ConnectedProps } from 'react-redux';
 import { addHistory, loadConsoleSettings } from '../redux/actions';
+import { GlobalState } from '../redux/reducers';
 import HiddenInput from './HiddenInput';
 import IconBtn from './IconBtn';
 
@@ -24,7 +24,7 @@ type Props = {
 };
 
 class Console extends Component<Props, State> {
-  private input = React.createRef<HTMLInputElement>();
+  private input = React.createRef<HiddenInput>();
   private list = React.createRef<HTMLUListElement>();
   constructor(props: any) {
     super(props);
@@ -186,6 +186,7 @@ class Console extends Component<Props, State> {
             <div>
               <span className="text-gray-500">{`${tag || id}> `}</span>
               <HiddenInput
+                ref={this.input}
                 history={history}
                 onEnter={(value) => this.onEnter(value)}
               ></HiddenInput>
@@ -197,10 +198,10 @@ class Console extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: GlobalState) => {
   return {
-    history: getProp(state, 'history.list', []) as string[],
-    lines: getProp(state, 'settings.console.lines', 500) as number,
+    history: state.console.history,
+    lines: state.console.lines,
   };
 };
 

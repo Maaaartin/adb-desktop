@@ -8,7 +8,6 @@ import {
 } from '../../constants';
 
 const setterCalls: Dictionary<((error: Error) => void) | undefined> = {};
-
 const hookSetter = (cb?: (error: Error) => void) => {
   const id = Math.random().toString(36).substring(7);
   setterCalls[id] = cb;
@@ -17,6 +16,7 @@ const hookSetter = (cb?: (error: Error) => void) => {
 
 const handleSetterResponse = (data: any) => {
   const { id, error } = data;
+
   setterCalls[id]?.(error);
   delete setterCalls[id];
 };

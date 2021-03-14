@@ -1,11 +1,11 @@
 import { Button, Card, Typography } from '@material-ui/core';
-import { get as getProp } from 'lodash';
 import React from 'react';
 import { Col, Row } from 'react-flexbox-grid';
 import { FaCircle } from 'react-icons/fa';
 import { connect, ConnectedProps } from 'react-redux';
 import { toggleAdb } from '../ipc/send';
-import { AdbStatus, setAdbStatus } from '../redux/actions';
+import { setAdbStatus } from '../redux/actions';
+import { GlobalState } from '../redux/reducers';
 
 const AdbStatusPanel = (props: any) => {
   const {
@@ -46,9 +46,9 @@ const AdbStatusPanel = (props: any) => {
   );
 };
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: GlobalState) => {
   return {
-    status: getProp(state, 'adb.status', {}) as AdbStatus,
+    status: state.adb.status,
   };
 };
 

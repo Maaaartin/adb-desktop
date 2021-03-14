@@ -1,14 +1,16 @@
-import AdbDevice from "adb-ts/lib/device";
-import { clone } from "lodash";
-import { Action } from ".";
-import { AdbState } from "../actions";
-import { ADB_STATUS, DEVICE_CHANGE } from "../actionTypes";
+import AdbDevice from 'adb-ts/lib/device';
+import { clone } from 'lodash';
+import { Action } from '.';
+import { AdbState } from '../actions';
+import { ADB_STATUS, DEVICE_CHANGE } from '../actionTypes';
 
-const initialState: { list: AdbDevice[] } = {
-  list: []
+type State = { list: AdbDevice[] };
+
+const initialState: State = {
+  list: [],
 };
 
-export default function (state = initialState, action: Action) {
+export default function (state = initialState, action: Action): State {
   switch (action.type) {
     case DEVICE_CHANGE: {
       const { id, data } = action.payload;
@@ -16,16 +18,14 @@ export default function (state = initialState, action: Action) {
       const index = list.findIndex((d) => d.id === id);
       if (index < 0) {
         list.push(data);
-      }
-      else if (!data) {
+      } else if (!data) {
         list.splice(index, 1);
-      }
-      else {
+      } else {
         list[index] = data;
       }
       return {
         ...state,
-        list
+        list,
       };
     }
     case ADB_STATUS: {
@@ -33,8 +33,8 @@ export default function (state = initialState, action: Action) {
       if (status === 'error' || status === 'stopped') {
         return {
           ...state,
-          list: []
-        }
+          list: [],
+        };
       }
       return state;
     }
