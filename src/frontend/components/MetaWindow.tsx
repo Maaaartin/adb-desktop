@@ -4,7 +4,7 @@ import { Dictionary } from 'lodash';
 import React, { Component } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
 import { FaSync } from 'react-icons/fa';
-import { error } from 'react-notification-system-redux';
+import { error as notifError } from 'react-notification-system-redux';
 import { connect, ConnectedProps } from 'react-redux';
 import { GlobalState } from '../redux/reducers';
 import { ItemMaker } from '../types';
@@ -18,7 +18,7 @@ type Props<T> = {
   valueToString: (item: [string, T]) => string;
   tag: string;
   serial: string;
-  itemMaker: ItemMakerM<T>;
+  itemMaker: ItemMaker<T>;
 };
 
 type State<T> = {
@@ -42,7 +42,7 @@ class MetaWindow<T> extends Component<Props<T>, State<T>> {
   render() {
     const { search, collection } = this.state;
     const {
-      notifErr,
+      notifError,
       getter,
       onSearch,
       valueToString,
@@ -110,7 +110,7 @@ class MetaWindow<T> extends Component<Props<T>, State<T>> {
                   onSetValue={(value) => {
                     itemSetter?.(item[0], value, (err) => {
                       if (err) {
-                        notifErr({
+                        notifError({
                           title: 'Operation failed',
                           message: err.message,
                           position: 'tr',
@@ -139,7 +139,7 @@ const mapStateToProps = (state: GlobalState) => {
 };
 
 const mapDispatchToProps = {
-  notifErr: error,
+  notifError,
 };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);

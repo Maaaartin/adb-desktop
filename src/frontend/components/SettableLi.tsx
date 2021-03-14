@@ -35,8 +35,9 @@ const SettableLi = <T extends unknown>(props: {
         {createValue && delimiter && <Col>{delimiter}</Col>}
         {active && createValue && onSetValue ? (
           <>
-            <Col className="ml-2 font-mono">
+            <Col className="font-mono">
               <HiddenInput
+                textColor="#756766"
                 markedColor="black"
                 initValue={`${value}`}
                 onEnter={(value) => {

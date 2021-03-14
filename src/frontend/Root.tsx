@@ -6,7 +6,9 @@ import {
   MenuList,
   Typography,
 } from '@material-ui/core';
-import Notifications, { error } from 'react-notification-system-redux';
+import Notifications, {
+  error as notifError,
+} from 'react-notification-system-redux';
 import { ipcRenderer as ipc } from 'electron';
 import { get as getProp, isEmpty as emp } from 'lodash';
 import React, { Component } from 'react';
@@ -51,7 +53,16 @@ class Root extends Component<any, any> {
     } = props as PropsRedux;
 
     ipc.on(ADB_SETTINGS_LOAD, (event, data) => {
-      if (emp(data)) this.onSelect('settings');
+      if (emp(getProp(data, 'bin'))) {
+        const { notifError } = this.props as PropsRedux;
+        this.onSelect('settings');
+        notifError({
+          title: 'Could not locate ADB binary',
+          message: 'Please specify the full path to the ADB binary file',
+          position: 'tr',
+          autoDismiss: 0,
+        });
+      }
       loadAdbSettings(data);
     });
 
@@ -181,7 +192,7 @@ const mapDispatchToProps = {
   loadToken,
   setAdbStatus,
   loadConsoleSettings,
-  notifError: error,
+  notifError,
   writeConsoleSettings,
 };
 

@@ -47,7 +47,7 @@ class Console extends Component<Props, State> {
     const { lines } = this.props as PropsRedux;
     if (logs.length > lines) {
       const index = logs.length - lines;
-      const newLogs = logs.slice(index - 1, logs.length - 1);
+      const newLogs = logs.slice(index);
       this.setState({ logs: newLogs });
     }
   }

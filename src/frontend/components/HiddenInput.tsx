@@ -15,6 +15,7 @@ type Props = {
   onEnter?: (value: string) => void;
   onEscape?: (value?: string) => void;
   markedColor?: string;
+  textColor?: string;
 };
 
 const BlinkCursor = () => {
@@ -253,10 +254,14 @@ class HiddenInput extends Component<Props, State> {
   }
 
   render() {
-    const { markedColor } = this.props;
+    const { markedColor, textColor } = this.props;
     const { start, end, markedEnd, markedStart, focused } = this.state;
     return (
-      <span className="break-all" onClick={() => this.focus()}>
+      <span
+        className="break-all"
+        onClick={() => this.focus()}
+        style={{ color: textColor }}
+      >
         <input
           onChange={() => null}
           onCut={this.handleCut}
@@ -266,7 +271,7 @@ class HiddenInput extends Component<Props, State> {
           ref={this.input}
           onKeyDown={this.onKeyDown}
           type="text"
-          className="text-white w-0"
+          className="w-0"
           onBlur={this.handleBlur}
         />
         <span>{start}</span>

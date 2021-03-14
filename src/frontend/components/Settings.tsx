@@ -8,17 +8,17 @@ import {
   TextField,
 } from '@material-ui/core';
 import { AdbClientOptions } from 'adb-ts';
-import { get as getProp, isEqual as eql } from 'lodash';
+import { isEqual as eql } from 'lodash';
 import React, { ChangeEvent, Component } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
 import { connect, ConnectedProps } from 'react-redux';
 import {
   loadAdbSettings,
+  loadConsoleSettings,
   loadToken,
   writeAdbSettings,
-  writeToken,
-  loadConsoleSettings,
   writeConsoleSettings,
+  writeToken,
 } from '../redux/actions';
 import { GlobalState } from '../redux/reducers';
 import CollapseButton from './CollapseButton';
@@ -33,6 +33,7 @@ type State = {
   historyLen: number;
 };
 
+// TODO solve 0 on number inputs
 class Settings extends Component<any, State> {
   constructor(props: Record<string, any>) {
     super(props);
@@ -43,7 +44,7 @@ class Settings extends Component<any, State> {
       openEmulator: false,
       lines: 0,
       openConsole: false,
-      historyLen: [],
+      historyLen: 0,
     };
     this.onChangeFile = this.onChangeFile.bind(this);
     this.onPortChange = this.onPortChange.bind(this);
@@ -66,6 +67,7 @@ class Settings extends Component<any, State> {
       token,
       lines,
       openConsole,
+      historyLen,
     } = this.state;
     const {
       writeAdbSettings,
@@ -74,6 +76,7 @@ class Settings extends Component<any, State> {
       adb: adbProp,
       token: tokenProp,
       lines: linesProp,
+      historyLen: historyLenProp,
     } = this.props as PropsRedux;
 
     if (prevOpenAdb && !openAdb && !eql(adb, adbProp)) {
@@ -84,8 +87,12 @@ class Settings extends Component<any, State> {
       writeToken(token);
     }
 
-    if (prevOpenConsole && !openConsole && !eql(lines, linesProp)) {
-      writeConsoleSettings({ lines });
+    if (
+      prevOpenConsole &&
+      !openConsole &&
+      (!eql(lines, linesProp) || !eql(historyLen, historyLenProp))
+    ) {
+      writeConsoleSettings({ lines, historyLen });
     }
   }
 
@@ -97,6 +104,7 @@ class Settings extends Component<any, State> {
       token,
       lines,
       openConsole,
+      historyLen,
     } = this.state;
     const {
       writeAdbSettings,
@@ -105,6 +113,7 @@ class Settings extends Component<any, State> {
       adb: adbProp,
       token: tokenProp,
       lines: linesProp,
+      historyLen: historyLenProp,
     } = this.props as PropsRedux;
     if (openAdb && !eql(adb, adbProp)) {
       writeAdbSettings(adb);
@@ -114,14 +123,17 @@ class Settings extends Component<any, State> {
       writeToken(token);
     }
 
-    if (openConsole && !eql(lines, linesProp)) {
-      writeConsoleSettings({ lines });
+    if (
+      openConsole &&
+      (!eql(lines, linesProp) || !eql(historyLen, historyLenProp))
+    ) {
+      writeConsoleSettings({ lines, historyLen });
     }
   }
 
   componentDidMount() {
-    const { adb, token, lines } = this.props as PropsRedux;
-    this.setState({ adb, token, lines });
+    const { adb, token, lines, historyLen } = this.props as PropsRedux;
+    this.setState({ adb, token, lines, historyLen });
   }
 
   onChangeFile(event: ChangeEvent<HTMLInputElement>) {
@@ -181,7 +193,12 @@ class Settings extends Component<any, State> {
                     className="m-auto"
                   >
                     <span>ADB Path</span>
-                    <input type="file" hidden onChange={this.onChangeFile} />
+                    <input
+                      type="file"
+                      hidden
+                      onChange={this.onChangeFile}
+                      value={''}
+                    />
                   </Button>
                 </Row>
                 <Row>{bin}</Row>
@@ -233,7 +250,7 @@ class Settings extends Component<any, State> {
               <Col xs={6}>
                 <TextField
                   type="number"
-                  label={'max command history length'}
+                  label={'history length'}
                   value={historyLen}
                   onChange={this.onHistoryLenChange}
                 />
@@ -251,7 +268,7 @@ const mapStateToProps = (state: GlobalState) => {
     adb: state.adb.settings,
     token: state.emulator.token,
     lines: state.console.lines,
-    historyLen: state.console.history.length,
+    historyLen: state.console.historyLen,
   };
 };
 
