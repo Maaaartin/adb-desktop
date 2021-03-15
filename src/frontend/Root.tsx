@@ -6,23 +6,26 @@ import {
   MenuList,
   Typography,
 } from '@material-ui/core';
-import Notifications, {
-  error as notifError,
-} from 'react-notification-system-redux';
 import { ipcRenderer as ipc } from 'electron';
 import { get as getProp, isEmpty as emp } from 'lodash';
 import React, { Component } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
 import { FaAndroid, FaCog, FaTerminal } from 'react-icons/fa';
+import Notifications, {
+  error as notifError,
+} from 'react-notification-system-redux';
 import { connect, ConnectedProps } from 'react-redux';
 import AdbStatusDisplay from './components/AdbStatusPanel';
 import AdbConsole from './components/consoles/AdbConsole';
 import DeviceCards from './components/DeviceCards';
 import Devices from './components/Devices';
+import NotificationPanel from './components/NotificationPanel';
 import Settings from './components/Settings';
 import Tabs from './components/Tabs';
 import {
+  deviceAdd,
   deviceChange,
+  deviceRemove,
   loadAdbSettings,
   loadConsoleSettings,
   loadToken,
@@ -35,18 +38,22 @@ import {
 import {
   ADB_SETTINGS_LOAD,
   ADB_STATUS,
+  DEVICE_ADD,
   DEVICE_CHANGE,
+  DEVICE_REMOVE,
   LOAD_CONSOLE_SETTINGS,
   LOAD_TOKEN,
 } from './redux/actionTypes';
 import { GlobalState } from './redux/reducers';
 
-class Root extends Component<any, any> {
+class Root extends Component {
   constructor(props: PropsRedux) {
     super(props);
     const {
       loadAdbSettings,
       deviceChange,
+      deviceAdd,
+      deviceRemove,
       loadToken,
       setAdbStatus,
       loadConsoleSettings,
@@ -66,8 +73,16 @@ class Root extends Component<any, any> {
       loadAdbSettings(data);
     });
 
+    ipc.on(DEVICE_ADD, (event, data) => {
+      deviceAdd(data);
+    });
+
     ipc.on(DEVICE_CHANGE, (event, data) => {
       deviceChange(data);
+    });
+
+    ipc.on(DEVICE_REMOVE, (event, data) => {
+      deviceRemove(data);
     });
 
     ipc.on(LOAD_TOKEN, (event, data) => {
@@ -123,6 +138,7 @@ class Root extends Component<any, any> {
     const { notifications } = this.props as PropsRedux;
     return (
       <div className="h-screen">
+        <NotificationPanel></NotificationPanel>
         <Notifications notifications={notifications}></Notifications>
         <Row top="xs" style={{ height: 'calc(100% - 80px)' }}>
           <Col sm={3} style={{ marginRight: '17px' }}>
@@ -186,6 +202,8 @@ const mapStateToProps = (state: GlobalState) => {
 
 const mapDispatchToProps = {
   deviceChange,
+  deviceAdd,
+  deviceRemove,
   loadAdbSettings,
   tabAdd,
   tabDel,

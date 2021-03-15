@@ -43,6 +43,8 @@ import {
   ADB_STATUS,
   WRITE_CONSOLE_SETTINGS,
   LOAD_CONSOLE_SETTINGS,
+  DEVICE_ADD,
+  DEVICE_REMOVE,
 } from '../frontend/redux/actionTypes';
 import AdbHandler from './adb';
 import EmulatorHandler from './emulator';
@@ -115,15 +117,15 @@ export default class MenuBuilder {
 
   private hookAdbHandler() {
     this.adbHandler.on('add', (device) => {
-      this.send(DEVICE_CHANGE, { id: device.id, data: device });
+      this.send(DEVICE_ADD, device);
     });
 
     this.adbHandler.on('change', (device) => {
-      this.send(DEVICE_CHANGE, { id: device.id, data: device });
+      this.send(DEVICE_CHANGE, device);
     });
 
     this.adbHandler.on('remove', (device) => {
-      this.send(DEVICE_CHANGE, { id: device.id });
+      this.send(DEVICE_REMOVE, device);
     });
 
     this.adbHandler.on('starting', () => {

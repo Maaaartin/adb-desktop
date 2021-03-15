@@ -1,7 +1,6 @@
 import { Button, Card, Typography } from '@material-ui/core';
 import React from 'react';
 import { Col, Row } from 'react-flexbox-grid';
-import { FaCircle } from 'react-icons/fa';
 import { connect, ConnectedProps } from 'react-redux';
 import { toggleAdb } from '../ipc/send';
 import { setAdbStatus } from '../redux/actions';
@@ -14,22 +13,19 @@ const AdbStatusPanel = (props: any) => {
   const start = status === 'error' || status === 'stopped';
   const color =
     status === 'running'
-      ? 'green'
+      ? '#a9c9ac'
       : status === 'starting'
-      ? '#eda600'
-      : '#bd1300';
+      ? '#e3b446'
+      : '#e86868';
   return (
     <Card
       className="p-1"
-      style={{ backgroundColor: '#dddd', height: '10vh', minHeight: '75px' }}
+      style={{ backgroundColor: color, height: '10vh', minHeight: '75px' }}
       title={'ADB'}
     >
       <Row style={{ height: '30%' }}>
         <Col className="ml-3">
           <Typography>ADB</Typography>
-        </Col>
-        <Col className="ml-1">
-          <FaCircle size="20" color={color} />
         </Col>
       </Row>
       <Row>

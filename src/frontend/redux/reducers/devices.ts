@@ -1,42 +1,46 @@
-import AdbDevice from 'adb-ts/lib/device';
+import { IAdbDevice } from 'adb-ts';
 import { clone } from 'lodash';
 import { Action } from '.';
-import { AdbState } from '../actions';
-import { ADB_STATUS, DEVICE_CHANGE } from '../actionTypes';
+import { DEVICE_ADD, DEVICE_CHANGE, DEVICE_REMOVE } from '../actionTypes';
 
-type State = { list: AdbDevice[] };
+type State = { list: IAdbDevice[] };
 
 const initialState: State = {
   list: [],
 };
 
-export default function (state = initialState, action: Action): State {
+export default function (
+  state = initialState,
+  action: Action<IAdbDevice>
+): State {
+  const list = clone(state.list);
   switch (action.type) {
+    case DEVICE_ADD: {
+      list.push(action.payload);
+      return {
+        ...state,
+        list,
+      };
+    }
     case DEVICE_CHANGE: {
-      const { id, data } = action.payload;
-      const list = clone(state.list);
-      const index = list.findIndex((d) => d.id === id);
-      if (index < 0) {
-        list.push(data);
-      } else if (!data) {
-        list.splice(index, 1);
-      } else {
-        list[index] = data;
+      let index = list.findIndex((d) => d.id === action.payload.id);
+      if (index > -1) {
+        list[index] = action.payload;
       }
       return {
         ...state,
         list,
       };
     }
-    case ADB_STATUS: {
-      const status = action.payload.status as AdbState;
-      if (status === 'error' || status === 'stopped') {
-        return {
-          ...state,
-          list: [],
-        };
-      }
-      return state;
+    case DEVICE_REMOVE: {
+      list.splice(
+        list.findIndex((d) => d.id === action.payload.id),
+        1
+      );
+      return {
+        ...state,
+        list,
+      };
     }
     default:
       return state;

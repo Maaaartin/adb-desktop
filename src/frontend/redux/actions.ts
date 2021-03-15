@@ -1,5 +1,4 @@
-import { AdbClientOptions } from 'adb-ts';
-import AdbDevice from 'adb-ts/lib/device';
+import { AdbClientOptions, IAdbDevice } from 'adb-ts';
 import { ipcRenderer as ipc } from 'electron';
 import { Dictionary } from 'lodash';
 import {
@@ -7,7 +6,9 @@ import {
   ADB_SETTINGS_WRITE,
   ADB_STATUS,
   ADD_HISTORY,
+  DEVICE_ADD,
   DEVICE_CHANGE,
+  DEVICE_REMOVE,
   LOAD_CONSOLE_SETTINGS,
   LOAD_TOKEN,
   TAB_ADD,
@@ -52,8 +53,18 @@ export const writeAdbSettings = (data: AdbClientOptions) => {
   };
 };
 
-export const deviceChange = (content: AdbDevice) => ({
+export const deviceAdd = (content: IAdbDevice) => ({
+  type: DEVICE_ADD,
+  payload: content,
+});
+
+export const deviceChange = (content: IAdbDevice) => ({
   type: DEVICE_CHANGE,
+  payload: content,
+});
+
+export const deviceRemove = (content: IAdbDevice) => ({
+  type: DEVICE_REMOVE,
   payload: content,
 });
 
