@@ -64,8 +64,6 @@ export default function (
       history.push(payload);
       if (history.length > state.historyLen) {
         const diff = history.length - state.historyLen;
-        console.log(diff);
-        console.log(history.slice(diff));
         history = history.slice(diff);
       }
       return {

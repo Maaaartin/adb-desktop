@@ -4,6 +4,7 @@ export const ADB_SETTINGS_WRITE = 'ADB_SETTINGS_WRITE';
 export const DEVICE_ADD = 'DEVICE_ADD';
 export const DEVICE_CHANGE = 'DEVICE_CHANGE';
 export const DEVICE_REMOVE = 'DEVICE_REMOVE';
+export const DEVICE_REMOVE_ALL = 'DEVICE_REMOVE_ALL';
 
 export const TAB_ADD = 'TAB_ADD';
 export const TAB_DEL = 'TAB_DEL';

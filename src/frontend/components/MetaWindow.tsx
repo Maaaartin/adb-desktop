@@ -114,7 +114,6 @@ class MetaWindow<T> extends Component<Props<T>, State<T>> {
                           title: 'Operation failed',
                           message: err.message,
                           position: 'tr',
-                          autoDismiss: 5,
                         });
                       } else
                         itemGetter?.(item[0], (err, output) => {

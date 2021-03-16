@@ -19,7 +19,6 @@ import AdbStatusDisplay from './components/AdbStatusPanel';
 import AdbConsole from './components/consoles/AdbConsole';
 import DeviceCards from './components/DeviceCards';
 import Devices from './components/Devices';
-import NotificationPanel from './components/NotificationPanel';
 import Settings from './components/Settings';
 import Tabs from './components/Tabs';
 import {
@@ -67,7 +66,6 @@ class Root extends Component {
           title: 'Could not locate ADB binary',
           message: 'Please specify the full path to the ADB binary file',
           position: 'tr',
-          autoDismiss: 0,
         });
       }
       loadAdbSettings(data);
@@ -138,8 +136,7 @@ class Root extends Component {
     const { notifications } = this.props as PropsRedux;
     return (
       <div className="h-screen">
-        <NotificationPanel></NotificationPanel>
-        <Notifications notifications={notifications}></Notifications>
+        <Notifications notifications={notifications} />
         <Row top="xs" style={{ height: 'calc(100% - 80px)' }}>
           <Col sm={3} style={{ marginRight: '17px' }}>
             <Divider />
@@ -195,8 +192,8 @@ class Root extends Component {
 
 const mapStateToProps = (state: GlobalState) => {
   return {
-    console: state.console,
     notifications: state.notifications,
+    console: state.console,
   };
 };
 

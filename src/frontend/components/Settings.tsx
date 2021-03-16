@@ -33,7 +33,6 @@ type State = {
   historyLen: number;
 };
 
-// TODO solve 0 on number inputs
 class Settings extends Component<any, State> {
   constructor(props: Record<string, any>) {
     super(props);
@@ -208,6 +207,9 @@ class Settings extends Component<any, State> {
                   label="port"
                   type="number"
                   value={port}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
                   onChange={this.onPortChange}
                 />
               </Col>
