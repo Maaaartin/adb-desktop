@@ -2,6 +2,7 @@ import { AdbClientOptions, IAdbDevice } from 'adb-ts';
 import { ipcRenderer as ipc } from 'electron';
 import { Dictionary } from 'lodash';
 import Notifications from 'react-notification-system-redux';
+import { get as getProp, isEmpty as emp } from 'lodash';
 import {
   ADB_SETTINGS_LOAD,
   ADB_SETTINGS_WRITE,
@@ -18,6 +19,7 @@ import {
   WRITE_CONSOLE_SETTINGS,
   WRITE_TOKEN,
 } from './actionTypes';
+import { Action } from './reducers';
 import store from './store';
 
 export class Tab {
@@ -45,9 +47,59 @@ export type AdbStatus = {
 
 const SettingsAction = Notifications.success({ title: 'Settings saved' });
 
-export const loadAdbSettings = (content: AdbClientOptions) => ({
-  type: ADB_SETTINGS_LOAD,
-  payload: content,
+ipc.on(DEVICE_ADD, (event, data: IAdbDevice) => {
+  store.dispatch<Action<IAdbDevice>>({ type: DEVICE_ADD, payload: data });
+  store.dispatch(Notifications.info({ title: `${data.id} plugged in` }));
+});
+
+ipc.on(DEVICE_CHANGE, (event, data: IAdbDevice) => {
+  store.dispatch<Action<IAdbDevice>>({ type: DEVICE_CHANGE, payload: data });
+});
+
+ipc.on(DEVICE_REMOVE, (event, data: IAdbDevice) => {
+  store.dispatch<Action<IAdbDevice>>({ type: DEVICE_REMOVE, payload: data });
+  store.dispatch(Notifications.info({ title: `${data.id} plugged out` }));
+});
+
+ipc.on(LOAD_TOKEN, (event, data: string) => {
+  store.dispatch<Action<string>>({
+    type: LOAD_TOKEN,
+    payload: data,
+  });
+});
+
+ipc.on(ADB_STATUS, (event, data: AdbStatus) => {
+  if (data.status === 'stopped') {
+    store.dispatch({ type: DEVICE_REMOVE_ALL });
+  } else if (data.status === 'error') {
+    store.dispatch(Notifications.error({ title: 'ADB stopped' }));
+  } else if (data.status === 'running') {
+    store.dispatch(Notifications.success({ title: 'ADB started' }));
+  }
+  store.dispatch<Action<AdbStatus>>({ type: ADB_STATUS, payload: data });
+});
+
+ipc.on(LOAD_CONSOLE_SETTINGS, (event, data) => {
+  store.dispatch<Action<Dictionary<any>>>({
+    type: LOAD_CONSOLE_SETTINGS,
+    payload: data,
+  });
+});
+
+ipc.on(ADB_SETTINGS_LOAD, (event, data: AdbClientOptions) => {
+  if (emp(getProp(data, 'bin'))) {
+    store.dispatch(
+      Notifications.error({
+        title: 'Could not locate ADB binary',
+        message: 'Please specify the full path to the ADB binary file',
+        position: 'tr',
+      })
+    );
+  }
+  store.dispatch<Action<AdbClientOptions>>({
+    type: ADB_SETTINGS_LOAD,
+    payload: data,
+  });
 });
 
 export const writeAdbSettings = (data: AdbClientOptions) => {
@@ -95,11 +147,6 @@ export const addHistory = (content: string) => ({
   payload: content,
 });
 
-export const loadToken = (token: string) => ({
-  type: LOAD_TOKEN,
-  payload: token,
-});
-
 export const writeToken = (token: string) => {
   ipc.send(WRITE_TOKEN, token);
   store.dispatch(SettingsAction);
@@ -131,8 +178,3 @@ export const writeConsoleSettings = (data: Dictionary<any>) => {
     payload: data,
   };
 };
-
-export const loadConsoleSettings = (data: Dictionary<any>) => ({
-  type: LOAD_CONSOLE_SETTINGS,
-  payload: data,
-});

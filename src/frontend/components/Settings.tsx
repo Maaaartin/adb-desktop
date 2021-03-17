@@ -13,9 +13,6 @@ import React, { ChangeEvent, Component } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
 import { connect, ConnectedProps } from 'react-redux';
 import {
-  loadAdbSettings,
-  loadConsoleSettings,
-  loadToken,
   writeAdbSettings,
   writeConsoleSettings,
   writeToken,
@@ -275,12 +272,9 @@ const mapStateToProps = (state: GlobalState) => {
 };
 
 const mapDispatchToProps = {
-  loadAdbSettings,
   writeAdbSettings,
-  loadToken,
   writeToken,
   writeConsoleSettings,
-  loadConsoleSettings,
 };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);

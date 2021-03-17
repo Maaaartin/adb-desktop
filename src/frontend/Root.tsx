@@ -6,14 +6,10 @@ import {
   MenuList,
   Typography,
 } from '@material-ui/core';
-import { ipcRenderer as ipc } from 'electron';
-import { get as getProp, isEmpty as emp } from 'lodash';
 import React, { Component } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
 import { FaAndroid, FaCog, FaTerminal } from 'react-icons/fa';
-import Notifications, {
-  error as notifError,
-} from 'react-notification-system-redux';
+import Notifications from 'react-notification-system-redux';
 import { connect, ConnectedProps } from 'react-redux';
 import AdbStatusDisplay from './components/AdbStatusPanel';
 import AdbConsole from './components/consoles/AdbConsole';
@@ -21,80 +17,12 @@ import DeviceCards from './components/DeviceCards';
 import Devices from './components/Devices';
 import Settings from './components/Settings';
 import Tabs from './components/Tabs';
-import {
-  deviceAdd,
-  deviceChange,
-  deviceRemove,
-  loadAdbSettings,
-  loadConsoleSettings,
-  loadToken,
-  setAdbStatus,
-  Tab,
-  tabAdd,
-  tabDel,
-  writeConsoleSettings,
-} from './redux/actions';
-import {
-  ADB_SETTINGS_LOAD,
-  ADB_STATUS,
-  DEVICE_ADD,
-  DEVICE_CHANGE,
-  DEVICE_REMOVE,
-  LOAD_CONSOLE_SETTINGS,
-  LOAD_TOKEN,
-} from './redux/actionTypes';
+import { Tab, tabAdd, tabDel, writeConsoleSettings } from './redux/actions';
 import { GlobalState } from './redux/reducers';
 
 class Root extends Component {
   constructor(props: PropsRedux) {
     super(props);
-    const {
-      loadAdbSettings,
-      deviceChange,
-      deviceAdd,
-      deviceRemove,
-      loadToken,
-      setAdbStatus,
-      loadConsoleSettings,
-    } = props as PropsRedux;
-
-    ipc.on(ADB_SETTINGS_LOAD, (event, data) => {
-      if (emp(getProp(data, 'bin'))) {
-        const { notifError } = this.props as PropsRedux;
-        this.onSelect('settings');
-        notifError({
-          title: 'Could not locate ADB binary',
-          message: 'Please specify the full path to the ADB binary file',
-          position: 'tr',
-        });
-      }
-      loadAdbSettings(data);
-    });
-
-    ipc.on(DEVICE_ADD, (event, data) => {
-      deviceAdd(data);
-    });
-
-    ipc.on(DEVICE_CHANGE, (event, data) => {
-      deviceChange(data);
-    });
-
-    ipc.on(DEVICE_REMOVE, (event, data) => {
-      deviceRemove(data);
-    });
-
-    ipc.on(LOAD_TOKEN, (event, data) => {
-      loadToken(data);
-    });
-
-    ipc.on(ADB_STATUS, (event, data) => {
-      setAdbStatus(data);
-    });
-
-    ipc.on(LOAD_CONSOLE_SETTINGS, (event, data) => {
-      loadConsoleSettings(data);
-    });
-
     window.addEventListener('beforeunload', () => {
       const { writeConsoleSettings, console } = this.props as PropsRedux;
       writeConsoleSettings(console);
@@ -102,8 +30,6 @@ class Root extends Component {
 
     this.onSelect = this.onSelect.bind(this);
   }
-
-  componentDidMount() {}
 
   onSelect(type: string) {
     const { tabAdd, tabDel } = this.props as PropsRedux;
@@ -138,7 +64,7 @@ class Root extends Component {
       <div className="h-screen">
         <Notifications notifications={notifications} />
         <Row top="xs" style={{ height: 'calc(100% - 80px)' }}>
-          <Col sm={3} style={{ marginRight: '17px' }}>
+          <Col xs={3} style={{ marginRight: '17px' }}>
             <Divider />
             <MenuList>
               <MenuItem onClick={() => this.onSelect('settings')}>
@@ -164,7 +90,7 @@ class Root extends Component {
             <DeviceCards />
             <Divider />
           </Col>
-          <Col sm={8} className="h-full">
+          <Col xs={8} className="h-full">
             <Tabs />
           </Col>
         </Row>
@@ -198,16 +124,8 @@ const mapStateToProps = (state: GlobalState) => {
 };
 
 const mapDispatchToProps = {
-  deviceChange,
-  deviceAdd,
-  deviceRemove,
-  loadAdbSettings,
   tabAdd,
   tabDel,
-  loadToken,
-  setAdbStatus,
-  loadConsoleSettings,
-  notifError,
   writeConsoleSettings,
 };
 

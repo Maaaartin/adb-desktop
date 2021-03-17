@@ -2,7 +2,7 @@ import { Fireworks } from 'fireworks/lib/react';
 import React, { Component } from 'react';
 import { FaLink } from 'react-icons/fa';
 import { connect, ConnectedProps } from 'react-redux';
-import { addHistory, loadConsoleSettings } from '../redux/actions';
+import { addHistory } from '../redux/actions';
 import { GlobalState } from '../redux/reducers';
 import HiddenInput from './HiddenInput';
 import IconBtn from './IconBtn';
@@ -207,7 +207,6 @@ const mapStateToProps = (state: GlobalState) => {
 
 const mapDispatchToProps = {
   addHistory,
-  loadConsoleSettings,
 };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);

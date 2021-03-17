@@ -1,27 +1,8 @@
 import { AdbClientOptions } from 'adb-ts';
 import { exec } from 'child_process';
-import fs from 'fs';
+import { app } from 'electron';
 import Path from 'path';
 import Preferences from './Preferences';
-
-function makeScript() {
-  const dataDir = Path.join(process.env.LOCALAPPDATA || '', 'AdbDesktop');
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir);
-  }
-
-  const script = Path.join(dataDir, 'script.sh');
-  if (!fs.existsSync(script)) {
-    switch (process.platform) {
-      case 'linux':
-        fs.writeFileSync(script, 'cd $1\r\ngnome-terminal -- $2');
-        break;
-      default:
-        fs.writeFileSync(script, 'cd $1\r\nexec start $2');
-        break;
-    }
-  }
-}
 
 function formatCmd(cmd: string) {
   switch (process.platform) {
@@ -33,13 +14,12 @@ function formatCmd(cmd: string) {
   }
 }
 
-makeScript();
+const scriptPath = Path.join('assets', process.platform, 'script.sh');
+
 export default class OpenShell {
-  static readonly script = Path.join(
-    process.env.LOCALAPPDATA || '',
-    'AdbDesktop',
-    'script.sh'
-  );
+  static readonly script = app.isPackaged
+    ? Path.join(process.resourcesPath, scriptPath)
+    : Path.join(__dirname, '..', '..', scriptPath);
   static adbShell(id: string) {
     const options = Preferences.get('adb') as AdbClientOptions;
     const split = options.bin?.split(Path.sep) || [];
