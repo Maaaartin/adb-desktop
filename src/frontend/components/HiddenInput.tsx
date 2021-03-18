@@ -47,6 +47,7 @@ class HiddenInput extends Component<Props, State> {
     this.handleCopy = this.handleCopy.bind(this);
     this.handleCut = this.handleCut.bind(this);
     this.handleShiftKey = this.handleShiftKey.bind(this);
+    this.handleCtrlShiftKey = this.handleCtrlShiftKey.bind(this);
   }
 
   componentDidMount() {
@@ -72,9 +73,8 @@ class HiddenInput extends Component<Props, State> {
     this.setState({
       start: start.concat(markedStart),
       end: end.concat(markedEnd),
-      markedEnd: '',
-      markedStart: '',
       focused: true,
+      ...this.getEmptyMarked(),
     });
     this.input.current?.focus();
   }
@@ -217,52 +217,57 @@ class HiddenInput extends Component<Props, State> {
             if (char) {
               const newStart = start.concat(char);
               const newMarkedStart = markedStart.slice(1);
-              this.setState({ start: newStart, markedStart: newMarkedStart });
+              this.setState({
+                start: newStart,
+                markedStart: newMarkedStart,
+              });
             }
           }
         }
+        break;
+      case 'Home':
+        this.setState({
+          markedStart: start,
+          start: '',
+          end: markedEnd.concat(end),
+          markedEnd: '',
+        });
+        break;
+      case 'End':
+        this.setState({
+          markedEnd: end,
+          end: '',
+          start: start.concat(markedStart),
+          markedStart: '',
+        });
         break;
       default:
         break;
     }
   }
 
-  handleCtrlKey(key: string) {
-    const { start, end, markedEnd, markedStart } = this.state;
+  handleCtrlShiftKey(key: string) {
+    const { start, end } = this.state;
     switch (key) {
       case 'ArrowLeft':
-        if (!markedEnd) {
+        {
           const char = start.slice(start.length - 1);
           if (char) {
-            const newStart = start.slice(0, start.length - 1);
-            const newMarkedStart = char.concat(markedStart);
-            this.setState({ markedStart: newMarkedStart, start: newStart });
-          }
-        } else {
-          const char = markedEnd.slice(markedEnd.length - 1);
-          if (char) {
-            const newEnd = char.concat(end);
-            const newMarkedEnd = markedEnd.slice(0, markedEnd.length - 1);
-            this.setState({ markedEnd: newMarkedEnd, end: newEnd });
+            this.setState({
+              start: start.slice(0, start.length - 1),
+              end: char.concat(end),
+            });
           }
         }
         break;
       case 'ArrowRight':
         {
-          if (!markedStart) {
-            const char = end.slice(0, 1);
-            if (char) {
-              const newEnd = end.slice(1);
-              const newMarkedEnd = markedEnd.concat(char);
-              this.setState({ end: newEnd, markedEnd: newMarkedEnd });
-            }
-          } else {
-            const char = markedStart.slice(0, 1);
-            if (char) {
-              const newStart = start.concat(char);
-              const newMarkedStart = markedStart.slice(1);
-              this.setState({ start: newStart, markedStart: newMarkedStart });
-            }
+          const char = end.slice(0, 1);
+          if (char) {
+            this.setState({
+              start: start.concat(char),
+              end: end.slice(1),
+            });
           }
         }
         break;
@@ -273,8 +278,12 @@ class HiddenInput extends Component<Props, State> {
 
   onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     const { key } = e;
-    if (e.ctrlKey || e.metaKey) {
-      this.handleCtrlKey(key);
+    if (e.shiftKey) {
+      if (e.ctrlKey || e.metaKey) {
+        this.handleCtrlShiftKey(key);
+      } else {
+        this.handleShiftKey(key);
+      }
     } else {
       this.handleKeyDown(key);
     }

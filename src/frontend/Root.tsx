@@ -19,7 +19,6 @@ import Settings from './components/Settings';
 import Tabs from './components/Tabs';
 import { Tab, tabAdd, tabDel, writeConsoleSettings } from './redux/actions';
 import { GlobalState } from './redux/reducers';
-import hookIpc from './ipc/listeners';
 
 class Root extends Component {
   constructor(props: PropsRedux) {
@@ -29,7 +28,6 @@ class Root extends Component {
       writeConsoleSettings(console);
     });
 
-    hookIpc();
     this.onSelect = this.onSelect.bind(this);
   }
 
