@@ -46,6 +46,7 @@ class HiddenInput extends Component<Props, State> {
     this.handleBlur = this.handleBlur.bind(this);
     this.handleCopy = this.handleCopy.bind(this);
     this.handleCut = this.handleCut.bind(this);
+    this.handleShiftKey = this.handleShiftKey.bind(this);
   }
 
   componentDidMount() {
@@ -182,6 +183,50 @@ class HiddenInput extends Component<Props, State> {
     }
   }
 
+  handleShiftKey(key: string) {
+    const { start, end, markedEnd, markedStart } = this.state;
+    switch (key) {
+      case 'ArrowLeft':
+        if (!markedEnd) {
+          const char = start.slice(start.length - 1);
+          if (char) {
+            const newStart = start.slice(0, start.length - 1);
+            const newMarkedStart = char.concat(markedStart);
+            this.setState({ markedStart: newMarkedStart, start: newStart });
+          }
+        } else {
+          const char = markedEnd.slice(markedEnd.length - 1);
+          if (char) {
+            const newEnd = char.concat(end);
+            const newMarkedEnd = markedEnd.slice(0, markedEnd.length - 1);
+            this.setState({ markedEnd: newMarkedEnd, end: newEnd });
+          }
+        }
+        break;
+      case 'ArrowRight':
+        {
+          if (!markedStart) {
+            const char = end.slice(0, 1);
+            if (char) {
+              const newEnd = end.slice(1);
+              const newMarkedEnd = markedEnd.concat(char);
+              this.setState({ end: newEnd, markedEnd: newMarkedEnd });
+            }
+          } else {
+            const char = markedStart.slice(0, 1);
+            if (char) {
+              const newStart = start.concat(char);
+              const newMarkedStart = markedStart.slice(1);
+              this.setState({ start: newStart, markedStart: newMarkedStart });
+            }
+          }
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
   handleCtrlKey(key: string) {
     const { start, end, markedEnd, markedStart } = this.state;
     switch (key) {
@@ -228,7 +273,7 @@ class HiddenInput extends Component<Props, State> {
 
   onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     const { key } = e;
-    if (e.ctrlKey) {
+    if (e.ctrlKey || e.metaKey) {
       this.handleCtrlKey(key);
     } else {
       this.handleKeyDown(key);

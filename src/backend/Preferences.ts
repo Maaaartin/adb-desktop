@@ -2,13 +2,30 @@ import { clone } from 'lodash';
 import { stringToType } from 'adb-ts';
 import fs from 'fs';
 import Path from 'path';
+import getAppDataPath from 'appdata-path';
+
+// function getAppdata() {
+//   switch (process.platform) {
+//     case 'win32':
+//       return Path.join(process.env.APPDATA || '', 'AdbDesktop');
+//     case 'linux':
+//       return Path.join(process.env.HOME || '', '.local', 'share', 'AdbDesktop');
+//     default:
+//       return Path.join(
+//         process.env.HOME || '',
+//         'Library',
+//         'Preferences',
+//         'AdbDesktop'
+//       );
+//   }
+// }
 
 function getPreferences(path: string) {
   let preferences: Record<string, any>;
   try {
     preferences = JSON.parse(fs.readFileSync(path).toString());
   } catch (e) {
-    fs.mkdirSync(Path.join(process.env.APPDATA || '', 'AdbDesktop'));
+    fs.mkdirSync(getAppDataPath('AdbDesktop'));
     preferences = {};
   }
   return preferences;
@@ -16,9 +33,8 @@ function getPreferences(path: string) {
 
 export default class Preferences {
   private static path = Path.join(
-    process.env.APPDATA || '',
-    'AdbDesktop',
-    `settings.json`
+    getAppDataPath('AdbDesktop'),
+    'settings.json'
   );
   private static preferences = getPreferences(Preferences.path);
 
