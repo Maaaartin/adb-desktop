@@ -32,10 +32,21 @@ const hookIpc = () => {
   });
 
   ipc.on(LOAD_TOKEN, (event, data: string) => {
-    store.dispatch<Action<string>>({
-      type: LOAD_TOKEN,
-      payload: data,
-    });
+    if (emp(data)) {
+      store.dispatch(
+        Notifications.error({
+          title: 'Could not read emulator_console_token file',
+          message:
+            'Emulator console API will not be availabe without the token',
+          position: 'tr',
+        })
+      );
+    } else {
+      store.dispatch<Action<string>>({
+        type: LOAD_TOKEN,
+        payload: data,
+      });
+    }
   });
 
   ipc.on(ADB_STATUS, (event, data: AdbStatus) => {

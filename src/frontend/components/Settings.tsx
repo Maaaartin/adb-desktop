@@ -11,7 +11,9 @@ import { AdbClientOptions } from 'adb-ts';
 import { isEqual as eql } from 'lodash';
 import React, { ChangeEvent, Component } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
+import { FaSync } from 'react-icons/fa';
 import { connect, ConnectedProps } from 'react-redux';
+import { renewToken } from '../ipc/send';
 import {
   writeAdbSettings,
   writeConsoleSettings,
@@ -19,6 +21,7 @@ import {
 } from '../redux/actions';
 import { GlobalState } from '../redux/reducers';
 import CollapseButton from './CollapseButton';
+import IconBtn from './IconBtn';
 
 type State = {
   adb: AdbClientOptions;
@@ -48,6 +51,9 @@ class Settings extends Component<any, State> {
     this.onTokenChange = this.onTokenChange.bind(this);
     this.onLinesChange = this.onLinesChange.bind(this);
     this.onHistoryLenChange = this.onHistoryLenChange.bind(this);
+    this.resetAdbSettings = this.resetAdbSettings.bind(this);
+    this.resetToken = this.resetToken.bind(this);
+    this.resetConsole = this.resetConsole.bind(this);
   }
 
   componentDidUpdate(prevProps: PropsRedux, prevState: State) {
@@ -74,6 +80,12 @@ class Settings extends Component<any, State> {
       lines: linesProp,
       historyLen: historyLenProp,
     } = this.props as PropsRedux;
+    const { token: prevTokenProp } = prevProps as PropsRedux;
+
+    // when token is renewed
+    if (prevTokenProp != tokenProp) {
+      this.setState({ token: tokenProp });
+    }
 
     if (prevOpenAdb && !openAdb && !eql(adb, adbProp)) {
       writeAdbSettings(adb);
@@ -159,6 +171,22 @@ class Settings extends Component<any, State> {
     this.setState({ historyLen: Number(event.target.value) });
   }
 
+  resetAdbSettings() {
+    const { adb: adbProp } = this.props as PropsRedux;
+    this.setState({ adb: { ...adbProp } });
+  }
+
+  resetToken() {
+    const { token: tokenProp } = this.props as PropsRedux;
+    this.setState({ token: tokenProp });
+  }
+
+  resetConsole() {
+    const { lines: linesProp, historyLen: historyLenProp } = this
+      .props as PropsRedux;
+    this.setState({ lines: linesProp, historyLen: historyLenProp });
+  }
+
   render() {
     const {
       adb: { bin, host, port },
@@ -175,6 +203,9 @@ class Settings extends Component<any, State> {
         <CardContent>
           <Divider />
           <CollapseButton
+            className="mb-1"
+            btnTag={openAdb ? 'Reset' : ''}
+            btnOnClick={this.resetAdbSettings}
             open={openAdb}
             onClick={() => this.setState({ openAdb: !openAdb })}
             tag="ADB"
@@ -219,19 +250,37 @@ class Settings extends Component<any, State> {
               </Col>
             </Row>
           </Collapse>
+          <Divider />
           <CollapseButton
+            className="mb-1"
+            btnTag={openEmulator ? 'Reset' : ''}
+            btnOnClick={this.resetToken}
             open={openEmulator}
             onClick={() => this.setState({ openEmulator: !openEmulator })}
             tag="Emulator"
           />
           <Collapse in={openEmulator}>
-            <TextField
-              label={'emulator token'}
-              value={token}
-              onChange={this.onTokenChange}
-            />
+            <Row>
+              <Col>
+                <TextField
+                  label={'emulator token'}
+                  value={token}
+                  onChange={this.onTokenChange}
+                />
+              </Col>
+              <Col>
+                <IconBtn
+                  tag="Renew token"
+                  IconEl={FaSync}
+                  onClick={() => renewToken()}
+                />
+              </Col>
+            </Row>
           </Collapse>
+          <Divider />
           <CollapseButton
+            btnTag={openConsole ? 'Reset' : ''}
+            btnOnClick={this.resetConsole}
             open={openConsole}
             onClick={() => this.setState({ openConsole: !openConsole })}
             tag="Console"

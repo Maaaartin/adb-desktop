@@ -9,7 +9,6 @@ import hookIpc from './frontend/ipc/listeners';
 
 hookIpc();
 
-// TODO fix emulator token reading
 // TODO display script errors
 render(
   <Provider store={store}>

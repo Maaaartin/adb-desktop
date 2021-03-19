@@ -27,3 +27,5 @@ export const GET_SETTING_SECURE = 'GET_SETTING_SECURE';
 export const GET_PROP = 'GET_PROP';
 
 export const TOGGLE_ADB = 'TOGGLE_ADB';
+
+export const RENEW_TOKEN = 'RENEW_TOKEN';

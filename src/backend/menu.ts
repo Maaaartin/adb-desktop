@@ -8,6 +8,7 @@ import {
   MenuItemConstructorOptions,
   shell,
 } from 'electron';
+import { EmulatorClient } from 'emulator-ts';
 import {
   EXEC_ADB,
   GET_BATTERY,
@@ -33,6 +34,7 @@ import {
   GET_SETTING_SECURE,
   GET_SETTING_SYSTEM,
   GET_PROP,
+  RENEW_TOKEN,
 } from '../constants';
 import {
   ADB_SETTINGS_LOAD,
@@ -72,6 +74,7 @@ export default class MenuBuilder {
     this.hookExec();
     this.hookAdbHandler();
     this.hookSetters();
+    this.hookSends();
   }
 
   private hookWindow() {
@@ -223,15 +226,6 @@ export default class MenuBuilder {
 
     ipc.on(WRITE_CONSOLE_SETTINGS, (event, data) => {
       Preferences.save('console', data);
-    });
-
-    ipc.on(TOGGLE_ADB, () => {
-      const running = this.adbHandler.running;
-      if (running) {
-        this.adbHandler.stop();
-      } else {
-        this.adbHandler.start();
-      }
     });
   }
 
@@ -403,6 +397,26 @@ export default class MenuBuilder {
 
   private send(message: string, data?: any) {
     this.mainWindow.webContents.send(message, data);
+  }
+
+  private hookSends() {
+    ipc.on(TOGGLE_ADB, () => {
+      const running = this.adbHandler.running;
+      if (running) {
+        this.adbHandler.stop();
+      } else {
+        this.adbHandler.start();
+      }
+    });
+
+    ipc.on(RENEW_TOKEN, () => {
+      EmulatorClient.readToken((err, token) => {
+        if (!err) {
+          this.emulatorHandler.setToken(token);
+          this.send(LOAD_TOKEN, token);
+        }
+      });
+    });
   }
 
   buildMenu(): Menu {

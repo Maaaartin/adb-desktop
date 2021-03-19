@@ -5109,16 +5109,17 @@ emojis-list@^3.0.0:
   resolved "https://registry.yarnpkg.com/emojis-list/-/emojis-list-3.0.0.tgz#5570662046ad29e2e916e71aae260abdff4f6a78"
   integrity sha512-/kyM18EfinwXZbno9FyUGeFh87KC8HRQBQGildHZbEuRyWFOmv1U10o9BBp8XVZDVNNuQKyIGIu5ZYAAXJ0V2Q==
 
-emulator-ts@^1.0.0:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/emulator-ts/-/emulator-ts-1.0.1.tgz#fe2d920ff62eeb9a2f2885b0731b22d77f444f6b"
-  integrity sha512-7EMbQf023MPT6rw6XGRndvZrUb6VK6n/fwf/KfUzp9EbqpXpXqvYgyE3gSsQfLAsCM5Z31VFqkEIaCvNLqeh3w==
+emulator-ts@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/emulator-ts/-/emulator-ts-1.0.2.tgz#2937869a9b88ed03aab6aa1a0fb5e03cfe5b3329"
+  integrity sha512-H8qs+R6DsXgDKVvHYh6UZYFrVhdeGL0cHmR6sTzivrT2Lv2zUCmcvIuaIOLLd/2Ft1yVBGnqCgBzgBl79vmRMg==
   dependencies:
     bluebird "^3.7.2"
     events "^3.2.0"
     fs "^0.0.1-security"
     net "^1.0.2"
     path "^0.12.7"
+    user-home "^2.0.0"
 
 encodeurl@^1.0.2, encodeurl@~1.0.2:
   version "1.0.2"
@@ -12654,6 +12655,13 @@ use@^3.1.0:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"
   integrity sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==
+
+user-home@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/user-home/-/user-home-2.0.0.tgz#9c70bfd8169bc1dcbf48604e0f04b8b49cde9e9f"
+  integrity sha1-nHC/2Babwdy/SGBODwS4tJzenp8=
+  dependencies:
+    os-homedir "^1.0.0"
 
 utf8-byte-length@^1.0.1:
   version "1.0.4"

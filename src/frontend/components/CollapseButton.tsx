@@ -1,4 +1,4 @@
-import { IconButton } from '@material-ui/core';
+import { Button, IconButton } from '@material-ui/core';
 import { HTMLAttributes } from 'enzyme';
 import React, { DetailedHTMLProps } from 'react';
 import { FaChevronDown } from 'react-icons/fa';
@@ -6,10 +6,12 @@ import { FaChevronDown } from 'react-icons/fa';
 type Props = {
   tag?: string;
   open: boolean;
+  btnTag?: string;
+  btnOnClick?: VoidFunction;
 } & DetailedHTMLProps<HTMLAttributes, any>;
 
 const CollapseButton = (props: Props) => {
-  const { style, className, tag, onClick, open } = props;
+  const { style, className, tag, onClick, open, btnOnClick, btnTag } = props;
   return (
     <div style={style} className={className}>
       <span className="p-4">{tag}</span>
@@ -19,6 +21,7 @@ const CollapseButton = (props: Props) => {
           style={open ? { transform: 'rotate(180deg)' } : {}}
         />
       </IconButton>
+      {btnTag && <Button onClick={btnOnClick}>{btnTag}</Button>}
     </div>
   );
 };
