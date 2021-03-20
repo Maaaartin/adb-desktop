@@ -49,4 +49,6 @@ npm-debug.log.*
 *.sass.d.ts
 *.scss.d.ts
 
+src/__test__/__snapshots__
 src/frontend/assets/main.css
+src/__tests__/__snapshots__/App.test.tsx.snap

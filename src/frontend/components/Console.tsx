@@ -12,6 +12,7 @@ type State = {
   firework: boolean;
   execution: boolean;
 };
+
 type Props = {
   id: string;
   openShell: (id: string) => void;
@@ -29,7 +30,10 @@ class Console extends Component<Props, State> {
   constructor(props: any) {
     super(props);
     this.state = {
-      logs: [],
+      logs: [
+        { value: `type 'help' for help` },
+        { value: `use 'Shift' + arrow keys to mark the textcls` },
+      ],
       firework: false,
       execution: false,
     };
@@ -144,7 +148,7 @@ class Console extends Component<Props, State> {
   }
 
   render() {
-    const { logs, firework } = this.state;
+    const { logs, firework, execution } = this.state;
     const { id, openShell, tag, history } = this.props as PropsRedux;
     return (
       <div className="font-mono h-full w-full">
@@ -186,6 +190,7 @@ class Console extends Component<Props, State> {
             <div>
               <span className="text-gray-500">{`${tag || id}> `}</span>
               <HiddenInput
+                disabled={execution}
                 ref={this.input}
                 history={history}
                 onEnter={(value) => this.onEnter(value)}

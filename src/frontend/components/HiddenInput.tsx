@@ -16,6 +16,7 @@ type Props = {
   onEscape?: (value?: string) => void;
   markedColor?: string;
   textColor?: string;
+  disabled?: boolean;
 };
 
 const BlinkCursor = () => {
@@ -308,7 +309,7 @@ class HiddenInput extends Component<Props, State> {
   }
 
   render() {
-    const { markedColor, textColor } = this.props;
+    const { markedColor, textColor, disabled } = this.props;
     const { start, end, markedEnd, markedStart, focused } = this.state;
     return (
       <span
@@ -327,6 +328,7 @@ class HiddenInput extends Component<Props, State> {
           type="text"
           className="w-0"
           onBlur={this.handleBlur}
+          disabled={disabled}
         />
         <span>{start}</span>
         <span className="bg-gray-400" style={{ backgroundColor: markedColor }}>

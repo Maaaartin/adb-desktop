@@ -9,7 +9,6 @@ import hookIpc from './frontend/ipc/listeners';
 
 hookIpc();
 
-// TODO display script errors
 render(
   <Provider store={store}>
     <Root />
