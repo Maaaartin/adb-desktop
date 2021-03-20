@@ -35,6 +35,7 @@ import {
   GET_SETTING_SYSTEM,
   GET_PROP,
   RENEW_TOKEN,
+  DISPLAY_ERROR,
 } from '../constants';
 import {
   ADB_SETTINGS_LOAD,
@@ -206,15 +207,16 @@ export default class MenuBuilder {
 
   private hookActions() {
     ipc.on(OPEN_ADB, () => {
-      OpenShell.adb();
+      this.send(DISPLAY_ERROR, new Error('helllo'));
+      OpenShell.adb().catch((err) => this.send(DISPLAY_ERROR, err));
     });
 
     ipc.on(OPEN_ADB_SHELL, (event, data) => {
-      OpenShell.adbShell(data);
+      OpenShell.adbShell(data).catch((err) => this.send(DISPLAY_ERROR, err));
     });
 
     ipc.on(OPEN_EMULATOR, (event, data) => {
-      OpenShell.emulator(data);
+      OpenShell.emulator(data).catch((err) => this.send(DISPLAY_ERROR, err));
     });
 
     ipc.on(WRITE_TOKEN, (event, data) => {

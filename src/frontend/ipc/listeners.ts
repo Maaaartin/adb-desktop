@@ -2,6 +2,7 @@ import { AdbClientOptions, IAdbDevice } from 'adb-ts';
 import { ipcRenderer as ipc } from 'electron';
 import { Dictionary, get as getProp, isEmpty as emp } from 'lodash';
 import Notifications from 'react-notification-system-redux';
+import { DISPLAY_ERROR } from '../../constants';
 import { AdbStatus } from '../redux/actions';
 import {
   ADB_SETTINGS_LOAD,
@@ -83,5 +84,15 @@ const hookIpc = () => {
     });
   });
 };
+
+ipc.on(DISPLAY_ERROR, (event, data: Error) => {
+  store.dispatch(
+    Notifications.error({
+      title: 'Error',
+      message: data.message,
+      position: 'tr',
+    })
+  );
+});
 
 export default hookIpc;

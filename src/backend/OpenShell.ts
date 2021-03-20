@@ -6,11 +6,14 @@ import Preferences from './Preferences';
 
 function formatCmd(cmd: string) {
   return `./${cmd}`;
+}
+
+function formatCwd(cwd: string) {
   switch (process.platform) {
     case 'win32':
-      return cmd;
+      return cwd;
     default:
-      return `./${cmd}`;
+      return `${Path.sep}${cwd}`;
   }
 }
 
@@ -27,7 +30,7 @@ export default class OpenShell {
     const cwd = Path.join(...split.splice(0, split.length - 1));
     return new Promise<void>((resolve, reject) => {
       exec(
-        `${OpenShell.script} "${Path.sep}${cwd}" "${formatCmd(cmd)}"`,
+        `${OpenShell.script} "${formatCwd(cwd)}" "${formatCmd(cmd)}"`,
         (err) => {
           if (!err) return resolve();
           else return reject(err);
@@ -41,13 +44,10 @@ export default class OpenShell {
     const split = options.bin?.split(Path.sep) || [];
     const cwd = Path.join(...split.splice(0, split.length - 1));
     return new Promise<void>((resolve, reject) => {
-      exec(
-        `${OpenShell.script} "${Path.sep}${cwd}" "${formatCmd('adb devices')}"`,
-        (err) => {
-          if (!err) return resolve();
-          else return reject(err);
-        }
-      );
+      exec(`${OpenShell.script} "${formatCwd(cwd)}" ""`, (err) => {
+        if (!err) return resolve();
+        else return reject(err);
+      });
     });
   }
 
@@ -57,7 +57,7 @@ export default class OpenShell {
     const cwd = ' ';
     const cmd = `telnet localhost ${port}`;
     return new Promise<void>((resolve, reject) => {
-      exec(`${OpenShell.script} "${Path.sep}${cwd}" "${cmd}"`, (err) => {
+      exec(`${OpenShell.script} "${formatCwd(cwd)}" "${cmd}"`, (err) => {
         if (!err) return resolve();
         else return reject(err);
       });
