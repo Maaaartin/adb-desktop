@@ -4,38 +4,29 @@ import fs from 'fs';
 import Path from 'path';
 import getAppDataPath from 'appdata-path';
 
-// function getAppdata() {
-//   switch (process.platform) {
-//     case 'win32':
-//       return Path.join(process.env.APPDATA || '', 'AdbDesktop');
-//     case 'linux':
-//       return Path.join(process.env.HOME || '', '.local', 'share', 'AdbDesktop');
-//     default:
-//       return Path.join(
-//         process.env.HOME || '',
-//         'Library',
-//         'Preferences',
-//         'AdbDesktop'
-//       );
-//   }
-// }
+function getAppData(path: string) {
+  switch (process.platform) {
+    // needs to use data folder on mac
+    case 'darwin':
+      return Path.join(process.env.HOME || '', 'data', path);
+    default:
+      return getAppDataPath(path);
+  }
+}
 
 function getPreferences(path: string) {
   let preferences: Record<string, any>;
   try {
     preferences = JSON.parse(fs.readFileSync(path).toString());
   } catch (e) {
-    fs.mkdirSync(getAppDataPath('AdbDesktop'));
+    fs.mkdirSync(getAppData('AdbDesktop'));
     preferences = {};
   }
   return preferences;
 }
 
 export default class Preferences {
-  private static path = Path.join(
-    getAppDataPath('AdbDesktop'),
-    'settings.json'
-  );
+  private static path = Path.join(getAppData('AdbDesktop'), 'settings.json');
   private static preferences = getPreferences(Preferences.path);
 
   static get(key: string): Record<string, any> {

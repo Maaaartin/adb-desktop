@@ -207,7 +207,6 @@ export default class MenuBuilder {
 
   private hookActions() {
     ipc.on(OPEN_ADB, () => {
-      this.send(DISPLAY_ERROR, new Error('helllo'));
       OpenShell.adb().catch((err) => this.send(DISPLAY_ERROR, err));
     });
 
