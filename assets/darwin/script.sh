@@ -1,6 +1,7 @@
-# osascript -e 'tell application "Terminal" to activate' -e 'tell application "System Events" to tell process "Terminal" to keystroke "t" using command down'
-# cd $1
-a="'tell app \"Terminal\"
-    do script \"echo ${$1}\""
-echo a
-# osascript -e "\"${a} end tell\""
+# osascript -e 'tell app "Terminal"
+#     do script "echo hello"
+# end tell'
+a="tell app \"Terminal\"
+    do script \"cd "$1"\r\nclear\r\n "$2"\"
+end tell"
+osascript -e "$a"
