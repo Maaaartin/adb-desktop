@@ -79,33 +79,10 @@ export default class MenuBuilder {
   }
 
   private hookWindow() {
+    process.on('exit', () => {
+      this.adbHandler.stop();
+    });
     this.mainWindow.once('show', () => {
-      // const dev1: AdbDevice = {
-      //   id: 'one',
-      //   state: 'device',
-      //   transport: 'usb',
-      // };
-      // const dev2: AdbDevice = {
-      //   id: 'twho',
-      //   state: 'device',
-      //   transport: 'usb',
-      // };
-      // const dev3: AdbDevice = {
-      //   id: 'three',
-      //   state: 'device',
-      //   transport: 'usb',
-      // };
-      // const dev4: AdbDevice = {
-      //   id: 'foud',
-      //   state: 'device',
-      //   transport: 'usb',
-      // };
-
-      // this.send(DEVICE_CHANGE, { id: dev1.id, data: dev1 });
-      // this.send(DEVICE_CHANGE, { id: dev2.id, data: dev2 });
-      // this.send(DEVICE_CHANGE, { id: dev3.id, data: dev3 });
-      // this.send(DEVICE_CHANGE, { id: dev4.id, data: dev4 });
-
       const options = this.adbHandler.getAdbOptions();
       this.adbHandler.start(options);
       this.send(ADB_SETTINGS_LOAD, options);

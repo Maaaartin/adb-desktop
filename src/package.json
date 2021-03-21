@@ -2,12 +2,12 @@
   "name": "adb-desktop",
   "productName": "adb-desktop",
   "version": "0.0.1",
-  "description": "Electron application boilerplate based on React, React Router, Webpack, React Hot Loader for rapid application development",
+  "description": "Tools for ADB operations with GUI",
   "main": "./main.prod.js",
   "author": {
-    "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
-    "url": "https://github.com/electron-react-boilerplate"
+    "name": "Martin Svoboda",
+    "email": "svobma96@gmai.com",
+    "url": "https://github.com/Maaaartin/adb-desktop"
   },
   "scripts": {
     "electron-rebuild": "node -r ../.erb/scripts/BabelRegister.js ../.erb/scripts/ElectronRebuild.js",

@@ -33,6 +33,7 @@ type State = {
   historyLen: number;
 };
 
+// TODO error on bin not found
 class Settings extends Component<any, State> {
   constructor(props: Record<string, any>) {
     super(props);
@@ -47,7 +48,6 @@ class Settings extends Component<any, State> {
     };
     this.onChangeFile = this.onChangeFile.bind(this);
     this.onPortChange = this.onPortChange.bind(this);
-    this.onHostChange = this.onHostChange.bind(this);
     this.onTokenChange = this.onTokenChange.bind(this);
     this.onLinesChange = this.onLinesChange.bind(this);
     this.onHistoryLenChange = this.onHistoryLenChange.bind(this);
@@ -154,11 +154,6 @@ class Settings extends Component<any, State> {
     this.setState({ adb: { ...adb, port: Number(event.target.value) } });
   }
 
-  onHostChange(event: ChangeEvent<HTMLInputElement>) {
-    const { adb } = this.state;
-    this.setState({ adb: { ...adb, host: event.target.value } });
-  }
-
   onTokenChange(event: ChangeEvent<HTMLInputElement>) {
     this.setState({ token: event.target.value });
   }
@@ -189,7 +184,7 @@ class Settings extends Component<any, State> {
 
   render() {
     const {
-      adb: { bin, host, port },
+      adb: { bin, port },
       token,
       openAdb,
       openEmulator,
@@ -198,7 +193,7 @@ class Settings extends Component<any, State> {
       historyLen,
     } = this.state;
     return (
-      <Card style={{ backgroundColor: '#dddd' }} className="w-full mb-1">
+      <Card style={{ backgroundColor: '#dddd' }} className="w-full">
         <CardHeader title={'Settings'} />
         <CardContent>
           <Divider />
@@ -213,23 +208,21 @@ class Settings extends Component<any, State> {
           <Collapse in={openAdb}>
             <Row>
               <Col sm={4}>
-                <Row>
-                  <Button
-                    variant="contained"
-                    component="label"
-                    className="m-auto"
-                  >
-                    <span>ADB Path</span>
-                    <input
-                      type="file"
-                      hidden
-                      onChange={this.onChangeFile}
-                      value={''}
-                    />
-                  </Button>
-                </Row>
-                <Row>{bin}</Row>
+                <Button
+                  variant="contained"
+                  component="label"
+                  className="m-auto"
+                >
+                  <span>ADB Path</span>
+                  <input
+                    type="file"
+                    hidden
+                    onChange={this.onChangeFile}
+                    value={''}
+                  />
+                </Button>
               </Col>
+              <Col sm={4}>{bin}</Col>
               <Col sm={4}>
                 <TextField
                   label="port"
@@ -239,13 +232,6 @@ class Settings extends Component<any, State> {
                     shrink: true,
                   }}
                   onChange={this.onPortChange}
-                />
-              </Col>
-              <Col sm={4}>
-                <TextField
-                  label={'host'}
-                  value={host}
-                  onChange={this.onTokenChange}
                 />
               </Col>
             </Row>

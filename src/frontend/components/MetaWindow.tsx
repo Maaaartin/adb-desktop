@@ -107,22 +107,29 @@ class MetaWindow<T> extends Component<Props<T>, State<T>> {
                   index={index}
                   item={item}
                   itemMaker={itemMaker}
-                  onSetValue={(value) => {
-                    itemSetter?.(item[0], value, (err) => {
-                      if (err) {
-                        notifError({
-                          title: 'Operation failed',
-                          message: err.message,
-                          position: 'tr',
-                        });
-                      } else
-                        itemGetter?.(item[0], (err, output) => {
-                          this.setState({
-                            collection: { ...collection, [item[0]]: output },
+                  onSetValue={
+                    itemSetter && itemGetter
+                      ? (value) => {
+                          itemSetter(item[0], value, (err) => {
+                            if (err) {
+                              notifError({
+                                title: 'Operation failed',
+                                message: err.message,
+                                position: 'tr',
+                              });
+                            } else
+                              itemGetter(item[0], (err, output) => {
+                                this.setState({
+                                  collection: {
+                                    ...collection,
+                                    [item[0]]: output,
+                                  },
+                                });
+                              });
                           });
-                        });
-                    });
-                  }}
+                        }
+                      : undefined
+                  }
                 />
               );
             })}

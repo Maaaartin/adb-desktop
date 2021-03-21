@@ -5,30 +5,30 @@ import {
   Collapse,
   Divider,
 } from '@material-ui/core';
-import AdbDevice from 'adb-ts/lib/device';
+import { IAdbDevice } from 'adb-ts';
 import { Dictionary } from 'lodash';
 import React, { useState } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
-import { FaAnkh, FaMobileAlt, FaRobot, FaTerminal } from 'react-icons/fa';
+import { FaMobileAlt, FaRobot, FaTerminal } from 'react-icons/fa';
 import { connect, ConnectedProps } from 'react-redux';
 import {
   getBattery,
   getFeatures,
   getPackages,
+  getProp,
   getProps,
+  getSettingGlobal,
+  getSettingSecure,
   getSettingsGlobal,
   getSettingsSecure,
   getSettingsSystem,
-  getProp,
-  getSettingGlobal,
-  getSettingSecure,
   getSettingSystem,
 } from '../ipc/getters';
 import {
-  setProp,
   putSettingGlobal,
   putSettingSecure,
   putSettingSystem,
+  setProp,
 } from '../ipc/setters';
 import { Tab, tabAdd, tabDel } from '../redux/actions';
 import CollapseButton from './CollapseButton';
@@ -38,7 +38,7 @@ import MonkeyConsole from './consoles/MonkeyConsole';
 import DeviceItem from './DeviceItem';
 import IconBtn from './IconBtn';
 
-type Props = { device: AdbDevice };
+type Props = { device: IAdbDevice };
 
 const Device = (props: Props) => {
   const [open, setOpen] = useState(false);

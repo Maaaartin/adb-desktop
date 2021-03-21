@@ -11,16 +11,16 @@ const Devices = (props: any) => {
   const { devices } = props as PropsRedux;
   return (
     <Scrollable>
-      <Grid
+      <div
         className="align-middle overflow-y-scroll"
-        style={{ maxHeight: 'calc(80vh - 100px)', width: '200vh' }}
+        style={{ maxHeight: 'calc(80vh - 100px)' }}
       >
         {emp(devices) ? (
           <span>No devices connected</span>
         ) : (
           devices.map((d, index) => <Device key={index} device={d} />)
         )}
-      </Grid>
+      </div>
     </Scrollable>
   );
 };
