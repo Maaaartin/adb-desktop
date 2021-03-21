@@ -20,10 +20,11 @@ type Props = {
 };
 
 const BlinkCursor = () => {
-  // TODO memory leaks
   const [blink, setBlink] = useState(false);
-  useEffect(() => {}, [blink]);
-  setTimeout(() => {
+  useEffect(() => {
+    return () => clearTimeout(timeout);
+  }, []);
+  let timeout = setTimeout(() => {
     setBlink(!blink);
   }, 500);
   return <span className={blink ? 'opacity-0' : ''}>|</span>;
