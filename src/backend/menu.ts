@@ -78,7 +78,6 @@ export default class MenuBuilder {
     this.hookSends();
   }
 
-  // TODO error display when script fails
   private hookWindow() {
     this.mainWindow.once('show', () => {
       // const dev1: AdbDevice = {

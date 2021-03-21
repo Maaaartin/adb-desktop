@@ -32,14 +32,14 @@ jobs:
         run: |
           yarn postinstall && yarn build && yarn electron-builder --win --mac --linux
 
-      - name: Create zip
-        uses: papeloto/action-zip@v1
-        with:
-          files: './release'
-          dest: release.zip
+      # - name: Create zip
+      #   uses: papeloto/action-zip@v1
+      #   with:
+      #     files: './release'
+      #     dest: release.zip
 
       - name: Release
         uses: 'marvinpinto/action-automatic-releases@latest'
         with:
           repo_token: '${{ secrets.GITHUB_TOKEN }}'
-          files: release.zip
+          files: release
