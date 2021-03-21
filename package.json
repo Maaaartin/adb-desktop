@@ -284,7 +284,8 @@
     "redux-thunk": "^2.3.0",
     "regenerator-runtime": "^0.13.5",
     "remove": "^0.1.5",
-    "source-map-support": "^0.5.19"
+    "source-map-support": "^0.5.19",
+    "sudo-prompt": "^9.2.1"
   },
   "devEngines": {
     "node": ">=10.x",

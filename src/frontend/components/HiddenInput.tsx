@@ -1,4 +1,4 @@
-import React, { Component, KeyboardEvent, useState } from 'react';
+import React, { Component, KeyboardEvent, useEffect, useState } from 'react';
 
 type State = {
   start: string;
@@ -20,7 +20,9 @@ type Props = {
 };
 
 const BlinkCursor = () => {
+  // TODO memory leaks
   const [blink, setBlink] = useState(false);
+  useEffect(() => {}, [blink]);
   setTimeout(() => {
     setBlink(!blink);
   }, 500);

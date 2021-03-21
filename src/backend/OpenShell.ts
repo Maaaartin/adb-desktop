@@ -1,66 +1,28 @@
 import { AdbClientOptions } from 'adb-ts';
-import { exec } from 'child_process';
-import { app } from 'electron';
 import Path from 'path';
+import Executor from './Executor';
 import Preferences from './Preferences';
 
-function formatCmd(cmd: string) {
-  return `./${cmd}`;
-}
-
-function formatCwd(cwd: string) {
-  switch (process.platform) {
-    case 'win32':
-      return cwd;
-    default:
-      return `${Path.sep}${cwd}`;
-  }
-}
-
-const scriptPath = Path.join('assets', process.platform, 'script.sh');
-
 export default class OpenShell {
-  static readonly script = app.isPackaged
-    ? Path.join(process.resourcesPath, scriptPath)
-    : Path.join(__dirname, '..', '..', scriptPath);
   static adbShell(id: string) {
     const options = Preferences.get('adb') as AdbClientOptions;
     const split = options.bin?.split(Path.sep) || [];
     const cmd = `${split[split.length - 1]} -s ${id} shell`;
     const cwd = Path.join(...split.splice(0, split.length - 1));
-    return new Promise<void>((resolve, reject) => {
-      exec(
-        `${OpenShell.script} "${formatCwd(cwd)}" "${formatCmd(cmd)}"`,
-        (err) => {
-          if (!err) return resolve();
-          else return reject(err);
-        }
-      );
-    });
+    return new Executor({ cmd: `./${cmd}`, cwd }).execute();
   }
 
   static adb() {
     const options = Preferences.get('adb') as AdbClientOptions;
     const split = options.bin?.split(Path.sep) || [];
     const cwd = Path.join(...split.splice(0, split.length - 1));
-    return new Promise<void>((resolve, reject) => {
-      exec(`${OpenShell.script} "${formatCwd(cwd)}" ""`, (err) => {
-        if (!err) return resolve();
-        else return reject(err);
-      });
-    });
+    return new Executor({ cwd }).execute();
   }
 
   static emulator(serial: string) {
     const match = serial.match(/\d+/g);
     const port = match ? match[0] : 5554;
-    const cwd = ' ';
     const cmd = `telnet localhost ${port}`;
-    return new Promise<void>((resolve, reject) => {
-      exec(`${OpenShell.script} "${formatCwd(cwd)}" "${cmd}"`, (err) => {
-        if (!err) return resolve();
-        else return reject(err);
-      });
-    });
+    return new Executor({ cmd }).execute();
   }
 }
