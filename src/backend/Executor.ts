@@ -20,11 +20,21 @@ export default class Executor {
     }
   }
 
+  private build(path: string) {
+    switch (process.platform) {
+      case 'win32':
+        return path;
+      default:
+        return `sh ${path}`;
+    }
+  }
+
   private getPath(script: 'request' | 'script') {
     const scriptPath = Path.join('assets', process.platform, `${script}.sh`);
-    return app.isPackaged
+    const p = app.isPackaged
       ? Path.join(process.resourcesPath, scriptPath)
       : Path.join(__dirname, '..', '..', scriptPath);
+    return this.build(p);
   }
 
   private request() {
@@ -49,6 +59,6 @@ export default class Executor {
         );
       });
     };
-    return internal().catch(() => this.request().then(() => internal()));
+    return internal();
   }
 }
