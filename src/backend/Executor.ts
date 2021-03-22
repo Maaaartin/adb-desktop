@@ -1,7 +1,6 @@
-import Path from 'path';
-import { app } from 'electron';
 import { exec } from 'child_process';
-import { exec as execSudo } from 'sudo-prompt';
+import { app } from 'electron';
+import Path from 'path';
 
 export default class Executor {
   private opt: { cmd: string; cwd: string };
@@ -29,36 +28,21 @@ export default class Executor {
     }
   }
 
-  private getPath(script: 'request' | 'script') {
-    const scriptPath = Path.join('assets', process.platform, `${script}.sh`);
+  private getPath() {
+    const scriptPath = Path.join('assets', process.platform, `script.sh`);
     const p = app.isPackaged
       ? Path.join(process.resourcesPath, scriptPath)
       : Path.join(__dirname, '..', '..', scriptPath);
     return this.build(p);
   }
 
-  private request() {
-    return new Promise<void>((resolve, reject) => {
-      execSudo(this.getPath('request'), (err) => {
-        if (err) return reject(err);
-        else return resolve();
-      });
-    });
-  }
-
   execute() {
     const { cmd, cwd } = this.opt;
-    const internal = () => {
-      return new Promise<void>((resolve, reject) => {
-        exec(
-          `${this.getPath('script')} "${this.formatCwd(cwd)}" "${cmd}"`,
-          (err) => {
-            if (!err) return resolve();
-            else return reject(err);
-          }
-        );
+    return new Promise<void>((resolve, reject) => {
+      exec(`${this.getPath()} "${this.formatCwd(cwd)}" "${cmd}"`, (err) => {
+        if (!err) return resolve();
+        else return reject(err);
       });
-    };
-    return internal();
+    });
   }
 }
