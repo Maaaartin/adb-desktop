@@ -79,7 +79,6 @@ export default class MenuBuilder {
   }
 
   private hookWindow() {
-    // TODO fix this
     process.on('beforeExit', () => {
       this.adbHandler.stop();
     });

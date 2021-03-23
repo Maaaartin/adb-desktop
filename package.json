@@ -15,7 +15,7 @@
     "start:renderer": "yarn run watch:css && cross-env NODE_ENV=development webpack serve --config ./.erb/configs/webpack.config.renderer.dev.babel.js",
     "test": "jest",
     "watch:css": "postcss src/frontend/assets/tailwind.css -o src/frontend/assets/main.css",
-    "docs": "node ./docs/copy.js"
+    "docs": "shx cp ./docs/README.md ./release./README.md"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
