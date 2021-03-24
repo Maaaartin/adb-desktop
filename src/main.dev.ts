@@ -93,12 +93,13 @@ const createWindow = async () => {
     }
   });
 
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
-
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
+
+  mainWindow.on('closed', () => {
+    menuBuilder.destroy();
+    mainWindow = null;
+  });
 
   // Open urls in the user's browser
   mainWindow.webContents.on('new-window', (event, url) => {

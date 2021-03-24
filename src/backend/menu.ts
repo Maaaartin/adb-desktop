@@ -1,5 +1,4 @@
 import { AdbClientOptions } from 'adb-ts';
-import AdbDevice from 'adb-ts/lib/device';
 import {
   app,
   BrowserWindow,
@@ -665,5 +664,9 @@ export default class MenuBuilder {
     ];
 
     return templateDefault;
+  }
+
+  destroy() {
+    ipc.removeAllListeners();
   }
 }
