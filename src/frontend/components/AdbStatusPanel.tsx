@@ -33,7 +33,7 @@ const AdbStatusPanel = (props: any) => {
           Status: {status}
         </Col>
         <Col sm={6}>
-          <Button variant="contained" onClick={() => toggleAdb()}>
+          <Button variant="contained" size="small" onClick={() => toggleAdb()}>
             {start ? 'Start' : 'Stop'}
           </Button>
         </Col>
