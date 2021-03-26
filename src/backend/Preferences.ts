@@ -14,7 +14,6 @@ function getAppData(path: string) {
   }
 }
 
-// TODO test path on mac
 function getPreferences(path: string) {
   let preferences: Record<string, any>;
   try {
