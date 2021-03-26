@@ -68,7 +68,10 @@ export default class MenuBuilder {
     this.mainWindow = mainWindow;
     this.adbHandler = new AdbHandler();
     this.emulatorHandler = new EmulatorHandler();
+    this.hook();
+  }
 
+  private hook() {
     this.hookGetters();
     this.hookWindow();
     this.hookActions();
@@ -78,10 +81,12 @@ export default class MenuBuilder {
     this.hookSends();
   }
 
+  destroy() {
+    this.adbHandler.stop();
+    ipc.removeAllListeners();
+  }
+
   private hookWindow() {
-    this.mainWindow.once('close', () => {
-      this.adbHandler.stop();
-    });
     this.mainWindow.once('show', () => {
       const options = this.adbHandler.getAdbOptions();
       this.adbHandler.start(options);
