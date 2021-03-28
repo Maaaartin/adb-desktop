@@ -52,6 +52,7 @@ import AdbHandler from './adb';
 import EmulatorHandler from './emulator';
 import OpenShell from './OpenShell';
 import Preferences from './Preferences';
+import { DOCS_LINK, ISSUES_LINK } from '../links';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -539,17 +540,13 @@ export default class MenuBuilder {
         {
           label: 'Documentation',
           click() {
-            shell.openExternal(
-              'https://github.com/Maaaartin/adb-desktop/docs#readme'
-            );
+            shell.openExternal(DOCS_LINK);
           },
         },
         {
           label: 'Search Issues',
           click() {
-            shell.openExternal(
-              'https://github.com/Maaaartin/adb-desktop/issues'
-            );
+            shell.openExternal(ISSUES_LINK);
           },
         },
       ],
@@ -630,17 +627,13 @@ export default class MenuBuilder {
           {
             label: 'Documentation',
             click() {
-              shell.openExternal(
-                'https://github.com/Maaaartin/adb-desktop/docs#readme'
-              );
+              shell.openExternal(DOCS_LINK);
             },
           },
           {
             label: 'Search Issues',
             click() {
-              shell.openExternal(
-                'https://github.com/Maaaartin/adb-desktop/issues'
-              );
+              shell.openExternal(ISSUES_LINK);
             },
           },
         ],

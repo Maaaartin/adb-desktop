@@ -1,4 +1,5 @@
 import React from 'react';
+import { ADB_LINK, ADB_TS_LINK } from '../../../links';
 import { execAdb } from '../../ipc/exec';
 import { openAdb } from '../../ipc/send';
 import Console from '../Console';
@@ -15,6 +16,7 @@ const AdbConsole = (props: { onExit?: VoidFunction }) => {
         openAdb();
       }}
       onExit={props.onExit}
+      links={[ADB_LINK, ADB_TS_LINK]}
     />
   );
 };

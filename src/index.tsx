@@ -7,8 +7,6 @@ import store from './frontend/redux/store';
 import Root from './frontend/Root';
 import hookIpc from './frontend/ipc/listeners';
 
-// todo add link to monkey docs + links to console
-// signing?
 hookIpc();
 
 render(

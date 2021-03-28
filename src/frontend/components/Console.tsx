@@ -1,4 +1,5 @@
 import { Fireworks } from 'fireworks/lib/react';
+import { isEmpty as emp } from 'lodash';
 import React, { Component } from 'react';
 import { FaLink } from 'react-icons/fa';
 import { connect, ConnectedProps } from 'react-redux';
@@ -8,7 +9,7 @@ import HiddenInput from './HiddenInput';
 import IconBtn from './IconBtn';
 
 type State = {
-  logs: { isCommand?: boolean; value: string }[];
+  logs: { isCommand?: boolean; value: string; isLink?: boolean }[];
   firework: boolean;
   execution: boolean;
 };
@@ -22,6 +23,7 @@ type Props = {
   ) => void;
   tag?: string;
   onExit?: VoidFunction;
+  links?: string[];
 };
 
 class Console extends Component<Props, State> {
@@ -32,7 +34,7 @@ class Console extends Component<Props, State> {
     this.state = {
       logs: [
         { value: `type 'help' for help` },
-        { value: `use 'Shift' + arrow keys to mark the textcls` },
+        { value: `use 'Shift' + arrow keys to mark the text` },
       ],
       firework: false,
       execution: false,
@@ -107,13 +109,18 @@ class Console extends Component<Props, State> {
         break;
       case 'help':
         {
-          const { id, addHistory, exec } = this.props as PropsRedux;
+          const { id, addHistory, exec, links } = this.props as PropsRedux;
           logs.push({ value: cmd, isCommand: true });
           logs.push(
             { value: `${this.formatHelp('exit', 'close the console')}` },
             { value: `${this.formatHelp('cls', 'clear the console')}` },
             { value: `${this.formatHelp('help', 'display help')}` }
           );
+          if (!emp(links)) {
+            logs.push({ value: 'For more information check links below:' });
+            links?.forEach((link) => logs.push({ value: link, isLink: true }));
+          }
+          logs.push({ value: '\r\n' });
           this.setState({ logs, execution: true });
           addHistory(cmd);
           exec({ id, cmd }, (error, output) => {
@@ -182,7 +189,15 @@ class Console extends Component<Props, State> {
                 {line.isCommand && (
                   <span className="text-gray-500">{`${tag || id}> `}</span>
                 )}
-                <span>{line.value}</span>
+                <span>
+                  {line.isLink ? (
+                    <a href={line.value} className="underline">
+                      {line.value}
+                    </a>
+                  ) : (
+                    line.value
+                  )}
+                </span>
               </li>
             );
           })}
