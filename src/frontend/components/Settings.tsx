@@ -33,7 +33,6 @@ type State = {
   historyLen: number;
 };
 
-// TODO error on bin not found
 class Settings extends Component<any, State> {
   constructor(props: Record<string, any>) {
     super(props);
