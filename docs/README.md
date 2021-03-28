@@ -2,10 +2,10 @@
 
 ADB Desktop is a GUI tool for [ADB](https://developer.android.com/studio/command-line/adb).
 
-## Requiremets
+## Requirements
 
-* Android platform tools dowloaded
-* telnet enabled on the machine
+- Android platform tools downloaded
+- telnet enabled on the machine
 
 ## Installation
 
@@ -23,6 +23,13 @@ Move the `*.dmg` file to `Applications` folder, start the application and if nee
 
 ## Description
 
-ADB Desktop needs to be specified an absolute path to the ADB binary. To do so go so `Settings` tab and locate the file.
+ADB Desktop needs to be specified an absolute path to the ADB binary. To do so go so `Settings` tab and locate the file. Settings save automatically when closed.
 
-Application provides UI for ADB, ADB shell and Emulator console. 
+Application provides UI for ADB, ADB shell and Emulator console.
+
+See links:
+
+- [ADB](https://developer.android.com/studio/command-line/adb)
+- [Emulator console](https://developer.android.com/studio/run/emulator-console)
+- [adb-ts](https://www.npmjs.com/package/adb-ts)
+- [emulator-ts](https://www.npmjs.com/package/emulator-ts)

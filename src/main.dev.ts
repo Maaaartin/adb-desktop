@@ -95,13 +95,9 @@ const createWindow = async () => {
     }
   });
 
-  const menuBuilder = new MenuBuilder(mainWindow);
-  menuBuilder.buildMenu();
-
   mainWindow.on('closed', () => {
-    menuBuilder.destroy();
-    mainWindow = null;
     menuBuilder?.destroy();
+    mainWindow = null;
     menuBuilder = null;
   });
 

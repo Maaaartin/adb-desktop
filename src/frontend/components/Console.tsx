@@ -118,7 +118,7 @@ class Console extends Component<Props, State> {
           addHistory(cmd);
           exec({ id, cmd }, (error, output) => {
             if (error) {
-              this.setState({ execution: false });
+              this.setState({ execution: false }, () => this.focus());
               return;
             } else {
               logs.push(...this.parseExec(output));

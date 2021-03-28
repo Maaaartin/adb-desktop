@@ -378,7 +378,10 @@ export default class MenuBuilder {
   }
 
   private send(message: string, data?: any) {
-    this.mainWindow.webContents.send(message, data);
+    // object might have been destroyed
+    try {
+      this.mainWindow.webContents.send(message, data);
+    } catch (e) {}
   }
 
   private hookSends() {
@@ -639,29 +642,19 @@ export default class MenuBuilder {
         label: 'Help',
         submenu: [
           {
-            label: 'Learn More',
-            click() {
-              shell.openExternal('https://electronjs.org');
-            },
-          },
-          {
             label: 'Documentation',
             click() {
               shell.openExternal(
-                'https://github.com/electron/electron/tree/master/docs#readme'
+                'https://github.com/Maaaartin/adb-desktop/docs#readme'
               );
-            },
-          },
-          {
-            label: 'Community Discussions',
-            click() {
-              shell.openExternal('https://www.electronjs.org/community');
             },
           },
           {
             label: 'Search Issues',
             click() {
-              shell.openExternal('https://github.com/electron/electron/issues');
+              shell.openExternal(
+                'https://github.com/Maaaartin/adb-desktop/issues'
+              );
             },
           },
         ],
