@@ -29,10 +29,10 @@ const AdbStatusPanel = (props: any) => {
         </Col>
       </Row>
       <Row>
-        <Col className="pt-1" sm={6}>
+        <Col className="pt-1" xs={6}>
           Status: {status}
         </Col>
-        <Col sm={6}>
+        <Col xs={6}>
           <Button variant="contained" size="small" onClick={() => toggleAdb()}>
             {start ? 'Start' : 'Stop'}
           </Button>

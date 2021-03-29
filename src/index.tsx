@@ -8,7 +8,8 @@ import Root from './frontend/Root';
 import hookIpc from './frontend/ipc/listeners';
 
 hookIpc();
-
+// TODO fix device remove on Mac
+// TODO fix monkey memory leak + reamove logs in adb-ts
 render(
   <Provider store={store}>
     <Root />

@@ -7,6 +7,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import React, { Component } from 'react';
+import open from 'open';
 import { Col, Row } from 'react-flexbox-grid';
 import { FaAndroid, FaCog, FaTerminal } from 'react-icons/fa';
 import Notifications from 'react-notification-system-redux';
@@ -19,6 +20,8 @@ import Settings from './components/Settings';
 import Tabs from './components/Tabs';
 import { Tab, tabAdd, tabDel, writeConsoleSettings } from './redux/actions';
 import { GlobalState } from './redux/reducers';
+import { version } from '../package.json';
+import { DOCS_LINK, ISSUES_LINK } from '../links';
 
 class Root extends Component {
   constructor(props: PropsRedux) {
@@ -64,7 +67,7 @@ class Root extends Component {
       <div className="h-screen">
         <Notifications notifications={notifications} />
         <Row top="xs" style={{ height: 'calc(100% - 80px)' }}>
-          <Col xs={3} style={{ marginRight: '17px' }}>
+          <Col md={2} sm={4} xs={4} style={{ marginRight: '17px' }}>
             <Divider />
             <MenuList>
               <MenuItem onClick={() => this.onSelect('settings')}>
@@ -90,7 +93,7 @@ class Root extends Component {
             <DeviceCards />
             <Divider />
           </Col>
-          <Col xs={8} className="h-full">
+          <Col md={9} sm={7} xs={7} className="h-full">
             <Tabs />
           </Col>
         </Row>
@@ -105,10 +108,28 @@ class Root extends Component {
             <AdbStatusDisplay />
           </Col>
           <Col xs={3}>
-            <Link>Docs</Link>
+            <Row>
+              <Col xs={6}>
+                <Link
+                  className="cursor-pointer"
+                  onClick={() => open(DOCS_LINK)}
+                >
+                  Docs
+                </Link>
+              </Col>
+              <Col xs={6}>
+                <Link
+                  className="cursor-pointer"
+                  onClick={() => open(ISSUES_LINK)}
+                >
+                  Issues
+                </Link>
+              </Col>
+            </Row>
           </Col>
           <Col xs={3} className="font-mono text-right mr-2">
-            © Martin Svoboda
+            <Row>version: {version}</Row>
+            <Row>by Mr. Martin</Row>
           </Col>
         </Row>
       </div>

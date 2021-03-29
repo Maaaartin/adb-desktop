@@ -102,7 +102,7 @@ class DeviceItem<T> extends Component<Props<T>, State<T>> {
               <IconBtn
                 className="float-right"
                 IconEl={FaLink}
-                tag="Open in a new window"
+                tag="Open in a new tab"
                 onClick={() => {
                   getter &&
                     onSearch &&

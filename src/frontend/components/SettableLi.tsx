@@ -20,6 +20,12 @@ const SettableLi = <T extends unknown>(props: {
   const [active, setActive] = useState(false);
   const [value, setValue] = useState('');
 
+  const onSet = (value: string) => {
+    setActive(false);
+    setValue('');
+    onSetValue?.(value);
+  };
+
   return (
     <Li
       index={index}
@@ -30,28 +36,28 @@ const SettableLi = <T extends unknown>(props: {
         }
       }}
     >
-      <Row style={{ margin: 0 }} className="pl-1 whitespace-pre-wrap">
+      <Row
+        onClick={() => setActive(false)}
+        style={{ margin: 0 }}
+        className="pl-1 whitespace-pre-wrap"
+      >
         {createKey && <Col>{createKey(item)}</Col>}
         {createValue && delimiter && <Col>{delimiter}</Col>}
         {active && createValue && onSetValue ? (
-          <>
-            <Col className="font-mono">
-              <HiddenInput
-                textColor="#756766"
-                markedColor="black"
-                initValue={`${value}`}
-                onEnter={(value) => {
-                  setActive(false);
-                  setValue('');
-                  onSetValue(value);
-                }}
-                onEscape={() => {
-                  setActive(false);
-                  setValue('');
-                }}
-              />
-            </Col>
-          </>
+          <Col className="font-mono">
+            <HiddenInput
+              buttonText="Set"
+              onBtnClick={onSet}
+              textColor="black"
+              markedColor="white"
+              initValue={`${value}`}
+              onEnter={onSet}
+              onEscape={() => {
+                setActive(false);
+                setValue('');
+              }}
+            />
+          </Col>
         ) : (
           <Col>
             {createValue &&

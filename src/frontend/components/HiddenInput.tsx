@@ -1,3 +1,4 @@
+import { Button } from '@material-ui/core';
 import React, { Component, KeyboardEvent, useEffect, useState } from 'react';
 
 type State = {
@@ -17,6 +18,8 @@ type Props = {
   markedColor?: string;
   textColor?: string;
   disabled?: boolean;
+  buttonText?: string;
+  onBtnClick?: (value: string) => void;
 };
 
 const BlinkCursor = () => {
@@ -312,7 +315,13 @@ class HiddenInput extends Component<Props, State> {
   }
 
   render() {
-    const { markedColor, textColor, disabled } = this.props;
+    const {
+      markedColor,
+      textColor,
+      disabled,
+      buttonText,
+      onBtnClick,
+    } = this.props;
     const { start, end, markedEnd, markedStart, focused } = this.state;
     return (
       <span
@@ -342,6 +351,14 @@ class HiddenInput extends Component<Props, State> {
           {markedEnd}
         </span>
         <span>{end}</span>
+        {buttonText && (
+          <Button
+            style={{ maxHeight: '25px' }}
+            onClick={() => onBtnClick?.(this.getValue())}
+          >
+            Set
+          </Button>
+        )}
       </span>
     );
   }
