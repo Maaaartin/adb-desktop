@@ -1,4 +1,5 @@
 import React from 'react';
+import { MONKEY_LINK } from '../../../links';
 import { execMonkey } from '../../ipc/exec';
 import { openAdbShell } from '../../ipc/send';
 import Console from '../Console';
@@ -15,6 +16,7 @@ const MonkeyConsole = (props: { id: string; onExit?: VoidFunction }) => {
       }}
       openShell={openAdbShell}
       onExit={props.onExit}
+      links={[MONKEY_LINK]}
     />
   );
 };

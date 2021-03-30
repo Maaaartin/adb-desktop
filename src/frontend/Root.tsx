@@ -7,7 +7,6 @@ import {
   Typography,
 } from '@material-ui/core';
 import React, { Component } from 'react';
-import open from 'open';
 import { Col, Row } from 'react-flexbox-grid';
 import { FaAndroid, FaCog, FaTerminal } from 'react-icons/fa';
 import Notifications from 'react-notification-system-redux';
@@ -22,6 +21,7 @@ import { Tab, tabAdd, tabDel, writeConsoleSettings } from './redux/actions';
 import { GlobalState } from './redux/reducers';
 import { version } from '../package.json';
 import { DOCS_LINK, ISSUES_LINK } from '../links';
+import { openLink } from './ipc/send';
 
 class Root extends Component {
   constructor(props: PropsRedux) {
@@ -112,7 +112,7 @@ class Root extends Component {
               <Col xs={6}>
                 <Link
                   className="cursor-pointer"
-                  onClick={() => open(DOCS_LINK)}
+                  onClick={() => openLink(DOCS_LINK)}
                 >
                   Docs
                 </Link>
@@ -120,7 +120,7 @@ class Root extends Component {
               <Col xs={6}>
                 <Link
                   className="cursor-pointer"
-                  onClick={() => open(ISSUES_LINK)}
+                  onClick={() => openLink(ISSUES_LINK)}
                 >
                   Issues
                 </Link>

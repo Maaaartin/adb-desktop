@@ -3,6 +3,7 @@ import { isEmpty as emp } from 'lodash';
 import React, { Component } from 'react';
 import { FaLink } from 'react-icons/fa';
 import { connect, ConnectedProps } from 'react-redux';
+import { openLink } from '../ipc/send';
 import { addHistory } from '../redux/actions';
 import { GlobalState } from '../redux/reducers';
 import HiddenInput from './HiddenInput';
@@ -191,9 +192,12 @@ class Console extends Component<Props, State> {
                 )}
                 <span>
                   {line.isLink ? (
-                    <a href={line.value} className="underline">
+                    <span
+                      className="underline cursor-pointer"
+                      onClick={() => openLink(line.value)}
+                    >
                       {line.value}
-                    </a>
+                    </span>
                   ) : (
                     line.value
                   )}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { ADB_LINK, ADB_TS_LINK } from '../../../links';
 import { execAdbDevice } from '../../ipc/exec';
 import { openAdbShell } from '../../ipc/send';
 import Console from '../Console';
@@ -14,6 +15,7 @@ const DeviceConsole = (props: { id: string; onExit?: VoidFunction }) => {
       }}
       openShell={openAdbShell}
       onExit={props.onExit}
+      links={[ADB_LINK, ADB_TS_LINK]}
     />
   );
 };

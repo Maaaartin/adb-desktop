@@ -2503,10 +2503,10 @@ acorn@^8.0.4:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.0.5.tgz#a3bfb872a74a6a7f661bc81b9849d9cac12601b7"
   integrity sha512-v+DieK/HJkJOpFBETDJioequtc3PfxsWMaxIdIwujtF7FEV/MAyDQLlm6/zPvr7Mix07mLh6ccVwIsloceodlg==
 
-adb-ts@^1.2.4:
-  version "1.2.4"
-  resolved "https://registry.yarnpkg.com/adb-ts/-/adb-ts-1.2.4.tgz#5042b23c79f7f9fb873a28abbecfa70d2c8cc783"
-  integrity sha512-IZ0Udp39RR5INsftRymSSrL9hRRlmlhxNXv3hNsFBMuArSNaaUXHguPhXTSDHODFU+yPjWSgz1iT4Y8Pywft5Q==
+adb-ts@^1.2.5:
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/adb-ts/-/adb-ts-1.2.5.tgz#a76e396a46564ab0b07629ebd65b3a0d5f9007f9"
+  integrity sha512-oCAkVHqKtC/wum0ACN7qHgW49iV7fTRe7/FqRuuw5E5WqYhfwimJ3Y8zCtCV8OVLAlw0D43WkRtX8GROekbNLQ==
   dependencies:
     bluebird "^3.7.2"
     child_process "^1.0.2"
@@ -12492,9 +12492,9 @@ typescript@^4.0.5:
   integrity sha512-tbb+NVrLfnsJy3M59lsDgrzWIflR4d4TIUjz+heUnHZwdF7YsrMTKoRERiIvI2lvBG95dfpLxB21WZhys1bgaQ==
 
 underscore@^1.12.0:
-  version "1.12.0"
-  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.12.0.tgz#4814940551fc80587cef7840d1ebb0f16453be97"
-  integrity sha512-21rQzss/XPMjolTiIezSu3JAjgagXKROtNrYFEOWK109qY1Uv2tVjPTZ1ci2HgvQDA16gHYSthQIJfB+XId/rQ==
+  version "1.12.1"
+  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.12.1.tgz#7bb8cc9b3d397e201cf8553336d262544ead829e"
+  integrity sha512-hEQt0+ZLDVUMhebKxL4x1BTtDY7bavVofhZ9KZ4aI26X9SRaE+Y3m83XUL1UP2jn8ynjndwCCpEHdUG+9pP1Tw==
 
 unicode-canonical-property-names-ecmascript@^1.0.4:
   version "1.0.4"

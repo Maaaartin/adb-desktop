@@ -1,5 +1,6 @@
 import { Button } from '@material-ui/core';
 import React, { Component, KeyboardEvent, useEffect, useState } from 'react';
+import BlinkCursor from './BlinkCursor';
 
 type State = {
   start: string;
@@ -20,17 +21,6 @@ type Props = {
   disabled?: boolean;
   buttonText?: string;
   onBtnClick?: (value: string) => void;
-};
-
-const BlinkCursor = () => {
-  const [blink, setBlink] = useState(false);
-  useEffect(() => {
-    return () => clearTimeout(timeout);
-  }, []);
-  let timeout = setTimeout(() => {
-    setBlink(!blink);
-  }, 500);
-  return <span className={blink ? 'opacity-0' : ''}>|</span>;
 };
 
 class HiddenInput extends Component<Props, State> {

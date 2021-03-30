@@ -206,7 +206,7 @@ class Settings extends Component<any, State> {
           />
           <Collapse in={openAdb}>
             <Row>
-              <Col sm={4}>
+              <Col>
                 <Button
                   variant="contained"
                   component="label"
@@ -221,7 +221,7 @@ class Settings extends Component<any, State> {
                   />
                 </Button>
               </Col>
-              <Col sm={4}>{bin}</Col>
+              <Col>{bin}</Col>
               <Col sm={4}>
                 <TextField
                   label="port"

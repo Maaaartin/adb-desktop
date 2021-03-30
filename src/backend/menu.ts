@@ -7,6 +7,7 @@ import {
   MenuItemConstructorOptions,
   shell,
 } from 'electron';
+import open from 'open';
 import { EmulatorClient } from 'emulator-ts';
 import {
   EXEC_ADB,
@@ -35,6 +36,7 @@ import {
   GET_PROP,
   RENEW_TOKEN,
   DISPLAY_ERROR,
+  OPEN_LINK,
 } from '../constants';
 import {
   ADB_SETTINGS_LOAD,
@@ -386,6 +388,10 @@ export default class MenuBuilder {
   }
 
   private hookSends() {
+    ipc.on(OPEN_LINK, (ever, link) => {
+      open(link);
+    });
+
     ipc.on(TOGGLE_ADB, () => {
       const running = this.adbHandler.running;
       if (running) {

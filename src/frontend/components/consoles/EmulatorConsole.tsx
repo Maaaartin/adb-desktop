@@ -1,4 +1,5 @@
 import React from 'react';
+import { EMULATOR_LINK, EMULATOR_TS_LINK } from '../../../links';
 import { execEmulator } from '../../ipc/exec';
 import { openEmulator } from '../../ipc/send';
 import Console from '../Console';
@@ -17,6 +18,7 @@ const EmulatorConsole = (props: { id: string; onExit?: VoidFunction }) => {
         openEmulator(id);
       }}
       onExit={onExit}
+      links={[EMULATOR_LINK, EMULATOR_TS_LINK]}
     />
   );
 };
