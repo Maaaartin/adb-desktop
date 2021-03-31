@@ -9,6 +9,7 @@ import hookIpc from './frontend/ipc/listeners';
 
 hookIpc();
 // TODO fix device remove on Mac
+// TODO change licence
 render(
   <Provider store={store}>
     <Root />
