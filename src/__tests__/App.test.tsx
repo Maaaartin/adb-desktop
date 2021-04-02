@@ -4,11 +4,18 @@ import { Provider } from 'react-redux';
 import rederer from 'react-test-renderer';
 import Console from '../frontend/components/Console';
 import store from '../frontend/redux/store';
-import { AdbStatus, deviceAdd, setAdbStatus } from '../frontend/redux/actions';
+import {
+  AdbStatus,
+  addHistory,
+  deviceAdd,
+  setAdbStatus,
+  writeConsoleSettings,
+} from '../frontend/redux/actions';
 import {
   ADB_STATUS,
   DEVICE_ADD,
   DEVICE_CHANGE,
+  WRITE_CONSOLE_SETTINGS,
 } from '../frontend/redux/actionTypes';
 
 describe('redux', () => {
@@ -29,6 +36,17 @@ describe('redux', () => {
       error: null,
     };
     expect(setAdbStatus(status)).toEqual({ type: ADB_STATUS, payload: status });
+  });
+
+  it('history', () => {
+    for (let i = 0; i < 50; i++) {
+      addHistory(i.toString());
+    }
+    const settings = { lines: 30, historyLen: 20 };
+    expect(writeConsoleSettings(settings)).toEqual({
+      type: WRITE_CONSOLE_SETTINGS,
+      payload: settings,
+    });
   });
 });
 

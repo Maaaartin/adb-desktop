@@ -45,6 +45,7 @@ class HiddenInput extends Component<Props, State> {
     this.handleCut = this.handleCut.bind(this);
     this.handleShiftKey = this.handleShiftKey.bind(this);
     this.handleCtrlShiftKey = this.handleCtrlShiftKey.bind(this);
+    this.handleDefaultKey = this.handleDefaultKey.bind(this);
   }
 
   componentDidMount() {
@@ -79,6 +80,13 @@ class HiddenInput extends Component<Props, State> {
   getMarked() {
     const { markedEnd, markedStart } = this.state;
     return markedStart.concat(markedEnd);
+  }
+
+  handleDefaultKey(key: string) {
+    const { start } = this.state;
+    if (key.length === 1) {
+      this.setState({ start: start.concat(key) });
+    }
   }
 
   handleKeyDown(key: string) {
@@ -173,9 +181,7 @@ class HiddenInput extends Component<Props, State> {
         }
         break;
       default:
-        if (key.length === 1) {
-          this.setState({ start: start.concat(key) });
-        }
+        this.handleDefaultKey(key);
         break;
     }
   }
@@ -239,6 +245,7 @@ class HiddenInput extends Component<Props, State> {
         });
         break;
       default:
+        this.handleDefaultKey(key);
         break;
     }
   }
@@ -269,6 +276,7 @@ class HiddenInput extends Component<Props, State> {
         }
         break;
       default:
+        this.handleDefaultKey(key);
         break;
     }
   }

@@ -44,8 +44,10 @@ export type AdbStatus = {
 const SettingsAction = Notifications.success({ title: 'Settings saved' });
 
 export const writeAdbSettings = (data: AdbClientOptions) => {
+  if (process.env.NODE_ENV != 'test') {
+    ipc.send(ADB_SETTINGS_WRITE, data);
+  }
   store.dispatch(SettingsAction);
-  ipc.send(ADB_SETTINGS_WRITE, data);
   return {
     type: ADB_SETTINGS_WRITE,
     payload: data,
@@ -89,7 +91,9 @@ export const addHistory = (content: string) => ({
 });
 
 export const writeToken = (token: string) => {
-  ipc.send(WRITE_TOKEN, token);
+  if (process.env.NODE_ENV != 'test') {
+    ipc.send(WRITE_TOKEN, token);
+  }
   store.dispatch(SettingsAction);
   return {
     type: LOAD_TOKEN,
@@ -112,7 +116,9 @@ export const setAdbStatus = (data: AdbStatus) => {
 };
 
 export const writeConsoleSettings = (data: Dictionary<any>) => {
-  ipc.send(WRITE_CONSOLE_SETTINGS, data);
+  if (process.env.NODE_ENV != 'test') {
+    ipc.send(WRITE_CONSOLE_SETTINGS, data);
+  }
   store.dispatch(SettingsAction);
   return {
     type: WRITE_CONSOLE_SETTINGS,
