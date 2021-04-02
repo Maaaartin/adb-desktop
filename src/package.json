@@ -1,7 +1,7 @@
 {
   "name": "adb-desktop",
   "productName": "adb-desktop",
-  "version": "0.0.1",
+  "version": "0.0.17",
   "description": "Tools for ADB operations with GUI",
   "main": "./main.prod.js",
   "author": {
