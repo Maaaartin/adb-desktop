@@ -87,7 +87,7 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "martin-svoboda",
+      "owner": "Maaaartin",
       "repo": "adb-desktop"
     }
   },
@@ -272,9 +272,6 @@
     "node": ">=10.x",
     "npm": ">=6.x",
     "yarn": ">=1.21.3"
-  },
-  "collective": {
-    "url": "https://opencollective.com/electron-react-boilerplate-594"
   },
   "browserslist": [],
   "prettier": {

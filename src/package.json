@@ -1,12 +1,12 @@
 {
   "name": "adb-desktop",
   "productName": "adb-desktop",
-  "version": "0.0.17",
+  "version": "1.0.0",
   "description": "Tools for ADB operations with GUI",
   "main": "./main.prod.js",
   "author": {
     "name": "Martin Svoboda",
-    "email": "svobma96@gmai.com",
+    "email": "svobma96@gmail.com",
     "url": "https://github.com/Maaaartin/adb-desktop"
   },
   "scripts": {

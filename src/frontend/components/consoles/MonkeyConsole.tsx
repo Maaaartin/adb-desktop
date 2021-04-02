@@ -5,7 +5,7 @@ import { openAdbShell } from '../../ipc/send';
 import Console from '../Console';
 
 const MonkeyConsole = (props: { id: string; onExit?: VoidFunction }) => {
-  const { id } = props;
+  const { id, onExit } = props;
   return (
     <Console
       id={id}
@@ -15,7 +15,10 @@ const MonkeyConsole = (props: { id: string; onExit?: VoidFunction }) => {
         execMonkey(id, cmd, cb);
       }}
       openShell={openAdbShell}
-      onExit={props.onExit}
+      onExit={() => {
+        execMonkey(id, 'quit');
+        onExit?.();
+      }}
       links={[MONKEY_LINK]}
     />
   );
