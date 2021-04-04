@@ -26,6 +26,10 @@ jobs:
         run: |
           yarn install && yarn postinstall
 
+      - name: Test
+        run: |
+          yarn test
+
       - name: Publish releases
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
