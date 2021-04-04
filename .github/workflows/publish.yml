@@ -24,17 +24,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          yarn install
+          yarn install && yarn postinstall
 
       - name: Publish releases
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          yarn postinstall && yarn build && yarn electron-builder --win --mac --linux
-
-      - name: Test
-        run: |
-          yarn test
+          yarn build && yarn electron-builder --win --mac --linux
 
       - name: Create zip
         uses: papeloto/action-zip@v1
