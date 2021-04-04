@@ -32,6 +32,10 @@ jobs:
         run: |
           yarn postinstall && yarn build && yarn electron-builder --win --mac --linux
 
+      - name: Test
+        run: |
+          yarn test
+
       - name: Create zip
         uses: papeloto/action-zip@v1
         with:

@@ -1,4 +1,4 @@
-export const DOCS_LINK = 'https://github.com/Maaaartin/adb-desktop/docs#readme';
+export const DOCS_LINK = 'https://github.com/Maaaartin/adb-desktop';
 export const ISSUES_LINK = 'https://github.com/Maaaartin/adb-desktop/issues';
 export const ADB_LINK = 'https://developer.android.com/studio/command-line/adb';
 export const EMULATOR_LINK =
