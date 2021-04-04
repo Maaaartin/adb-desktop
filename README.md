@@ -1,5 +1,10 @@
 # ADB Desktop
 
+GUI tool for Android debugging bridge.
+
+Developed and tested with Android Debug Bridge version 1.0.41
+Version 29.0.5-5949299.
+
 ## Development
 
 ### Requirements

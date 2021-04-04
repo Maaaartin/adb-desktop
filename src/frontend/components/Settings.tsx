@@ -221,8 +221,10 @@ class Settings extends Component<any, State> {
                   />
                 </Button>
               </Col>
-              <Col>{bin}</Col>
-              <Col sm={4}>
+              <Col className="ml-3" style={{ lineHeight: '40px' }}>
+                {bin || 'ADB path not set!'}
+              </Col>
+              <Col className="ml-3" sm={4}>
                 <TextField
                   label="port"
                   type="number"

@@ -107,7 +107,8 @@
     "adb",
     "android",
     "adb-desktop",
-    "adb-gui"
+    "adb-gui",
+    "android-debugging-bridge"
   ],
   "homepage": "https://github.com/Maaaartin/adb-desktop",
   "jest": {

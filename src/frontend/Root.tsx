@@ -67,7 +67,12 @@ class Root extends Component {
       <div className="h-screen">
         <Notifications notifications={notifications} />
         <Row top="xs" style={{ height: 'calc(100% - 80px)' }}>
-          <Col md={2} sm={4} xs={4} style={{ marginRight: '17px' }}>
+          <Col
+            md={2}
+            sm={4}
+            xs={4}
+            style={{ marginRight: '17px', minWidth: '150px' }}
+          >
             <Divider />
             <MenuList>
               <MenuItem onClick={() => this.onSelect('settings')}>
@@ -104,10 +109,10 @@ class Root extends Component {
           between="xs"
           className="text-black bg-gray-400 sticky bottom-0"
         >
-          <Col xs={3}>
+          <Col xs={6} sm={3}>
             <AdbStatusDisplay />
           </Col>
-          <Col xs={3}>
+          <Col xs={6} sm={3}>
             <Row>
               <Col xs={6}>
                 <Link
@@ -127,9 +132,9 @@ class Root extends Component {
               </Col>
             </Row>
           </Col>
-          <Col xs={3} className="font-mono text-right mr-2">
-            <Row>version: {version}</Row>
-            <Row>by Mr. Martin</Row>
+          <Col xs={3} className="font-mono mr-3">
+            <Row end="xs">version: {version}</Row>
+            <Row end="xs">by Mr. Martin</Row>
           </Col>
         </Row>
       </div>

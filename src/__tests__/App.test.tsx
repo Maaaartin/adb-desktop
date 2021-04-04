@@ -14,7 +14,6 @@ import {
 import {
   ADB_STATUS,
   DEVICE_ADD,
-  DEVICE_CHANGE,
   WRITE_CONSOLE_SETTINGS,
 } from '../frontend/redux/actionTypes';
 
