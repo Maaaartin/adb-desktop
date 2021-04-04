@@ -26,6 +26,10 @@ jobs:
         run: |
           yarn install && yarn postinstall
 
+      - name: Build
+        run: |
+          yarn build
+
       - name: Test
         run: |
           yarn test
@@ -34,7 +38,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          yarn build && yarn electron-builder --win --mac --linux
+          yarn electron-builder --win --mac --linux
 
       - name: Create zip
         uses: papeloto/action-zip@v1
