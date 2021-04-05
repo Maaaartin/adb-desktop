@@ -9,8 +9,8 @@ import { GlobalState } from '../redux/reducers';
 import DeviceConsole from './consoles/DeviceConsole';
 import EmulatorConsole from './consoles/EmulatorConsole';
 import MonkeyConsole from './consoles/MonkeyConsole';
-import IconBtn from './IconBtn';
-import Scrollable from './Scrollable';
+import IconBtn from './subcomponents/IconBtn';
+import Scrollable from './subcomponents/Scrollable';
 
 const DeviceCards = (props: any) => {
   const { devices, tabAdd, tabDel } = props as PropsRedux;

@@ -37,6 +37,7 @@ import {
   RENEW_TOKEN,
   DISPLAY_ERROR,
   OPEN_LINK,
+  GET_DIR,
 } from '../constants';
 import {
   ADB_SETTINGS_LOAD,
@@ -55,6 +56,7 @@ import EmulatorHandler from './emulator';
 import OpenShell from './OpenShell';
 import Preferences from './Preferences';
 import { DOCS_LINK, ISSUES_LINK } from '../links';
+import { FileSystemEntry } from '../frontend/types';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -215,6 +217,18 @@ export default class MenuBuilder {
   }
 
   private hookGetters() {
+    ipc.on(GET_DIR, (event, data) => {
+      const { id, serial, path } = data;
+      this.adbHandler
+        .getFiles(serial, path)
+        .then((output) => {
+          this.send(GET_DIR, { id, output });
+        })
+        .catch((error) => {
+          this.send(GET_DIR, { id, error });
+        });
+    });
+
     ipc.on(GET_BATTERY, (event, data) => {
       const { serial, id } = data;
       this.adbHandler.getClient().batteryStatus(serial, (error, value) => {

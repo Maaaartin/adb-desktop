@@ -5,7 +5,7 @@ import { connect, ConnectedProps } from 'react-redux';
 import { deviceChange, tabAdd } from '../redux/actions';
 import { GlobalState } from '../redux/reducers';
 import Device from './Device';
-import Scrollable from './Scrollable';
+import Scrollable from './subcomponents/Scrollable';
 
 const Devices = (props: any) => {
   const { devices } = props as PropsRedux;

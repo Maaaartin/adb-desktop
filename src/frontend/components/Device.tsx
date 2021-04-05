@@ -9,7 +9,7 @@ import { IAdbDevice } from 'adb-ts';
 import { Dictionary } from 'lodash';
 import React, { useState } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
-import { FaMobileAlt, FaRobot, FaTerminal } from 'react-icons/fa';
+import { FaFolder, FaMobileAlt, FaRobot, FaTerminal } from 'react-icons/fa';
 import { connect, ConnectedProps } from 'react-redux';
 import {
   getBattery,
@@ -31,12 +31,13 @@ import {
   setProp,
 } from '../ipc/setters';
 import { Tab, tabAdd, tabDel } from '../redux/actions';
-import CollapseButton from './CollapseButton';
+import CollapseButton from './subcomponents/CollapseButton';
 import DeviceConsole from './consoles/DeviceConsole';
 import EmulatorConsole from './consoles/EmulatorConsole';
 import MonkeyConsole from './consoles/MonkeyConsole';
 import DeviceItem from './DeviceItem';
-import IconBtn from './IconBtn';
+import FileSystem from './FileSystem';
+import IconBtn from './subcomponents/IconBtn';
 
 type Props = { device: IAdbDevice };
 
@@ -44,17 +45,17 @@ const Device = (props: Props) => {
   const [open, setOpen] = useState(false);
   const {
     tabAdd,
-    device: { id, state, model, transport },
+    device: { id: serial, state, model, transport },
   } = props as PropsRedux;
   const isEmulator = state === 'emulator';
   return (
     <Card style={{ backgroundColor: '#dddd' }} className="w-full mb-1">
-      <CardHeader title={id} />
+      <CardHeader title={serial} />
       <CardContent>
         <Row>
           <Col sm={6}>
             <ul>
-              <li>ID: {id}</li>
+              <li>ID: {serial}</li>
               <li>State: {state}</li>
               <li>Model: {model}</li>
               <li>Transport: {transport}</li>
@@ -66,11 +67,11 @@ const Device = (props: Props) => {
                 <IconBtn
                   onClick={() => {
                     const tab = new Tab(
-                      id,
+                      serial,
                       (
                         <DeviceConsole
                           onExit={() => tabDel(tab.getId())}
-                          id={id}
+                          id={serial}
                         />
                       )
                     );
@@ -84,11 +85,11 @@ const Device = (props: Props) => {
                 <IconBtn
                   onClick={() => {
                     const tab = new Tab(
-                      id,
+                      serial,
                       (
                         <MonkeyConsole
                           onExit={() => tabDel(tab.getId())}
-                          id={id}
+                          id={serial}
                         />
                       )
                     );
@@ -103,11 +104,11 @@ const Device = (props: Props) => {
                   <IconBtn
                     onClick={() => {
                       const tab = new Tab(
-                        id,
+                        serial,
                         (
                           <EmulatorConsole
                             onExit={() => tabDel(tab.getId())}
-                            id={id}
+                            id={serial}
                           />
                         )
                       );
@@ -119,6 +120,17 @@ const Device = (props: Props) => {
                 </Col>
               )}
             </Row>
+            <Row>
+              <IconBtn
+                onClick={() =>
+                  tabAdd(
+                    new Tab(serial, <FileSystem serial={serial}></FileSystem>)
+                  )
+                }
+                IconEl={FaFolder}
+                tag="File System"
+              />
+            </Row>
           </Col>
         </Row>
       </CardContent>
@@ -127,10 +139,10 @@ const Device = (props: Props) => {
       <Divider />
       <Collapse in={open}>
         <DeviceItem
-          serial={id}
+          serial={serial}
           tag="Battery"
           getter={(cb) => {
-            getBattery(id, (err, output: Dictionary<any>) => {
+            getBattery(serial, (err, output: Dictionary<any>) => {
               cb(output);
             });
           }}
@@ -144,10 +156,10 @@ const Device = (props: Props) => {
           valueToString={(item) => item[0]}
         />
         <DeviceItem
-          serial={id}
+          serial={serial}
           tag="Properties"
           getter={(cb) => {
-            getProps(id, (err, output: Dictionary<any>) => {
+            getProps(serial, (err, output: Dictionary<any>) => {
               cb(output);
             });
           }}
@@ -156,20 +168,20 @@ const Device = (props: Props) => {
             createValue: (item: [string, any]) => item[1],
             delimiter: ': ',
             styleValue: true,
-            itemGetter: (key, cb) => getProp(id, key, cb),
-            itemSetter: (key, value, cb) => setProp(id, key, value, cb),
+            itemGetter: (key, cb) => getProp(serial, key, cb),
+            itemSetter: (key, value, cb) => setProp(serial, key, value, cb),
           }}
           onSearch={(item, text) => item[0].includes(text)}
           valueToString={(item) => item[0]}
         />
 
-        <DeviceItem tag="Settings" serial={id}>
+        <DeviceItem tag="Settings" serial={serial}>
           <DeviceItem
-            serial={id}
+            serial={serial}
             tag="Global"
             style={{ marginLeft: '5px' }}
             getter={(cb) => {
-              getSettingsGlobal(id, (err, output: Dictionary<any>) => {
+              getSettingsGlobal(serial, (err, output: Dictionary<any>) => {
                 cb(output);
               });
             }}
@@ -178,19 +190,19 @@ const Device = (props: Props) => {
               createValue: (item: [string, any]) => item[1],
               delimiter: ': ',
               styleValue: true,
-              itemGetter: (key, cb) => getSettingGlobal(id, key, cb),
+              itemGetter: (key, cb) => getSettingGlobal(serial, key, cb),
               itemSetter: (key, value, cb) =>
-                putSettingGlobal(id, key, value, cb),
+                putSettingGlobal(serial, key, value, cb),
             }}
             onSearch={(item, text) => item[0].includes(text)}
             valueToString={(item) => item[0]}
           />
           <DeviceItem
-            serial={id}
+            serial={serial}
             style={{ marginLeft: '5px' }}
             tag="System"
             getter={(cb) => {
-              getSettingsSystem(id, (err, output: Dictionary<any>) => {
+              getSettingsSystem(serial, (err, output: Dictionary<any>) => {
                 cb(output);
               });
             }}
@@ -199,19 +211,19 @@ const Device = (props: Props) => {
               createValue: (item: [string, any]) => item[1],
               delimiter: ': ',
               styleValue: true,
-              itemGetter: (key, cb) => getSettingSystem(id, key, cb),
+              itemGetter: (key, cb) => getSettingSystem(serial, key, cb),
               itemSetter: (key, value, cb) =>
-                putSettingSystem(id, key, value, cb),
+                putSettingSystem(serial, key, value, cb),
             }}
             onSearch={(item, text) => item[0].includes(text)}
             valueToString={(item) => item[0]}
           />
           <DeviceItem
-            serial={id}
+            serial={serial}
             style={{ marginLeft: '5px' }}
             tag="Secure"
             getter={(cb) => {
-              getSettingsSecure(id, (err, output: Dictionary<any>) => {
+              getSettingsSecure(serial, (err, output: Dictionary<any>) => {
                 cb(output);
               });
             }}
@@ -220,19 +232,19 @@ const Device = (props: Props) => {
               createValue: (item: [string, any]) => item[1],
               delimiter: ': ',
               styleValue: true,
-              itemGetter: (key, cb) => getSettingSecure(id, key, cb),
+              itemGetter: (key, cb) => getSettingSecure(serial, key, cb),
               itemSetter: (key, value, cb) =>
-                putSettingSecure(id, key, value, cb),
+                putSettingSecure(serial, key, value, cb),
             }}
             onSearch={(item, text) => item[0].includes(text)}
             valueToString={(item) => item[0]}
           />
         </DeviceItem>
         <DeviceItem
-          serial={id}
+          serial={serial}
           tag="Features"
           getter={(cb) => {
-            getFeatures(id, (err, output: Dictionary<any>) => {
+            getFeatures(serial, (err, output: Dictionary<any>) => {
               cb(output);
             });
           }}
@@ -247,10 +259,10 @@ const Device = (props: Props) => {
           valueToString={(item) => item[0]}
         />
         <DeviceItem
-          serial={id}
+          serial={serial}
           tag="Packages"
           getter={(cb: (output: Dictionary<string>) => void) => {
-            getPackages(id, (err, output) => {
+            getPackages(serial, (err, output) => {
               const map: Dictionary<string> = {};
               Object.assign(map, [...output]);
               cb(map);

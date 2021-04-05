@@ -6,8 +6,8 @@ import { connect, ConnectedProps } from 'react-redux';
 import { openLink } from '../ipc/send';
 import { addHistory } from '../redux/actions';
 import { GlobalState } from '../redux/reducers';
-import HiddenInput from './HiddenInput';
-import IconBtn from './IconBtn';
+import HiddenInput from './subcomponents/HiddenInput';
+import IconBtn from './subcomponents/IconBtn';
 
 type State = {
   logs: { isCommand?: boolean; value: string; isLink?: boolean }[];

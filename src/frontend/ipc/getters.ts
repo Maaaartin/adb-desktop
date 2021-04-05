@@ -2,6 +2,7 @@ import { ipcRenderer as ipc } from 'electron';
 import { Dictionary } from 'lodash';
 import {
   GET_BATTERY,
+  GET_DIR,
   GET_FEATURES,
   GET_PACKAGES,
   GET_PROP,
@@ -14,6 +15,7 @@ import {
   GET_SETTING_SECURE,
   GET_SETTING_SYSTEM,
 } from '../../constants';
+import { FileSystemEntry } from '../types';
 
 const getterCalls: Dictionary<
   ((error: Error, output: any) => void) | undefined
@@ -72,6 +74,10 @@ ipc.on(GET_SETTING_SECURE, (event, data) => {
 });
 
 ipc.on(GET_SETTING_SYSTEM, (event, data) => {
+  handleGetterResponse(data);
+});
+
+ipc.on(GET_DIR, (event, data) => {
   handleGetterResponse(data);
 });
 
@@ -173,4 +179,13 @@ export const getProp = (
 ) => {
   const id = hookGetter(cb);
   ipc.send(GET_PROP, { id, serial, key });
+};
+
+export const getDir = (
+  serial: string,
+  path: string,
+  cb?: (error: Error, output: FileSystemEntry[]) => void
+) => {
+  const id = hookGetter(cb);
+  ipc.send(GET_DIR, { id, serial, path });
 };

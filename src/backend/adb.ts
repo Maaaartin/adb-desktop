@@ -6,6 +6,7 @@ import Promise from 'bluebird';
 import Preferences from './Preferences';
 import { EventEmitter } from 'events';
 import AdbDevice from 'adb-ts/lib/device';
+import { FileSystemEntry } from '../frontend/types';
 
 export default class AdbHandler extends EventEmitter {
   private adb: AdbClient;
@@ -74,6 +75,23 @@ export default class AdbHandler extends EventEmitter {
   }
   getClient() {
     return this.adb;
+  }
+
+  getFiles(serial: string, path: string): Promise<FileSystemEntry[]> {
+    return this.adb.readDir(serial, path).then((files) => {
+      return Promise.map(files, (file) => {
+        return this.adb
+          .readDir(serial, `${path}/${file.name}`)
+          .then((subFiles) => {
+            return {
+              name: file.name,
+              type: file.isDirectory() || subFiles.length ? 'dir' : 'file',
+              date: file.mtime,
+              size: file.size,
+            };
+          });
+      });
+    });
   }
 
   getAdbOptions(): AdbClientOptions {

@@ -20,8 +20,8 @@ import {
   writeToken,
 } from '../redux/actions';
 import { GlobalState } from '../redux/reducers';
-import CollapseButton from './CollapseButton';
-import IconBtn from './IconBtn';
+import CollapseButton from './subcomponents/CollapseButton';
+import IconBtn from './subcomponents/IconBtn';
 
 type State = {
   adb: AdbClientOptions;

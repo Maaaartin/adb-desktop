@@ -4,13 +4,13 @@ import { Dictionary, isEmpty as emp } from 'lodash';
 import React, { Component, DetailedHTMLProps } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
 import { FaLink } from 'react-icons/fa';
-import CollapseButton from './CollapseButton';
-import IconBtn from './IconBtn';
+import CollapseButton from './subcomponents/CollapseButton';
+import IconBtn from './subcomponents/IconBtn';
 import { Tab, tabAdd } from '../redux/actions';
 import { connect, ConnectedProps } from 'react-redux';
 import MetaWindow from './MetaWindow';
-import StyledValue from './StyledValue';
-import Li from './Li';
+import StyledValue from './subcomponents/StyledValue';
+import Li from './subcomponents/Li';
 import { GlobalState } from '../redux/reducers';
 
 type Props<T> = {
