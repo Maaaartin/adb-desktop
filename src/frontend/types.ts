@@ -15,9 +15,16 @@ export type CollectionFunctions<T> = {
   valueToString: (item: [string, T]) => string;
 };
 
-export type FileSystemEntry = {
-  name: string;
-  type: 'dir' | 'file';
-  size: number;
-  date: Date;
+export type ExecFileSystemData = {
+  type: 'dir' | 'file' | 'no-access';
 };
+
+export type SocketFileSystemData = { date?: Date; size?: number };
+
+export type FileSystemData = ExecFileSystemData & SocketFileSystemData;
+
+export type ExecFileSystemEntry = Dictionary<ExecFileSystemData>;
+
+export type SocketFileSystemEntry = Dictionary<SocketFileSystemData>;
+
+export type FileSystemEntry = ExecFileSystemEntry & SocketFileSystemEntry;

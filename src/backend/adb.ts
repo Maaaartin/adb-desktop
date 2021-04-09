@@ -6,7 +6,12 @@ import Promise from 'bluebird';
 import Preferences from './Preferences';
 import { EventEmitter } from 'events';
 import AdbDevice from 'adb-ts/lib/device';
-import { FileSystemEntry } from '../frontend/types';
+import {
+  ExecFileSystemEntry,
+  FileSystemEntry,
+  SocketFileSystemEntry,
+} from '../frontend/types';
+import { exec, execFileSync } from 'child_process';
 
 export default class AdbHandler extends EventEmitter {
   private adb: AdbClient;
@@ -77,20 +82,102 @@ export default class AdbHandler extends EventEmitter {
     return this.adb;
   }
 
-  getFiles(serial: string, path: string): Promise<FileSystemEntry[]> {
-    return this.adb.readDir(serial, path).then((files) => {
-      return Promise.map(files, (file) => {
-        return this.adb
-          .readDir(serial, `${path}/${file.name}`)
-          .then((subFiles) => {
-            return {
-              name: file.name,
-              type: file.isDirectory() || subFiles.length ? 'dir' : 'file',
-              date: file.mtime,
-              size: file.size,
-            };
+  private isFileError(err: Error | null) {
+    if (!err) return false;
+    else return !/Permission denied/.test(err.message);
+  }
+
+  private parseNoAccessFiles(data: string) {
+    const files = [];
+    const regExp = /^ls: \/\/([\s\S]*?):/gm;
+    let match;
+    while ((match = regExp.exec(data))) {
+      files.push(match[1]);
+    }
+    return files;
+  }
+
+  private parseFiles(data: string) {
+    const files = [];
+    const regExp = /^([\s\S]*?)\r\n/gm;
+    let match;
+    while ((match = regExp.exec(data))) {
+      files.push(match[1]);
+    }
+    return files;
+  }
+
+  private getExecFiles(
+    serial: string,
+    path: string
+  ): Promise<Dictionary<ExecFileSystemEntry>> {
+    return new Promise((resolve, reject) => {
+      const bin = this.getAdbOptions().bin || '';
+      exec(`${bin} -s ${serial} shell ls ${path}`, (err, stdout, stderr) => {
+        if (this.isFileError(err)) {
+          reject(err);
+        } else {
+          const noAccessFiles = this.parseNoAccessFiles(stderr);
+          const rootFiles = this.parseFiles(stdout);
+          Promise.map(rootFiles, (file) => {
+            return new Promise<{ name: string; type: string }>((resolve2) => {
+              exec(
+                `${bin} -s ${serial} shell ls ${path}/${file}`,
+                (err2, subStdout) => {
+                  if (err2) {
+                    resolve2({ name: file, type: 'no-access' });
+                  } else {
+                    const subFiles = this.parseFiles(subStdout);
+                    if (subFiles.length > 1) {
+                      resolve2({ name: file, type: 'dir' });
+                    } else if (subFiles[0] === `//${file}`) {
+                      resolve2({ name: file, type: 'file' });
+                    } else {
+                      resolve2({ name: file, type: 'no-access' });
+                    }
+                  }
+                }
+              );
+            });
+          }).then((res) => {
+            const files: Dictionary<any> = {};
+            noAccessFiles.forEach((item) => {
+              files[item] = { type: 'no-access' };
+            });
+            res.forEach((item) => {
+              files[item.name] = { type: item.type };
+            });
+            resolve(files);
           });
+        }
       });
+    });
+  }
+
+  private getSocketFiles(
+    serial: string,
+    path: string
+  ): Promise<Dictionary<SocketFileSystemEntry>> {
+    return this.adb.readDir(serial, path).then((data) => {
+      const files: Dictionary<any> = {};
+      data.forEach((item) => {
+        files[item.name] = { date: item.mtime, size: item.size };
+      });
+      return files;
+    });
+  }
+
+  getFiles(serial: string, path: string): Promise<FileSystemEntry> {
+    return Promise.all([
+      this.getExecFiles(serial, path),
+      this.getSocketFiles(serial, path),
+    ]).then(([execFiles, socketFiles]) => {
+      const files: Dictionary<any> = {};
+      Object.entries(execFiles).forEach(([key, data]) => {
+        const socketFile = socketFiles[key] || {};
+        files[key] = { ...data, ...socketFile };
+      });
+      return files;
     });
   }
 

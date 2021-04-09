@@ -1,58 +1,81 @@
-import { Collapse, Typography } from '@material-ui/core';
-import { clone } from 'lodash';
+import { Collapse, Divider, Typography } from '@material-ui/core';
+import { isEmpty as emp } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
-import { FaCaretRight } from 'react-icons/fa';
-import { getDir } from '../ipc/getters';
-import { FileSystemEntry } from '../types';
+import { FaCaretRight, FaSpinner } from 'react-icons/fa';
+import { getDir as getFiles } from '../ipc/getters';
+import { FileSystemData, FileSystemEntry } from '../types';
 import Li from './subcomponents/Li';
 import RefreshSearch from './subcomponents/RefreshSearch';
 import Scrollable from './subcomponents/Scrollable';
 
 const FileItem = (props: {
   serial: string;
-  item: FileSystemEntry;
+  entry: [string, FileSystemData];
   index: number;
   path: string;
   level: number;
 }) => {
   const [open, setOpen] = useState(false);
-  const [children, setChildren] = useState<FileSystemEntry[]>([]);
-  const { item, index, path, serial, level } = props;
+  const [children, setChildren] = useState<FileSystemEntry>({});
+  const {
+    entry: [name, data],
+    index,
+    path,
+    serial,
+    level,
+  } = props;
   return (
     <Li index={index} style={{ paddingLeft: `${level * 15}px` }}>
       <Row style={{ margin: 0 }}>
-        {item.type === 'dir' && (
+        {data.type === 'dir' && (
           <Col
             onClick={() => {
               if (!open) {
-                getDir(serial, path, (error, output) => {
-                  setChildren(output);
+                getFiles(serial, path, (error, output) => {
+                  if (!error && !emp(output)) {
+                    setChildren(output);
+                  }
                 });
+              } else {
+                setChildren({});
               }
               setOpen(!open);
             }}
             className="cursor-pointer"
           >
-            <FaCaretRight style={open ? { transform: 'rotate(90deg)' } : {}} />
+            <FaCaretRight
+              size={20}
+              style={open ? { transform: 'rotate(90deg)' } : {}}
+            />
           </Col>
         )}
-        <Col>{item.name}</Col>
+        <Col xs={5}>{name}</Col>
+        <Col xs={4}>{data.date?.toDateString()}</Col>
+        <Col>{data.type === 'no-access' && 'No Access'}</Col>
       </Row>
       <Collapse in={open}>
         <ul>
-          {children.map((item2, index2) => {
+          {emp(children) && open && (
+            <FaSpinner
+              color="black"
+              size="25"
+              className="animate-spin m-auto"
+            />
+          )}
+          {Object.entries(children).map((subEntry, subIndex) => {
             return (
               <FileItem
                 serial={serial}
-                item={item2}
-                index={index2}
-                path={`${path}/${item2.name}`}
+                entry={subEntry}
+                index={subIndex}
+                path={`${path}/${subEntry[0]}`}
                 level={level + 1}
               />
             );
           })}
         </ul>
+        <Divider />
       </Collapse>
     </Li>
   );
@@ -60,16 +83,17 @@ const FileItem = (props: {
 
 const FileSystem = (props: { serial: string }) => {
   const [search, setSearch] = useState('');
-  const [files, setFiles] = useState<FileSystemEntry[]>([]);
+  const [files, setFiles] = useState<FileSystemEntry>({});
   const { serial } = props;
   useEffect(() => {
-    getDir(serial, '/', (error, output) => {
-      setFiles(output);
+    getFiles(serial, '/', (error, output) => {
+      if (!error) {
+        setFiles(output);
+      }
     });
   }, []);
   return (
     <div className="h-full">
-      {' '}
       <Row className="pr-4 mb-2">
         <Col xs={12} sm={5}>
           <Typography className="p-2">File system of {serial}</Typography>
@@ -85,13 +109,20 @@ const FileSystem = (props: { serial: string }) => {
       </Row>
       <Scrollable style={{ height: '90%' }}>
         <ul className="overflow-y-scroll border-black border-2 break-all h-full">
-          {files.map((item, index) => {
+          {emp(files) && (
+            <FaSpinner
+              color="black"
+              size="25"
+              className="animate-spin m-auto"
+            />
+          )}
+          {Object.entries(files).map((entry, index) => {
             return (
               <FileItem
                 serial={serial}
-                item={clone(item)}
+                entry={entry}
                 index={index}
-                path={`/${item.name}`}
+                path={`/${entry[0]}`}
                 level={0}
               />
             );
@@ -101,58 +132,5 @@ const FileSystem = (props: { serial: string }) => {
     </div>
   );
 };
-
-// class FileSystem extends Component<Props, State> {
-//   constructor(props: Props) {
-//     super(props);
-//     const { serial } = props;
-//     this.state = {
-//       search: '',
-//       files: [],
-//     };
-
-//     getDir(serial, '/', (error, output) => {
-//       this.setState({ files: output });
-//     });
-//   }
-
-//   render() {
-//     const { serial } = this.props;
-//     const { search, files } = this.state;
-//     const filesClone = clone(files);
-//     return (
-//       <div className="h-full">
-//         {' '}
-//         <Row className="pr-4 mb-2">
-//           <Col xs={12} sm={5}>
-//             <Typography className="p-2">File system of {serial}</Typography>
-//           </Col>
-//           <Col xs={12} sm={7}>
-//             <RefreshSearch
-//               collection={[]}
-//               search={search}
-//               onRefrestClick={() => null}
-//               onSearchChange={(value) => this.setState({ search: value })}
-//             />
-//           </Col>
-//         </Row>
-//         <Scrollable style={{ height: '90%' }}>
-//           <ul className="overflow-y-scroll border-black border-2 break-all h-full">
-//             {filesClone.map((item, index) => {
-//               return (
-//                 <FileItem
-//                   serial={serial}
-//                   item={item}
-//                   index={index}
-//                   path={`/${item.name}`}
-//                 />
-//               );
-//             })}
-//           </ul>
-//         </Scrollable>
-//       </div>
-//     );
-//   }
-// }
 
 export default FileSystem;

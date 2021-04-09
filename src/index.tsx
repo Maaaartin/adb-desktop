@@ -8,7 +8,7 @@ import Root from './frontend/Root';
 import hookIpc from './frontend/ipc/listeners';
 
 hookIpc();
-
+// TODO fix getters
 render(
   <Provider store={store}>
     <Root />

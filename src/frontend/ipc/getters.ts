@@ -184,7 +184,7 @@ export const getProp = (
 export const getDir = (
   serial: string,
   path: string,
-  cb?: (error: Error, output: FileSystemEntry[]) => void
+  cb?: (error: Error, output: FileSystemEntry) => void
 ) => {
   const id = hookGetter(cb);
   ipc.send(GET_DIR, { id, serial, path });
