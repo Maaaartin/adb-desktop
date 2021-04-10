@@ -61,7 +61,9 @@ class DeviceItem<T> extends Component<Props<T>, State<T>> {
 
     if (open && !prevOpen) {
       getter?.((output) => {
-        this.setState({ collection: output });
+        if (!emp(output)) {
+          this.setState({ collection: output });
+        }
       });
     }
   }

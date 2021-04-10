@@ -1,6 +1,6 @@
 import { TextField, Typography } from '@material-ui/core';
 import { Autocomplete } from '@material-ui/lab';
-import { Dictionary } from 'lodash';
+import { Dictionary, isEmpty as emp } from 'lodash';
 import React, { Component } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
 import { FaSync } from 'react-icons/fa';
@@ -34,7 +34,11 @@ class MetaWindow<T> extends Component<Props<T>, State<T>> {
     };
 
     const { getter } = props;
-    getter((output) => this.setState({ collection: output }));
+    getter((output) => {
+      if (!emp(output)) {
+        this.setState({ collection: output });
+      }
+    });
   }
 
   render() {
@@ -93,12 +97,14 @@ class MetaWindow<T> extends Component<Props<T>, State<T>> {
                               });
                             } else
                               itemGetter(item[0], (err, output) => {
-                                this.setState({
-                                  collection: {
-                                    ...collection,
-                                    [item[0]]: output,
-                                  },
-                                });
+                                if (!emp(output)) {
+                                  this.setState({
+                                    collection: {
+                                      ...collection,
+                                      [item[0]]: output,
+                                    },
+                                  });
+                                }
                               });
                           });
                         }
