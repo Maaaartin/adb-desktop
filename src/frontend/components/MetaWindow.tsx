@@ -1,14 +1,11 @@
-import { TextField, Typography } from '@material-ui/core';
-import { Autocomplete } from '@material-ui/lab';
+import { Typography } from '@material-ui/core';
 import { Dictionary, isEmpty as emp } from 'lodash';
 import React, { Component } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
-import { FaSync } from 'react-icons/fa';
 import { error as notifError } from 'react-notification-system-redux';
 import { connect, ConnectedProps } from 'react-redux';
 import { GlobalState } from '../redux/reducers';
 import { CollectionFunctions, ItemMaker } from '../types';
-import IconBtn from './subcomponents/IconBtn';
 import RefreshSearch from './subcomponents/RefreshSearch';
 import Scrollable from './subcomponents/Scrollable';
 import SettableLi from './subcomponents/SettableLi';

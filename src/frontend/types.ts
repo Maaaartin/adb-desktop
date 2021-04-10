@@ -28,3 +28,8 @@ export type ExecFileSystemEntry = Dictionary<ExecFileSystemData>;
 export type SocketFileSystemEntry = Dictionary<SocketFileSystemData>;
 
 export type FileSystemEntry = ExecFileSystemEntry & SocketFileSystemEntry;
+
+export type TableSort = {
+  type: 'asc' | 'desc';
+  index: number;
+};
