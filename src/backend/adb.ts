@@ -128,10 +128,12 @@ export default class AdbHandler extends EventEmitter {
                     resolve2({ name: file, type: 'no-access' });
                   } else {
                     const subFiles = this.parseFiles(subStdout);
-                    if (subFiles.length > 1) {
-                      resolve2({ name: file, type: 'dir' });
-                    } else if (subFiles[0] === `//${file}`) {
-                      resolve2({ name: file, type: 'file' });
+                    if (subFiles.length > 0) {
+                      if (subFiles[0].includes(file)) {
+                        resolve2({ name: file, type: 'file' });
+                      } else {
+                        resolve2({ name: file, type: 'dir' });
+                      }
                     } else {
                       resolve2({ name: file, type: 'no-access' });
                     }

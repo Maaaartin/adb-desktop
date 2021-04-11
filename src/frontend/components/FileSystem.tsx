@@ -5,7 +5,12 @@ import React, { Component } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
 import { FaCaretDown, FaCaretRight, FaSpinner } from 'react-icons/fa';
 import { getDir as getFiles } from '../ipc/getters';
-import { ExecFileSystemData, FileSystemEntry, TableSort } from '../types';
+import {
+  ExecFileSystemData,
+  FileSystemData,
+  FileSystemEntry,
+  TableSort,
+} from '../types';
 import Li from './subcomponents/Li';
 import RefreshSearch from './subcomponents/RefreshSearch';
 
@@ -17,17 +22,21 @@ type State = {
   sort: TableSort;
   opened: Dictionary<boolean>;
 };
+// TODO fix closing subfiles
+const entryToFSEntry = (entry: [string, FileSystemData]) => {
+  return { [entry[0]]: entry[1] };
+};
 
 const HeaderItem = (props: {
   size: number;
   tag: string;
   index: number;
   sort: TableSort;
-  onClick?: () => void;
+  onClick?: (index: number) => void;
 }) => {
   const { size, tag, onClick, sort, index } = props;
   return (
-    <Col onClick={onClick} xs={size} className="cursor-pointer">
+    <Col onClick={() => onClick?.(index)} xs={size} className="cursor-pointer">
       <div className="float-right">
         {sort.index === index && (
           <span className="inline-block mr-1 text-right">
@@ -57,12 +66,40 @@ class FileSystem extends Component<Props, State> {
     };
 
     this.handleSortClick = this.handleSortClick.bind(this);
+    this.getRootFiles = this.getRootFiles.bind(this);
+    this.entriesToStringArray = this.entriesToStringArray.bind(this);
 
-    getFiles(props.serial, '/', (error, output) => {
-      if (!error) {
-        this.setState({ files: output });
+    this.getRootFiles();
+  }
+
+  private getRootFiles() {
+    const { serial } = this.props;
+    this.setState({ files: {} });
+    getFiles(serial, '/', (error, output) => {
+      if (!error && !emp(output)) {
+        this.setState({ files: output, opened: {} });
       }
     });
+  }
+
+  private entriesToStringArray() {
+    const { files } = this.state;
+    const internal = (entries: FileSystemEntry) => {
+      return Object.entries(entries).reduce<string[]>((acc, curr) => {
+        const children = curr[1].children;
+        acc.push(curr[0]);
+        if (children) {
+          Object.entries(children).forEach((entry) => {
+            acc.push(...internal(entryToFSEntry(entry)));
+          });
+        }
+        return acc;
+      }, []);
+    };
+    return Object.entries(files).reduce<string[]>((acc, curr) => {
+      acc.push(...internal(entryToFSEntry(curr)));
+      return acc;
+    }, []);
   }
 
   private getFileItem(
@@ -73,7 +110,8 @@ class FileSystem extends Component<Props, State> {
   ) {
     const { serial } = this.props;
     const { sort, files, opened } = this.state;
-    const data = entry[1];
+    const name = Object.keys(entry)[0];
+    const data = Object.values(entry)[0];
     const open = opened[path];
     return (
       <Li index={index} level={level}>
@@ -104,7 +142,7 @@ class FileSystem extends Component<Props, State> {
                 />
               </span>
             )}
-            <span>{entry[0]}</span>
+            <span>{name}</span>
           </Col>
           <Col className="text-right" xs={2}>
             {data.size ? `${data.size} B` : '-'}
@@ -116,7 +154,7 @@ class FileSystem extends Component<Props, State> {
             {this.fileTypeToString(data)}
           </Col>
         </Row>
-        <Collapse in={open}>
+        <Collapse in={open} timeout={0}>
           {emp(data.children) && open ? (
             <Row style={{ margin: 0 }} center="xs">
               <FaSpinner
@@ -135,7 +173,7 @@ class FileSystem extends Component<Props, State> {
                       subIndex,
                       level + 1,
                       `${path}/${subEntry[0]}`,
-                      subEntry as any
+                      { [subEntry[0]]: subEntry[1] }
                     );
                   }
                 )}
@@ -165,8 +203,23 @@ class FileSystem extends Component<Props, State> {
     } else return 'File';
   }
 
+  private containsEntry(entry: FileSystemEntry, s: string): boolean {
+    const key = Object.keys(entry)[0];
+    const value = Object.values(entry)[0];
+    if (key.includes(s)) {
+      return true;
+    } else if (value.children) {
+      return !!Object.entries(value.children).find((e) => {
+        return this.containsEntry(entryToFSEntry(e), s);
+      });
+    } else {
+      return false;
+    }
+  }
+
   private sortEntries(files: FileSystemEntry, sort: TableSort) {
-    return orderBy(
+    const { search } = this.state;
+    let entries = orderBy(
       Object.entries(files),
       ([key, value]) => {
         switch (sort.index) {
@@ -184,6 +237,12 @@ class FileSystem extends Component<Props, State> {
       },
       sort.type
     );
+    if (search) {
+      entries = entries.filter((entry) =>
+        this.containsEntry({ [entry[0]]: entry[1] }, search)
+      );
+    }
+    return entries;
   }
 
   render() {
@@ -198,9 +257,9 @@ class FileSystem extends Component<Props, State> {
           </Col>
           <Col xs={12} sm={7}>
             <RefreshSearch
-              collection={[]}
+              collection={this.entriesToStringArray()}
               search={search}
-              onRefrestClick={() => null}
+              onRefrestClick={() => this.getRootFiles()}
               onSearchChange={(value) => this.setState({ search: value })}
             />
           </Col>
@@ -211,28 +270,28 @@ class FileSystem extends Component<Props, State> {
             sort={sort}
             size={4}
             tag="Name"
-            onClick={() => this.handleSortClick(0)}
+            onClick={this.handleSortClick}
           />
           <HeaderItem
             index={1}
             sort={sort}
             size={2}
             tag="Size"
-            onClick={() => this.handleSortClick(1)}
+            onClick={this.handleSortClick}
           />
           <HeaderItem
             index={2}
             sort={sort}
             size={3}
             tag="Date"
-            onClick={() => this.handleSortClick(2)}
+            onClick={this.handleSortClick}
           />
           <HeaderItem
             index={3}
             sort={sort}
             size={3}
             tag="Type"
-            onClick={() => this.handleSortClick(3)}
+            onClick={this.handleSortClick}
           />
         </Row>
         <ul
@@ -249,7 +308,12 @@ class FileSystem extends Component<Props, State> {
             </Row>
           )}
           {entries.map((entry, index) => {
-            return this.getFileItem(index, 0, `/${entry[0]}`, entry as any);
+            return this.getFileItem(
+              index,
+              0,
+              `/${entry[0]}`,
+              entryToFSEntry(entry)
+            );
           })}
         </ul>
       </div>
