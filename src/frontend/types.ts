@@ -21,13 +21,14 @@ export type ExecFileSystemData = {
 
 export type SocketFileSystemData = { date?: Date; size?: number };
 
-export type FileSystemData = ExecFileSystemData & SocketFileSystemData;
+export type FileSystemData = ExecFileSystemData &
+  SocketFileSystemData & { children?: FileSystemEntry };
 
 export type ExecFileSystemEntry = Dictionary<ExecFileSystemData>;
 
 export type SocketFileSystemEntry = Dictionary<SocketFileSystemData>;
 
-export type FileSystemEntry = ExecFileSystemEntry & SocketFileSystemEntry;
+export type FileSystemEntry = Dictionary<FileSystemData>;
 
 export type TableSort = {
   type: 'asc' | 'desc';
