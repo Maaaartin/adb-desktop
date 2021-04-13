@@ -3,6 +3,7 @@ import { Dictionary, isEmpty as emp, orderBy } from 'lodash';
 import moment from 'moment';
 import React, { Component } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
+import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import { FaCaretDown, FaCaretRight, FaSpinner } from 'react-icons/fa';
 import { getDir as getFiles } from '../ipc/getters';
 import {
@@ -68,6 +69,7 @@ class FileSystem extends Component<Props, State> {
     this.handleSortClick = this.handleSortClick.bind(this);
     this.getRootFiles = this.getRootFiles.bind(this);
     this.entriesToStringArray = this.entriesToStringArray.bind(this);
+    this.handleClick = this.handleClick.bind(this);
 
     this.getRootFiles();
   }
@@ -114,73 +116,75 @@ class FileSystem extends Component<Props, State> {
     const data = Object.values(entry)[0];
     const open = opened[path];
     return (
-      <Li index={index} level={level}>
-        <Row style={{ margin: 0 }}>
-          <Col xs={4}>
-            {data.type === 'dir' && (
-              <span
-                onClick={() => {
-                  if (!open) {
-                    getFiles(serial, path, (error, output) => {
-                      if (!error && !emp(output)) {
-                        data.children = output;
-                        this.setState({ files });
-                      }
-                    });
-                  } else {
-                    delete data.children;
-                    this.setState({ files });
-                  }
-                  opened[path] = !open;
-                  this.setState({ opened });
-                }}
-                className="cursor-pointer inline-block mr-1"
-              >
-                <FaCaretRight
-                  size={20}
-                  style={open ? { transform: 'rotate(90deg)' } : {}}
+      <Li index={index} level={level} id={`#${path}`}>
+        <ContextMenuTrigger id="same_unique_identifier">
+          <Row style={{ margin: 0 }}>
+            <Col xs={4}>
+              {data.type === 'dir' && (
+                <span
+                  onClick={() => {
+                    if (!open) {
+                      getFiles(serial, path, (error, output) => {
+                        if (!error && !emp(output)) {
+                          data.children = output;
+                          this.setState({ files });
+                        }
+                      });
+                    } else {
+                      delete data.children;
+                      this.setState({ files });
+                    }
+                    opened[path] = !open;
+                    this.setState({ opened });
+                  }}
+                  className="cursor-pointer inline-block mr-1"
+                >
+                  <FaCaretRight
+                    size={20}
+                    style={open ? { transform: 'rotate(90deg)' } : {}}
+                  />
+                </span>
+              )}
+              <span>{name}</span>
+            </Col>
+            <Col className="text-right" xs={2}>
+              {data.size ? `${data.size} B` : '-'}
+            </Col>
+            <Col className="text-right" xs={3}>
+              {data.date?.toDateString() || '-'}
+            </Col>
+            <Col className="text-right" xs={3}>
+              {this.fileTypeToString(data)}
+            </Col>
+          </Row>
+          <Collapse in={open} timeout={0}>
+            {emp(data.children) && open ? (
+              <Row style={{ margin: 0 }} center="xs">
+                <FaSpinner
+                  color="black"
+                  size="25"
+                  className="animate-spin m-auto"
                 />
-              </span>
+              </Row>
+            ) : (
+              <>
+                <Divider />
+                <ul>
+                  {this.sortEntries(data.children || {}, sort).map(
+                    (subEntry, subIndex) => {
+                      return this.getFileItem(
+                        subIndex,
+                        level + 1,
+                        `${path}/${subEntry[0]}`,
+                        { [subEntry[0]]: subEntry[1] }
+                      );
+                    }
+                  )}
+                </ul>
+              </>
             )}
-            <span>{name}</span>
-          </Col>
-          <Col className="text-right" xs={2}>
-            {data.size ? `${data.size} B` : '-'}
-          </Col>
-          <Col className="text-right" xs={3}>
-            {data.date?.toDateString() || '-'}
-          </Col>
-          <Col className="text-right" xs={3}>
-            {this.fileTypeToString(data)}
-          </Col>
-        </Row>
-        <Collapse in={open} timeout={0}>
-          {emp(data.children) && open ? (
-            <Row style={{ margin: 0 }} center="xs">
-              <FaSpinner
-                color="black"
-                size="25"
-                className="animate-spin m-auto"
-              />
-            </Row>
-          ) : (
-            <>
-              <Divider />
-              <ul>
-                {this.sortEntries(data.children || {}, sort).map(
-                  (subEntry, subIndex) => {
-                    return this.getFileItem(
-                      subIndex,
-                      level + 1,
-                      `${path}/${subEntry[0]}`,
-                      { [subEntry[0]]: subEntry[1] }
-                    );
-                  }
-                )}
-              </ul>
-            </>
-          )}
-        </Collapse>
+          </Collapse>
+        </ContextMenuTrigger>
       </Li>
     );
   }
@@ -245,12 +249,39 @@ class FileSystem extends Component<Props, State> {
     return entries;
   }
 
+  handleClick(
+    e: React.TouchEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>,
+    data: Dictionary<any>,
+    target: HTMLElement
+  ) {
+    const triggerPath = (el: HTMLElement): string => {
+      if (el.id[0] === '#') {
+        return el.id.slice(1);
+      } else if (el.parentElement) {
+        return triggerPath(el.parentElement);
+      } else {
+        return '';
+      }
+    };
+    console.log(data.type);
+    console.log(triggerPath(target));
+  }
+
   render() {
     const { sort, files, search } = this.state;
     const { serial } = this.props;
     const entries = this.sortEntries(files, sort);
     return (
       <div className="h-full">
+        <ContextMenu id="same_unique_identifier">
+          <MenuItem data={{ type: 'pull' }} onClick={this.handleClick}>
+            Pull
+          </MenuItem>
+          <MenuItem data={{ type: 'delete' }} onClick={this.handleClick}>
+            Delete
+          </MenuItem>
+          <MenuItem divider />
+        </ContextMenu>
         <Row className="pr-4 mb-2">
           <Col xs={12} sm={5}>
             <Typography className="p-2">File system of {serial}</Typography>

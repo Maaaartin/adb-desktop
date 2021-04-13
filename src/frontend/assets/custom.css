@@ -1,8 +1,22 @@
 body {
-  background-color: #6c7580;
+  background-color: var(--primary);
   color: white;
   overflow: hidden;
 }
 .react-draggable {
   float: left;
+}
+
+.react-contextmenu {
+  border: solid #6c7580 0.5px;
+  background-color: gray;
+  cursor: pointer;
+}
+
+.react-contextmenu-item {
+  padding: 0 0.5em 0 0.5em;
+}
+
+.react-contextmenu-item--selected {
+  background-color: var(--primary);
 }

@@ -260,6 +260,7 @@
     "parse-color": "^1.0.0",
     "path": "^0.12.7",
     "react": "^17.0.1",
+    "react-contextmenu": "^2.14.0",
     "react-dom": "^17.0.1",
     "react-draggable": "^4.4.3",
     "react-flexbox-grid": "^2.1.2",

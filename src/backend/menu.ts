@@ -7,56 +7,55 @@ import {
   MenuItemConstructorOptions,
   shell,
 } from 'electron';
-import open from 'open';
 import { EmulatorClient } from 'emulator-ts';
+import open from 'open';
 import {
+  DISPLAY_ERROR,
   EXEC_ADB,
-  GET_BATTERY,
   EXEC_DEVICE,
   EXEC_EMULATOR,
   EXEC_MONKEY,
-  OPEN_ADB,
-  OPEN_ADB_SHELL,
-  OPEN_EMULATOR,
-  GET_PROPS,
-  GET_SETTINGS,
+  GET_BATTERY,
+  GET_DIR,
   GET_FEATURES,
   GET_PACKAGES,
+  GET_PROP,
+  GET_PROPS,
+  GET_SETTINGS,
   GET_SETTINGS_GLOBAL,
   GET_SETTINGS_SECURE,
   GET_SETTINGS_SYSTEM,
-  TOGGLE_ADB,
-  SET_PROP,
-  PUT_SETTING_GLOBAL,
-  PUT_SETTING_SECURE,
-  PUT_SETTING_SYSTEM,
   GET_SETTING_GLOBAL,
   GET_SETTING_SECURE,
   GET_SETTING_SYSTEM,
-  GET_PROP,
-  RENEW_TOKEN,
-  DISPLAY_ERROR,
+  OPEN_ADB,
+  OPEN_ADB_SHELL,
+  OPEN_EMULATOR,
   OPEN_LINK,
-  GET_DIR,
+  PUT_SETTING_GLOBAL,
+  PUT_SETTING_SECURE,
+  PUT_SETTING_SYSTEM,
+  RENEW_TOKEN,
+  SET_PROP,
+  TOGGLE_ADB,
 } from '../constants';
 import {
   ADB_SETTINGS_LOAD,
   ADB_SETTINGS_WRITE,
-  DEVICE_CHANGE,
-  LOAD_TOKEN,
-  WRITE_TOKEN,
   ADB_STATUS,
-  WRITE_CONSOLE_SETTINGS,
-  LOAD_CONSOLE_SETTINGS,
   DEVICE_ADD,
+  DEVICE_CHANGE,
   DEVICE_REMOVE,
+  LOAD_CONSOLE_SETTINGS,
+  LOAD_TOKEN,
+  WRITE_CONSOLE_SETTINGS,
+  WRITE_TOKEN,
 } from '../frontend/redux/actionTypes';
+import { DOCS_LINK, ISSUES_LINK } from '../links';
 import AdbHandler from './adb';
 import EmulatorHandler from './emulator';
 import OpenShell from './OpenShell';
 import Preferences from './Preferences';
-import { DOCS_LINK, ISSUES_LINK } from '../links';
-import { FileSystemEntry } from '../frontend/types';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;

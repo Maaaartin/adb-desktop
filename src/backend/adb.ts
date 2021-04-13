@@ -1,17 +1,16 @@
-import { clone } from 'lodash';
 import { AdbClient, AdbClientOptions, IAdbDevice, Tracker } from 'adb-ts';
-import Monkey from 'adb-ts/lib/monkey/client';
-import { Dictionary } from 'lodash';
-import Promise from 'bluebird';
-import Preferences from './Preferences';
-import { EventEmitter } from 'events';
 import AdbDevice from 'adb-ts/lib/device';
+import Monkey from 'adb-ts/lib/monkey/client';
+import Promise from 'bluebird';
+import { exec } from 'child_process';
+import { EventEmitter } from 'events';
+import { clone, Dictionary } from 'lodash';
 import {
   ExecFileSystemEntry,
   FileSystemEntry,
   SocketFileSystemEntry,
 } from '../frontend/types';
-import { exec, execFileSync } from 'child_process';
+import Preferences from './Preferences';
 
 export default class AdbHandler extends EventEmitter {
   private adb: AdbClient;
@@ -129,7 +128,8 @@ export default class AdbHandler extends EventEmitter {
                   } else {
                     const subFiles = this.parseFiles(subStdout);
                     if (subFiles.length > 0) {
-                      if (subFiles[0].includes(file)) {
+                      const subpath = subFiles[0].split('/');
+                      if (subpath[subpath.length - 1].includes(file)) {
                         resolve2({ name: file, type: 'file' });
                       } else {
                         resolve2({ name: file, type: 'dir' });
