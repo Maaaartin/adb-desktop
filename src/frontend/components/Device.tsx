@@ -38,6 +38,7 @@ import MonkeyConsole from './consoles/MonkeyConsole';
 import DeviceItem from './DeviceItem';
 import FileSystem from './FileSystem';
 import IconBtn from './subcomponents/IconBtn';
+import { getColor } from '../colors';
 
 type Props = { device: IAdbDevice };
 
@@ -49,7 +50,7 @@ const Device = (props: Props) => {
   } = props as PropsRedux;
   const isEmulator = state === 'emulator';
   return (
-    <Card style={{ backgroundColor: '#dddd' }} className="w-full mb-1">
+    <Card style={{ backgroundColor: getColor('card') }} className="w-full mb-1">
       <CardHeader title={serial} />
       <CardContent>
         <Row>

@@ -2,6 +2,7 @@ import { AdbClientOptions } from 'adb-ts';
 import {
   app,
   BrowserWindow,
+  dialog,
   ipcMain as ipc,
   Menu,
   MenuItemConstructorOptions,
@@ -9,6 +10,7 @@ import {
 } from 'electron';
 import { EmulatorClient } from 'emulator-ts';
 import open from 'open';
+import Path from 'path';
 import {
   DISPLAY_ERROR,
   EXEC_ADB,
@@ -32,6 +34,7 @@ import {
   OPEN_ADB_SHELL,
   OPEN_EMULATOR,
   OPEN_LINK,
+  PULL_FILE,
   PUT_SETTING_GLOBAL,
   PUT_SETTING_SECURE,
   PUT_SETTING_SYSTEM,
@@ -82,11 +85,35 @@ export default class MenuBuilder {
     this.hookAdbHandler();
     this.hookSetters();
     this.hookSends();
+    this.hookFileSystem();
   }
 
   destroy() {
     this.adbHandler.stop();
     ipc.removeAllListeners();
+  }
+
+  private hookFileSystem() {
+    ipc.on(PULL_FILE, (event, data) => {
+      const { id, serial, srcPath } = data;
+      dialog
+        .showOpenDialog(this.mainWindow, { properties: ['openDirectory'] })
+        .then((value) => {
+          const dirPath = value.filePaths[0];
+          const splitPath = dirPath.split('/');
+          const filePath = splitPath[splitPath.length - 1];
+          const destPath = Path.join(dirPath, filePath);
+          this.adbHandler
+            .getClient()
+            .pullFile(serial, srcPath, destPath, (error) => {
+              if (error) {
+                this.send(PULL_FILE, { id, error });
+              } else {
+                this.send(PULL_FILE, { id, destPath });
+              }
+            });
+        });
+    });
   }
 
   private hookWindow() {

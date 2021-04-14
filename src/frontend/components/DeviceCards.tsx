@@ -11,6 +11,7 @@ import EmulatorConsole from './consoles/EmulatorConsole';
 import MonkeyConsole from './consoles/MonkeyConsole';
 import IconBtn from './subcomponents/IconBtn';
 import Scrollable from './subcomponents/Scrollable';
+import { getColor } from '../colors';
 
 const DeviceCards = (props: any) => {
   const { devices, tabAdd, tabDel } = props as PropsRedux;
@@ -30,7 +31,7 @@ const DeviceCards = (props: any) => {
               <Card
                 key={index}
                 style={{
-                  backgroundColor: '#dddd',
+                  backgroundColor: getColor('card'),
                   marginBottom: '5px',
                 }}
               >

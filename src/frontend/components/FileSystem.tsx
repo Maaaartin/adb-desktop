@@ -2,9 +2,11 @@ import { Collapse, Divider, Typography } from '@material-ui/core';
 import { Dictionary, isEmpty as emp, orderBy } from 'lodash';
 import moment from 'moment';
 import React, { Component } from 'react';
+import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
 import { Col, Row } from 'react-flexbox-grid';
-import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
+import { error as notifError } from 'react-notification-system-redux';
 import { FaCaretDown, FaCaretRight, FaSpinner } from 'react-icons/fa';
+import { pullFile } from '../ipc/fileSystem';
 import { getDir as getFiles } from '../ipc/getters';
 import {
   ExecFileSystemData,
@@ -14,6 +16,8 @@ import {
 } from '../types';
 import Li from './subcomponents/Li';
 import RefreshSearch from './subcomponents/RefreshSearch';
+import { GlobalState } from '../redux/reducers';
+import { connect, ConnectedProps } from 'react-redux';
 
 type Props = { serial: string };
 
@@ -22,10 +26,22 @@ type State = {
   files: FileSystemEntry;
   sort: TableSort;
   opened: Dictionary<boolean>;
+  pull: string;
+  delete: string;
 };
 // TODO fix closing subfiles
 const entryToFSEntry = (entry: [string, FileSystemData]) => {
   return { [entry[0]]: entry[1] };
+};
+
+const triggerPath = (el: HTMLElement): string => {
+  if (el.id[0] === '#') {
+    return el.id.slice(1);
+  } else if (el.parentElement) {
+    return triggerPath(el.parentElement);
+  } else {
+    return '';
+  }
 };
 
 const HeaderItem = (props: {
@@ -64,6 +80,8 @@ class FileSystem extends Component<Props, State> {
       files: {},
       sort: { type: 'asc', index: 0 },
       opened: {},
+      pull: '',
+      delete: '',
     };
 
     this.handleSortClick = this.handleSortClick.bind(this);
@@ -254,17 +272,23 @@ class FileSystem extends Component<Props, State> {
     data: Dictionary<any>,
     target: HTMLElement
   ) {
-    const triggerPath = (el: HTMLElement): string => {
-      if (el.id[0] === '#') {
-        return el.id.slice(1);
-      } else if (el.parentElement) {
-        return triggerPath(el.parentElement);
-      } else {
-        return '';
-      }
-    };
-    console.log(data.type);
-    console.log(triggerPath(target));
+    const { serial, notifError } = this.props as PropsRedux;
+    switch (data.type) {
+      case 'pull':
+        pullFile(serial, triggerPath(target), (error) => {
+          if (error) {
+            notifError({
+              title: 'Could not pull file',
+              message: error.message,
+              position: 'tr',
+            });
+          }
+        });
+        break;
+
+      default:
+        break;
+    }
   }
 
   render() {
@@ -351,5 +375,16 @@ class FileSystem extends Component<Props, State> {
     );
   }
 }
+const mapStateToProps = (state: GlobalState) => {
+  return state;
+};
 
-export default FileSystem;
+const mapDispatchToProps = {
+  notifError,
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type PropsRedux = Props & ConnectedProps<typeof connector>;
+
+export default connector(FileSystem);

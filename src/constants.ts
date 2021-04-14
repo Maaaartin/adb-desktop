@@ -31,3 +31,6 @@ export const TOGGLE_ADB = 'TOGGLE_ADB';
 export const RENEW_TOKEN = 'RENEW_TOKEN';
 export const DISPLAY_ERROR = 'DISPLAY_ERROR';
 export const OPEN_LINK = 'OPEN_LINK';
+
+export const PULL_FILE = 'PULL_FILE';
+export const DELETE_FILE = 'DELETE_FILE';

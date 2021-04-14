@@ -6,7 +6,7 @@ import './frontend/assets/main.css';
 import store from './frontend/redux/store';
 import Root from './frontend/Root';
 import hookIpc from './frontend/ipc/listeners';
-// TODO make colors constant
+
 // TODO fix narrow screen
 hookIpc();
 

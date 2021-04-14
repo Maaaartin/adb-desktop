@@ -13,6 +13,7 @@ import React, { ChangeEvent, Component } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
 import { FaSync } from 'react-icons/fa';
 import { connect, ConnectedProps } from 'react-redux';
+import { getColor } from '../colors';
 import { renewToken } from '../ipc/send';
 import {
   writeAdbSettings,
@@ -192,7 +193,7 @@ class Settings extends Component<any, State> {
       historyLen,
     } = this.state;
     return (
-      <Card style={{ backgroundColor: '#dddd' }} className="w-full">
+      <Card style={{ backgroundColor: getColor('card') }} className="w-full">
         <CardHeader title={'Settings'} />
         <CardContent>
           <Divider />

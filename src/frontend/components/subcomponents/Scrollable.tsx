@@ -1,5 +1,6 @@
 import { HTMLAttributes } from 'enzyme';
 import React, { DetailedHTMLProps } from 'react';
+import { getColor } from '../../colors';
 
 const Scrollable: React.FunctionComponent<any> = (
   props: DetailedHTMLProps<HTMLAttributes, any>
@@ -12,7 +13,7 @@ const Scrollable: React.FunctionComponent<any> = (
     >
       <div
         className="absolute h-full right-0"
-        style={{ backgroundColor: '#6c7580', width: '17px' }}
+        style={{ backgroundColor: getColor('bg'), width: '17px' }}
       />
       {children}
     </div>

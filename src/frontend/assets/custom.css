@@ -1,5 +1,5 @@
 body {
-  background-color: var(--primary);
+  background-color: var(--bg);
   color: white;
   overflow: hidden;
 }
@@ -18,5 +18,5 @@ body {
 }
 
 .react-contextmenu-item--selected {
-  background-color: var(--primary);
+  background-color: var(--bg);
 }
