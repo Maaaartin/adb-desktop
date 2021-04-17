@@ -12,6 +12,7 @@ import { EmulatorClient } from 'emulator-ts';
 import open from 'open';
 import Path from 'path';
 import {
+  DELETE_FILE,
   DISPLAY_ERROR,
   EXEC_ADB,
   EXEC_DEVICE,
@@ -99,10 +100,9 @@ export default class MenuBuilder {
       dialog
         .showOpenDialog(this.mainWindow, { properties: ['openDirectory'] })
         .then((value) => {
-          const dirPath = value.filePaths[0];
-          const splitPath = dirPath.split('/');
+          const splitPath = srcPath.split('/');
           const filePath = splitPath[splitPath.length - 1];
-          const destPath = Path.join(dirPath, filePath);
+          const destPath = Path.join(value.filePaths[0], filePath);
           this.adbHandler
             .getClient()
             .pullFile(serial, srcPath, destPath, (error) => {
@@ -112,6 +112,21 @@ export default class MenuBuilder {
                 this.send(PULL_FILE, { id, destPath });
               }
             });
+        });
+    });
+
+    ipc.on(DELETE_FILE, (event, data) => {
+      const { id, serial, path } = data;
+      this.adbHandler
+        .getClient()
+        .shell(serial, `rm -r ${path}`, (error, output) => {
+          if (error) {
+            this.send(DELETE_FILE, { id, error });
+          } else if (output) {
+            this.send(DELETE_FILE, { id, error: new Error(`${output}`) });
+          } else {
+            this.send(DELETE_FILE, { id, path });
+          }
         });
     });
   }

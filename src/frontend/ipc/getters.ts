@@ -15,7 +15,7 @@ import {
   GET_SETTING_SECURE,
   GET_SETTING_SYSTEM,
 } from '../../constants';
-import { FileSystemEntry } from '../types';
+import { FileSystemEntry } from '../../shared';
 
 const getterCalls: Dictionary<
   ((error: Error, output: any) => void) | undefined
@@ -181,7 +181,7 @@ export const getProp = (
   ipc.send(GET_PROP, { id, serial, key });
 };
 
-export const getDir = (
+export const getFiles = (
   serial: string,
   path: string,
   cb?: (error: Error, output: FileSystemEntry) => void

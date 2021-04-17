@@ -5,7 +5,7 @@ import { Col, Row } from 'react-flexbox-grid';
 import { error as notifError } from 'react-notification-system-redux';
 import { connect, ConnectedProps } from 'react-redux';
 import { GlobalState } from '../redux/reducers';
-import { CollectionFunctions, ItemMaker } from '../types';
+import { CollectionFunctions, ItemMaker } from '../../shared';
 import RefreshSearch from './subcomponents/RefreshSearch';
 import Scrollable from './subcomponents/Scrollable';
 import SettableLi from './subcomponents/SettableLi';

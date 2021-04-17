@@ -9,7 +9,7 @@ import {
   ExecFileSystemEntry,
   FileSystemEntry,
   SocketFileSystemEntry,
-} from '../frontend/types';
+} from '../shared';
 import Preferences from './Preferences';
 
 export default class AdbHandler extends EventEmitter {

@@ -15,8 +15,10 @@ export type CollectionFunctions<T> = {
   valueToString: (item: [string, T]) => string;
 };
 
+export type FileSystemAccess = 'dir' | 'file' | 'no-access';
+
 export type ExecFileSystemData = {
-  type: 'dir' | 'file' | 'no-access';
+  type: FileSystemAccess;
 };
 
 export type SocketFileSystemData = { date?: Date; size?: number };
@@ -34,3 +36,45 @@ export type TableSort = {
   type: 'asc' | 'desc';
   index: number;
 };
+
+export class AdbFilePath {
+  private paths: string[] = [];
+  constructor(value?: string) {
+    if (value) {
+      this.paths = value.split('/').filter((v) => !!v);
+    }
+  }
+
+  static isChildOf(parentPath: string, childPath: string) {
+    const parentArr = parentPath.split('/');
+    const parentDir = parentArr[parentArr.length - 1];
+    const childArr = childPath.split('/');
+    const res = childArr[parentArr.length - 1] === parentDir;
+    return res;
+  }
+
+  getPathArray() {
+    return this.paths;
+  }
+
+  getParent() {
+    return '/'.concat(this.paths.slice(0, this.paths.length - 1).join('/'));
+  }
+
+  getPath() {
+    return '/'.concat(this.paths.join('/'));
+  }
+
+  getLast() {
+    return this.paths[this.paths.length - 1];
+  }
+
+  append(value: string) {
+    this.paths.push(value);
+    return this;
+  }
+
+  clone() {
+    return new AdbFilePath(this.getPath());
+  }
+}

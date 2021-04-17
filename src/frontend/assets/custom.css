@@ -15,6 +15,8 @@ body {
 
 .react-contextmenu-item {
   padding: 0 0.5em 0 0.5em;
+  height: 25px;
+  width: 60px;
 }
 
 .react-contextmenu-item--selected {
