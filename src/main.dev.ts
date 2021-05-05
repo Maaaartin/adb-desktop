@@ -16,6 +16,8 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './backend/menu';
 
+const gotTheLock = app.requestSingleInstanceLock();
+
 export default class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
@@ -111,6 +113,17 @@ const createWindow = async () => {
   // eslint-disable-next-line
   new AppUpdater();
 };
+
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+}
 
 /**
  * Add event listeners...
