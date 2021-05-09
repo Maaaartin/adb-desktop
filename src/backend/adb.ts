@@ -1,5 +1,6 @@
 import { AdbClient, AdbClientOptions, IAdbDevice, Tracker } from 'adb-ts';
 import AdbDevice from 'adb-ts/lib/device';
+import { IFileStats } from 'adb-ts/lib/filestats';
 import Monkey from 'adb-ts/lib/monkey/client';
 import Promise from 'bluebird';
 import { exec } from 'child_process';
@@ -7,6 +8,7 @@ import { EventEmitter } from 'events';
 import { clone, Dictionary } from 'lodash';
 import {
   ExecFileSystemEntry,
+  FileSystemData,
   FileSystemEntry,
   SocketFileSystemEntry,
 } from '../shared';
@@ -169,18 +171,68 @@ export default class AdbHandler extends EventEmitter {
     });
   }
 
-  getFiles(serial: string, path: string): Promise<FileSystemEntry> {
+  private getFileStats(serial: string, path: string) {
+    return this.adb.fileStat(serial, path);
+  }
+
+  getFiles(serial: string, path: string): Promise<FileSystemData> {
+    const buildRes = (stats: IFileStats) => {
+      stats.name = stats.name.replace('/', '');
+      return {
+        name: stats.name,
+        stats,
+        access: true,
+      };
+    };
     return Promise.all([
-      this.getExecFiles(serial, path),
-      this.getSocketFiles(serial, path),
-    ]).then(([execFiles, socketFiles]) => {
-      const files: Dictionary<any> = {};
-      Object.entries(execFiles).forEach(([key, data]) => {
-        const socketFile = socketFiles[key] || {};
-        files[key] = { ...data, ...socketFile };
+      this.adb.fileStat(serial, path),
+      this.adb.readDir(serial, path),
+    ]).then(([stats, files]) => {
+      return Promise.map(files, (item) => {
+        return this.adb
+          .fileStat(serial, `${path}/${item.name}`)
+          .then((data) => {
+            // is symbolic link
+            if (data.name.length !== data.lname.length) {
+              const linkPath = data.lname
+                .split('->')[1]
+                .trim()
+                .replace(/'/g, '');
+              return this.adb.readDir(serial, linkPath).then((entries) => {
+                if (entries.length) {
+                  data.type = 'directory';
+                }
+                return buildRes(data);
+              });
+            }
+            return buildRes(data);
+          })
+          .catch(() => {
+            return {
+              name: item.name,
+              access: false,
+            };
+          });
+      }).then((children) => {
+        return {
+          name: stats.name,
+          stats,
+          access: true,
+          children,
+        };
       });
-      return files;
     });
+    // return Promise.all([
+    //   this.getExecFiles(serial, path),
+    //   this.getSocketFiles(serial, path),
+    // ]).then(([execFiles, socketFiles]) => {
+    //   const files: Dictionary<any> = {};
+    //   Object.entries(execFiles).forEach(([key, data]) => {
+    //     const socketFile = socketFiles[key] || {};
+    //     files[key] = { ...data, ...socketFile };
+    //   });
+    //   return files;
+    // });
   }
 
   getAdbOptions(): AdbClientOptions {

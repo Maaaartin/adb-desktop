@@ -8,6 +8,7 @@ import Root from './frontend/Root';
 import hookIpc from './frontend/ipc/listeners';
 
 // TODO fix narrow screen
+// TODO mkdir fails
 hookIpc();
 
 render(

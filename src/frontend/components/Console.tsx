@@ -27,6 +27,8 @@ type Props = {
   links?: string[];
 };
 
+// TODO remove empty lines
+// TODO display error output as well
 class Console extends Component<Props, State> {
   private input = React.createRef<HiddenInput>();
   private list = React.createRef<HTMLUListElement>();

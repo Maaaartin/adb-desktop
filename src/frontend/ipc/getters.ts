@@ -1,3 +1,4 @@
+import FileStats from 'adb-ts/lib/filestats';
 import { ipcRenderer as ipc } from 'electron';
 import { Dictionary } from 'lodash';
 import {
@@ -15,7 +16,7 @@ import {
   GET_SETTING_SECURE,
   GET_SETTING_SYSTEM,
 } from '../../constants';
-import { FileSystemEntry } from '../../shared';
+import { FileSystemData } from '../../shared';
 
 const getterCalls: Dictionary<
   ((error: Error, output: any) => void) | undefined
@@ -184,7 +185,7 @@ export const getProp = (
 export const getFiles = (
   serial: string,
   path: string,
-  cb?: (error: Error, output: FileSystemEntry) => void
+  cb?: (error: Error, output: FileSystemData) => void
 ) => {
   const id = hookGetter(cb);
   ipc.send(GET_DIR, { id, serial, path });

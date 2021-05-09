@@ -8,27 +8,20 @@ import {
   Divider,
   Typography,
 } from '@material-ui/core';
-import { Dictionary, isEmpty as emp, orderBy } from 'lodash';
+import { Dictionary, get as getProp, isEmpty as emp, orderBy } from 'lodash';
 import moment from 'moment';
 import React, { Component } from 'react';
 import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
 import { Col, Row } from 'react-flexbox-grid';
-import { error as notifError, success } from 'react-notification-system-redux';
 import { FaCaretDown, FaCaretRight, FaSpinner } from 'react-icons/fa';
+import { error as notifError, success } from 'react-notification-system-redux';
+import { connect, ConnectedProps } from 'react-redux';
+import { AdbFilePath, FileSystemData, TableSort } from '../../shared';
 import { deleteFile, pullFile } from '../ipc/fileSystem';
 import { getFiles } from '../ipc/getters';
-import {
-  AdbFilePath,
-  ExecFileSystemData,
-  FileSystemAccess,
-  FileSystemData,
-  FileSystemEntry,
-  TableSort,
-} from '../../shared';
+import { GlobalState } from '../redux/reducers';
 import Li from './subcomponents/Li';
 import RefreshSearch from './subcomponents/RefreshSearch';
-import { GlobalState } from '../redux/reducers';
-import { connect, ConnectedProps } from 'react-redux';
 
 type Props = { serial: string };
 
@@ -37,12 +30,13 @@ type State = {
   sort: TableSort;
   opened: Dictionary<boolean>;
   delFilePath?: AdbFilePath;
-  menuType?: FileSystemAccess;
+  menuType?: string;
 };
-
-const entryToFSEntry = (entry: [string, FileSystemData]) => {
-  return { [entry[0]]: entry[1] };
-};
+// TODO copy path
+// TODO try delete option
+// TODO select multiple
+// TODO when files empty -> show text
+// TODO convert bytes to mb
 
 const triggerPath = (el: HTMLElement): string => {
   // id starting with slash is a path
@@ -83,7 +77,7 @@ const HeaderItem = (props: {
 };
 
 class FileSystem extends Component<Props, State> {
-  private files: FileSystemEntry = {};
+  private files: FileSystemData[] = [];
   constructor(props: Props) {
     super(props);
 
@@ -104,37 +98,35 @@ class FileSystem extends Component<Props, State> {
     this.getRootFiles();
   }
 
-  private setFiles(files: FileSystemEntry) {
+  private setFiles(files: FileSystemData[]) {
+    console.log(files);
     this.files = files;
     this.forceUpdate();
   }
 
   private getRootFiles() {
     const { serial } = this.props;
-    this.setFiles({});
+    this.setFiles([]);
     getFiles(serial, '/', (error, output) => {
       if (!error && !emp(output)) {
-        this.setFiles(output);
+        this.setFiles(output.children || []);
       }
     });
   }
 
   private entriesToStringArray() {
     const { files } = this;
-    const internal = (entries: FileSystemEntry) => {
-      return Object.entries(entries).reduce<string[]>((acc, curr) => {
-        const children = curr[1].children;
-        acc.push(curr[0]);
-        if (children) {
-          Object.entries(children).forEach((entry) => {
-            acc.push(...internal(entryToFSEntry(entry)));
-          });
+    const internal = (children: FileSystemData[]) => {
+      return children.reduce<string[]>((acc, curr) => {
+        acc.push(curr.name);
+        if (curr.children) {
+          acc.push(...internal(curr.children || []));
         }
         return acc;
       }, []);
     };
-    return Object.entries(files).reduce<string[]>((acc, curr) => {
-      acc.push(...internal(entryToFSEntry(curr)));
+    return files?.reduce<string[]>((acc, curr) => {
+      acc.push(...internal(curr.children || []));
       return acc;
     }, []);
   }
@@ -145,8 +137,9 @@ class FileSystem extends Component<Props, State> {
     if (!opened[id]) {
       opened[id] = true;
       getFiles(serial, id, (error, output) => {
+        console.log(output);
         if (!error && !emp(output)) {
-          item.children = output;
+          item.children = output.children;
           this.setFiles(this.files);
         }
       });
@@ -167,25 +160,24 @@ class FileSystem extends Component<Props, State> {
     index: number,
     level: number,
     path: AdbFilePath,
-    entry: FileSystemEntry
+    file: FileSystemData
   ) {
-    const { sort } = this.state;
     const opened = { ...this.state.opened };
-    const name = Object.keys(entry)[0];
-    const data = Object.values(entry)[0];
     const pathStr = path.getPath();
     const open = opened[pathStr];
+    const stats = file.stats;
+    const children = file.children;
     return (
       <Li index={index} level={level} id={`${pathStr}`}>
         <ContextMenuTrigger
-          collect={() => this.setState({ menuType: data.type })}
+          collect={() => this.setState({ menuType: stats?.type })}
           id="context_menu"
         >
           <Row style={{ margin: 0 }}>
             <Col xs={4}>
-              {data.type === 'dir' && (
+              {/dir/.test(getProp(stats, 'type', '')) && (
                 <span
-                  onClick={() => this.toggleDir(pathStr, data)}
+                  onClick={() => this.toggleDir(pathStr, file)}
                   className="cursor-pointer inline-block mr-1"
                 >
                   <FaCaretRight
@@ -194,20 +186,20 @@ class FileSystem extends Component<Props, State> {
                   />
                 </span>
               )}
-              <span>{name}</span>
+              <span>{file.name}</span>
             </Col>
             <Col className="text-right" xs={2}>
-              {data.size ? `${data.size} B` : '-'}
+              {stats?.size ? `${stats?.size} B` : '-'}
             </Col>
             <Col className="text-right" xs={3}>
-              {data.date?.toDateString() || '-'}
+              {stats?.mtime?.toDateString() || '-'}
             </Col>
             <Col className="text-right" xs={3}>
-              {this.fileTypeToString(data)}
+              {stats?.type}
             </Col>
           </Row>
           <Collapse in={open} timeout={0}>
-            {emp(data.children) && open ? (
+            {emp(children) && open ? (
               <Row style={{ margin: 0 }} center="xs">
                 <FaSpinner
                   color="black"
@@ -219,16 +211,14 @@ class FileSystem extends Component<Props, State> {
               <>
                 <Divider />
                 <ul>
-                  {this.sortEntries(data.children || {}, sort).map(
-                    (subEntry, subIndex) => {
-                      return this.getFileItem(
-                        subIndex,
-                        level + 1,
-                        path.clone().append(subEntry[0]),
-                        entryToFSEntry(subEntry)
-                      );
-                    }
-                  )}
+                  {this.sortEntries(children || []).map((child, subIndex) => {
+                    return this.getFileItem(
+                      subIndex,
+                      level + 1,
+                      path.clone().append(child.name),
+                      child
+                    );
+                  })}
                 </ul>
               </>
             )}
@@ -248,42 +238,32 @@ class FileSystem extends Component<Props, State> {
     }
   }
 
-  private fileTypeToString(item: ExecFileSystemData) {
-    if (item.type === 'no-access') {
-      return 'No access';
-    } else if (item.type === 'dir') {
-      return 'Directory';
-    } else return 'File';
-  }
-
-  private containsEntry(entry: FileSystemEntry, s: string): boolean {
-    const key = Object.keys(entry)[0];
-    const value = Object.values(entry)[0];
-    if (key.includes(s)) {
+  private containsEntry(entry: FileSystemData, s: string): boolean {
+    if (entry.name.includes(s)) {
       return true;
-    } else if (value.children) {
-      return !!Object.entries(value.children).find((e) => {
-        return this.containsEntry(entryToFSEntry(e), s);
+    } else if (entry.children) {
+      return !!entry.children.find((e) => {
+        return this.containsEntry(e, s);
       });
     } else {
       return false;
     }
   }
 
-  private sortEntries(files: FileSystemEntry, sort: TableSort) {
-    const { search } = this.state;
+  private sortEntries(files: FileSystemData[]) {
+    const { search, sort } = this.state;
     let entries = orderBy(
-      Object.entries(files),
-      ([key, value]) => {
+      files,
+      (file) => {
         switch (sort.index) {
           case 0:
-            return key;
+            return file.name;
           case 1:
-            return value.size || 0;
+            return file.stats?.size || 0;
           case 2:
-            return value.date ? moment(value.date) : moment(0);
+            return moment(file.stats?.mtime);
           case 3:
-            return value.type;
+            return file.stats?.type;
           default:
             return 0;
         }
@@ -291,9 +271,7 @@ class FileSystem extends Component<Props, State> {
       sort.type
     );
     if (search) {
-      entries = entries.filter((entry) =>
-        this.containsEntry(entryToFSEntry(entry), search)
-      );
+      entries = entries.filter((entry) => this.containsEntry(entry, search));
     }
     return entries;
   }
@@ -334,11 +312,16 @@ class FileSystem extends Component<Props, State> {
     const { files } = this;
     const pathArr = path.getPathArray();
     pathArr.pop();
-    let dir = files[pathArr.shift() || ''];
+    const find = (items: FileSystemData[], s: string) => {
+      return items?.find((item) => {
+        return item.name === s;
+      });
+    };
+    let dir = find(files, pathArr.shift() || '');
     while (pathArr.length) {
-      const el = pathArr.shift();
-      if (el && dir?.children?.[el]) {
-        dir = dir?.children?.[el];
+      const item = find(dir?.children || [], pathArr.shift() || '');
+      if (item) {
+        dir = item;
       }
     }
     return dir;
@@ -358,11 +341,13 @@ class FileSystem extends Component<Props, State> {
         });
       } else {
         if (delFilePath) {
-          const dir = this.getParentDir(delFilePath);
           getFiles(serial, parentPath, (error, output) => {
             if (!error) {
-              dir.children = output;
-              this.setFiles(this.files);
+              const dir = this.getParentDir(delFilePath);
+              if (dir) {
+                dir.children = output.children;
+                this.setFiles(this.files);
+              }
             }
           });
         }
@@ -379,7 +364,7 @@ class FileSystem extends Component<Props, State> {
     const { files } = this;
     const { sort, search, delFilePath, menuType } = this.state;
     const { serial } = this.props;
-    const entries = this.sortEntries(files, sort);
+    const entries = this.sortEntries(files);
     return (
       <div className="h-full">
         <Dialog open={!!delFilePath}>
@@ -466,8 +451,8 @@ class FileSystem extends Component<Props, State> {
             return this.getFileItem(
               index,
               0,
-              new AdbFilePath().append(entry[0]),
-              entryToFSEntry(entry)
+              new AdbFilePath().append(entry.name),
+              entry
             );
           })}
         </ul>

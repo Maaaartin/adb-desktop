@@ -1,3 +1,4 @@
+import FileStats, { IFileStats } from 'adb-ts/lib/filestats';
 import { Dictionary } from 'lodash';
 
 export type ItemMaker<T> = {
@@ -23,14 +24,23 @@ export type ExecFileSystemData = {
 
 export type SocketFileSystemData = { date?: Date; size?: number };
 
-export type FileSystemData = ExecFileSystemData &
-  SocketFileSystemData & { children?: FileSystemEntry };
+export type FileSystemData = {
+  name: string;
+  access: boolean;
+  stats?: IFileStats;
+  children?: FileSystemData[];
+};
 
 export type ExecFileSystemEntry = Dictionary<ExecFileSystemData>;
 
 export type SocketFileSystemEntry = Dictionary<SocketFileSystemData>;
 
 export type FileSystemEntry = Dictionary<FileSystemData>;
+
+interface ControlsMap {
+  [key: string]: any;
+}
+const asdf: ControlsMap = [];
 
 export type TableSort = {
   type: 'asc' | 'desc';
