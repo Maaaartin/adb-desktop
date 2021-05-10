@@ -31,6 +31,7 @@ import {
   GET_SETTING_GLOBAL,
   GET_SETTING_SECURE,
   GET_SETTING_SYSTEM,
+  MKDIR,
   OPEN_ADB,
   OPEN_ADB_SHELL,
   OPEN_EMULATOR,
@@ -128,6 +129,19 @@ export default class MenuBuilder {
             this.send(DELETE_FILE, { id, path });
           }
         });
+    });
+
+    ipc.on(MKDIR, (event, data) => {
+      const { id, serial, path } = data;
+      this.adbHandler.getClient().mkdir(serial, path, (error, output) => {
+        if (error) {
+          this.send(MKDIR, { id, error });
+        } else if (output) {
+          this.send(MKDIR, { id, error: new Error(`${output}`) });
+        } else {
+          this.send(MKDIR, { id, path });
+        }
+      });
     });
   }
 

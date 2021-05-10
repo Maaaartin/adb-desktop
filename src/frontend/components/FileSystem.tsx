@@ -6,6 +6,8 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
+  TextField,
+  TextFieldProps,
   Typography,
 } from '@material-ui/core';
 import { Dictionary, get as getProp, isEmpty as emp, orderBy } from 'lodash';
@@ -13,15 +15,17 @@ import moment from 'moment';
 import React, { Component } from 'react';
 import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
 import { Col, Row } from 'react-flexbox-grid';
+import bytes from 'bytes';
 import { FaCaretDown, FaCaretRight, FaSpinner } from 'react-icons/fa';
 import { error as notifError, success } from 'react-notification-system-redux';
 import { connect, ConnectedProps } from 'react-redux';
 import { AdbFilePath, FileSystemData, TableSort } from '../../shared';
-import { deleteFile, pullFile } from '../ipc/fileSystem';
+import { deleteFile, mkdir, pullFile } from '../ipc/fileSystem';
 import { getFiles } from '../ipc/getters';
 import { GlobalState } from '../redux/reducers';
 import Li from './subcomponents/Li';
 import RefreshSearch from './subcomponents/RefreshSearch';
+import CreateDialog from './subcomponents/CreateDialog';
 
 type Props = { serial: string };
 
@@ -30,12 +34,12 @@ type State = {
   sort: TableSort;
   opened: Dictionary<boolean>;
   delFilePath?: AdbFilePath;
-  menuType?: string;
+  mkdirPath?: AdbFilePath;
+  menuType: string;
 };
 // TODO copy path
 // TODO try delete option
 // TODO select multiple
-// TODO when files empty -> show text
 // TODO convert bytes to mb
 
 const triggerPath = (el: HTMLElement): string => {
@@ -85,6 +89,7 @@ class FileSystem extends Component<Props, State> {
       search: '',
       sort: { type: 'asc', index: 0 },
       opened: {},
+      menuType: '',
     };
 
     this.handleSortClick = this.handleSortClick.bind(this);
@@ -94,12 +99,12 @@ class FileSystem extends Component<Props, State> {
     this.handleDelModalClick = this.handleDelModalClick.bind(this);
     this.setFiles = this.setFiles.bind(this);
     this.toggleDir = this.toggleDir.bind(this);
+    this.handleMkdirModal = this.handleMkdirModal.bind(this);
 
     this.getRootFiles();
   }
 
   private setFiles(files: FileSystemData[]) {
-    console.log(files);
     this.files = files;
     this.forceUpdate();
   }
@@ -125,10 +130,7 @@ class FileSystem extends Component<Props, State> {
         return acc;
       }, []);
     };
-    return files?.reduce<string[]>((acc, curr) => {
-      acc.push(...internal(curr.children || []));
-      return acc;
-    }, []);
+    return internal(files);
   }
 
   private toggleDir(id: string, item: FileSystemData) {
@@ -137,7 +139,6 @@ class FileSystem extends Component<Props, State> {
     if (!opened[id]) {
       opened[id] = true;
       getFiles(serial, id, (error, output) => {
-        console.log(output);
         if (!error && !emp(output)) {
           item.children = output.children;
           this.setFiles(this.files);
@@ -163,14 +164,14 @@ class FileSystem extends Component<Props, State> {
     file: FileSystemData
   ) {
     const opened = { ...this.state.opened };
-    const pathStr = path.getPath();
+    const pathStr = path.toString();
     const open = opened[pathStr];
     const stats = file.stats;
     const children = file.children;
     return (
       <Li index={index} level={level} id={`${pathStr}`}>
         <ContextMenuTrigger
-          collect={() => this.setState({ menuType: stats?.type })}
+          collect={() => this.setState({ menuType: stats?.type || '' })}
           id="context_menu"
         >
           <Row style={{ margin: 0 }}>
@@ -189,17 +190,22 @@ class FileSystem extends Component<Props, State> {
               <span>{file.name}</span>
             </Col>
             <Col className="text-right" xs={2}>
-              {stats?.size ? `${stats?.size} B` : '-'}
+              {stats?.size
+                ? bytes(stats.size, {
+                    unitSeparator: ' ',
+                    thousandsSeparator: ' ',
+                  })
+                : '-'}
             </Col>
             <Col className="text-right" xs={3}>
               {stats?.mtime?.toDateString() || '-'}
             </Col>
             <Col className="text-right" xs={3}>
-              {stats?.type}
+              {stats?.type || 'no access'}
             </Col>
           </Row>
           <Collapse in={open} timeout={0}>
-            {emp(children) && open ? (
+            {!children && open ? (
               <Row style={{ margin: 0 }} center="xs">
                 <FaSpinner
                   color="black"
@@ -207,7 +213,7 @@ class FileSystem extends Component<Props, State> {
                   className="animate-spin m-auto"
                 />
               </Row>
-            ) : (
+            ) : children?.length ? (
               <>
                 <Divider />
                 <ul>
@@ -221,6 +227,8 @@ class FileSystem extends Component<Props, State> {
                   })}
                 </ul>
               </>
+            ) : (
+              'No files'
             )}
           </Collapse>
         </ContextMenuTrigger>
@@ -291,10 +299,9 @@ class FileSystem extends Component<Props, State> {
               message: error.message,
               position: 'tr',
             });
-            // TODO send file as param
           } else {
             success({
-              title: 'Deleted',
+              title: 'File pulled',
               position: 'tr',
             });
           }
@@ -303,35 +310,78 @@ class FileSystem extends Component<Props, State> {
       case 'delete':
         this.setState({ delFilePath: new AdbFilePath(triggerPath(target)) });
         break;
+      case 'mkdir':
+        this.setState({ mkdirPath: new AdbFilePath(triggerPath(target)) });
+        break;
       default:
         break;
     }
   }
 
-  private getParentDir(path: AdbFilePath) {
+  private getParentDir(path?: AdbFilePath) {
     const { files } = this;
-    const pathArr = path.getPathArray();
-    pathArr.pop();
-    const find = (items: FileSystemData[], s: string) => {
-      return items?.find((item) => {
-        return item.name === s;
-      });
-    };
-    let dir = find(files, pathArr.shift() || '');
-    while (pathArr.length) {
-      const item = find(dir?.children || [], pathArr.shift() || '');
-      if (item) {
-        dir = item;
+    const pathArr = path?.getPathArray();
+    if (pathArr) {
+      pathArr.pop();
+      const find = (items: FileSystemData[], s: string) => {
+        return items?.find((item) => {
+          return item.name === s;
+        });
+      };
+      let dir = find(files, pathArr.shift() || '');
+      while (pathArr.length) {
+        const item = find(dir?.children || [], pathArr.shift() || '');
+        if (item) {
+          dir = item;
+        }
       }
+      return dir;
+    } else {
+      return undefined;
     }
-    return dir;
+  }
+
+  private updateFiles(path?: AdbFilePath) {
+    const { serial } = this.props;
+    const parentPath = path?.getParent() || '';
+    getFiles(serial, parentPath, (error, output) => {
+      if (!error) {
+        const dir = this.getParentDir(path);
+        if (dir) {
+          dir.children = output.children;
+          this.setFiles(this.files);
+        }
+      }
+    });
+  }
+
+  private handleMkdirModal(dirName: string) {
+    const { serial, notifError, success } = this.props as PropsRedux;
+    const { mkdirPath } = this.state;
+    const newDir = mkdirPath?.clone().append(dirName).toString() || '';
+    mkdir(serial, newDir, (error) => {
+      if (error) {
+        notifError({
+          title: 'Could not create directory',
+          message: error.message,
+          position: 'tr',
+        });
+      } else {
+        this.updateFiles(mkdirPath);
+        success({
+          title: 'Directory created',
+          position: 'tr',
+        });
+      }
+    });
+
+    this.setState({ mkdirPath: undefined });
   }
 
   handleDelModalClick() {
     const { serial, notifError, success } = this.props as PropsRedux;
     const { delFilePath } = this.state;
-    const parentPath = delFilePath?.getParent() || '';
-    const filePath = delFilePath?.getPath() || '';
+    const filePath = delFilePath?.toString() || '';
     deleteFile(serial, filePath, (error) => {
       if (error) {
         notifError({
@@ -340,17 +390,7 @@ class FileSystem extends Component<Props, State> {
           position: 'tr',
         });
       } else {
-        if (delFilePath) {
-          getFiles(serial, parentPath, (error, output) => {
-            if (!error) {
-              const dir = this.getParentDir(delFilePath);
-              if (dir) {
-                dir.children = output.children;
-                this.setFiles(this.files);
-              }
-            }
-          });
-        }
+        this.updateFiles(delFilePath);
         success({
           title: 'File deleted',
           position: 'tr',
@@ -362,15 +402,22 @@ class FileSystem extends Component<Props, State> {
 
   render() {
     const { files } = this;
-    const { sort, search, delFilePath, menuType } = this.state;
+    const { sort, search, delFilePath, menuType, mkdirPath } = this.state;
     const { serial } = this.props;
     const entries = this.sortEntries(files);
     return (
       <div className="h-full">
+        <CreateDialog
+          open={!!mkdirPath}
+          title="Create Directory"
+          label="Directory name"
+          onClose={() => this.setState({ mkdirPath: undefined })}
+          onConfirm={this.handleMkdirModal}
+        ></CreateDialog>
         <Dialog open={!!delFilePath}>
           <DialogTitle>Delete file</DialogTitle>
           <DialogContent>
-            Do you want to delete {delFilePath?.getPath()}?
+            Do you want to delete {delFilePath?.toString()}?
           </DialogContent>
           <DialogActions>
             <Button onClick={() => this.setState({ delFilePath: undefined })}>
@@ -379,18 +426,25 @@ class FileSystem extends Component<Props, State> {
             <Button onClick={this.handleDelModalClick}>OK</Button>
           </DialogActions>
         </Dialog>
-        <ContextMenu id="context_menu">
-          {menuType === 'file' && (
-            <MenuItem data={{ type: 'pull' }} onClick={this.handleClick}>
-              Pull
-            </MenuItem>
-          )}
-          {menuType !== 'no-access' && (
+        {menuType && (
+          <ContextMenu id="context_menu">
+            {!/dir/.test(menuType) ? (
+              <MenuItem data={{ type: 'pull' }} onClick={this.handleClick}>
+                Pull
+              </MenuItem>
+            ) : (
+              menuType &&
+              /dir/.test(menuType) && (
+                <MenuItem data={{ type: 'mkdir' }} onClick={this.handleClick}>
+                  New Directory
+                </MenuItem>
+              )
+            )}
             <MenuItem data={{ type: 'delete' }} onClick={this.handleClick}>
               Delete
             </MenuItem>
-          )}
-        </ContextMenu>
+          </ContextMenu>
+        )}
         <Row className="pr-4 mb-2">
           <Col xs={12} sm={5}>
             <Typography className="p-2">File system of {serial}</Typography>

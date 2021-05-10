@@ -1,6 +1,6 @@
 import { ipcRenderer as ipc } from 'electron';
 import { Dictionary } from 'lodash';
-import { PULL_FILE, DELETE_FILE } from '../../constants';
+import { PULL_FILE, DELETE_FILE, MKDIR } from '../../constants';
 
 const calls: Dictionary<
   ((error?: Error, data?: Dictionary<any>) => void) | undefined
@@ -16,6 +16,10 @@ ipc.on(PULL_FILE, (event, data) => {
 });
 
 ipc.on(DELETE_FILE, (event, data) => {
+  handleResponse(data);
+});
+
+ipc.on(MKDIR, (event, data) => {
   handleResponse(data);
 });
 
@@ -43,4 +47,13 @@ export const deleteFile = (
 ) => {
   const id = hook(cb);
   ipc.send(DELETE_FILE, { id, path, serial });
+};
+
+export const mkdir = (
+  serial: string,
+  path: string,
+  cb?: (error?: Error) => void
+) => {
+  const id = hook(cb);
+  ipc.send(MKDIR, { id, path, serial });
 };

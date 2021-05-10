@@ -71,7 +71,7 @@ export class AdbFilePath {
     return '/'.concat(this.paths.slice(0, this.paths.length - 1).join('/'));
   }
 
-  getPath() {
+  toString() {
     return '/'.concat(this.paths.join('/'));
   }
 
@@ -85,6 +85,6 @@ export class AdbFilePath {
   }
 
   clone() {
-    return new AdbFilePath(this.getPath());
+    return new AdbFilePath(this.toString());
   }
 }

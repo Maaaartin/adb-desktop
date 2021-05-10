@@ -177,7 +177,8 @@ export default class AdbHandler extends EventEmitter {
 
   getFiles(serial: string, path: string): Promise<FileSystemData> {
     const buildRes = (stats: IFileStats) => {
-      stats.name = stats.name.replace('/', '');
+      const split = stats.name.split('/');
+      stats.name = split[split.length - 1];
       return {
         name: stats.name,
         stats,
@@ -190,7 +191,7 @@ export default class AdbHandler extends EventEmitter {
     ]).then(([stats, files]) => {
       return Promise.map(files, (item) => {
         return this.adb
-          .fileStat(serial, `${path}/${item.name}`)
+          .fileStat(serial, `${path.replace(/\/$/, '')}/${item.name}`)
           .then((data) => {
             // is symbolic link
             if (data.name.length !== data.lname.length) {
