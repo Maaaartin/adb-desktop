@@ -1,4 +1,4 @@
-import FileStats, { IFileStats } from 'adb-ts/lib/filestats';
+import { IFileStats } from 'adb-ts/lib/filestats';
 import { Dictionary } from 'lodash';
 
 export type ItemMaker<T> = {
@@ -27,6 +27,7 @@ export type SocketFileSystemData = { date?: Date; size?: number };
 export type FileSystemData = {
   name: string;
   access: boolean;
+  fullPath: string;
   stats?: IFileStats;
   children?: FileSystemData[];
 };
@@ -49,10 +50,16 @@ export type TableSort = {
 
 export class AdbFilePath {
   private paths: string[] = [];
-  constructor(value?: string) {
-    if (value) {
+  constructor(value?: string | string[]) {
+    if (typeof value === 'string') {
       this.paths = value.split('/').filter((v) => !!v);
+    } else if (Array.isArray(value)) {
+      this.paths = value;
     }
+  }
+
+  static parse(value: string) {
+    return new AdbFilePath(value);
   }
 
   static isChildOf(parentPath: string, childPath: string) {
@@ -64,10 +71,14 @@ export class AdbFilePath {
   }
 
   getPathArray() {
-    return this.paths;
+    return [...this.paths];
   }
 
   getParent() {
+    return new AdbFilePath(this.getPathArray().slice(0, this.paths.length - 1));
+  }
+
+  getParentString() {
     return '/'.concat(this.paths.slice(0, this.paths.length - 1).join('/'));
   }
 

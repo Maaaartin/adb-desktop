@@ -1,22 +1,50 @@
-import { HTMLAttributes } from 'enzyme';
-import React, { DetailedHTMLProps } from 'react';
-import { getColor } from '../../colors';
+import React from 'react';
+import { get as getProp, set as setProp } from 'lodash';
+import Scroll, { ScrollBarProps } from 'react-perfect-scrollbar';
 
-const Scrollable: React.FunctionComponent<any> = (
-  props: DetailedHTMLProps<HTMLAttributes, any>
-) => {
-  const { style, className, children } = props;
+const Scrollable: React.FunctionComponent<any> = (props: ScrollBarProps) => {
+  let lastY: string | null = null;
+  let lastX: string | null = null;
   return (
-    <div
-      className={`relative${className ? ` ${className}` : ''}`}
-      style={{ ...style, width: 'calc(100% + 17px)' }}
+    <Scroll
+      onScrollLeft={() => {
+        if (lastX) {
+          lastX = null;
+        }
+      }}
+      onXReachEnd={(c) => {
+        if (!lastX) {
+          lastX = getProp(
+            c.children[c.children.length - 2],
+            'style.left',
+            null
+          );
+        }
+      }}
+      onScrollRight={(c) => {
+        if (lastX) {
+          setProp(c.children[c.children.length - 2], 'style.left', lastX);
+        }
+      }}
+      onScrollUp={() => {
+        if (lastY) {
+          lastY = null;
+        }
+      }}
+      onYReachEnd={(c) => {
+        if (!lastY) {
+          lastY = getProp(c, 'lastChild.style.top', null);
+        }
+      }}
+      onScrollDown={(c) => {
+        if (lastY) {
+          setProp(c, 'lastChild.style.top', lastY);
+        }
+      }}
+      {...props}
     >
-      <div
-        className="absolute h-full right-0"
-        style={{ backgroundColor: getColor('bg'), width: '17px' }}
-      />
-      {children}
-    </div>
+      {props.children}
+    </Scroll>
   );
 };
 

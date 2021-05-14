@@ -183,6 +183,7 @@ export default class AdbHandler extends EventEmitter {
         name: stats.name,
         stats,
         access: true,
+        fullPath: path.concat('/', stats.name),
       };
     };
     return Promise.all([
@@ -212,6 +213,7 @@ export default class AdbHandler extends EventEmitter {
             return {
               name: item.name,
               access: false,
+              fullPath: path.concat('/', item.name),
             };
           });
       }).then((children) => {
@@ -220,6 +222,7 @@ export default class AdbHandler extends EventEmitter {
           stats,
           access: true,
           children,
+          fullPath: path.concat('/', stats.name),
         };
       });
     });

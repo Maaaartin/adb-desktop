@@ -67,12 +67,7 @@ class Root extends Component {
       <div className="h-screen">
         <Notifications notifications={notifications} />
         <Row top="xs" style={{ height: 'calc(100% - 80px)' }}>
-          <Col
-            md={2}
-            sm={4}
-            xs={4}
-            style={{ marginRight: '17px', minWidth: '150px' }}
-          >
+          <Col md={2} sm={4} xs={4} style={{ minWidth: '178px' }}>
             <Divider />
             <MenuList>
               <MenuItem onClick={() => this.onSelect('settings')}>

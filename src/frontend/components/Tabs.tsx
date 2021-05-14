@@ -3,6 +3,7 @@ import { floor, get as getProp, isEmpty as emp, sortBy } from 'lodash';
 import React, { Component } from 'react';
 import Draggable from 'react-draggable';
 import { Row } from 'react-flexbox-grid';
+import Scroll from './subcomponents/Scrollable';
 import { connect, ConnectedProps } from 'react-redux';
 import { Tab, tabAdd, tabDel } from '../redux/actions';
 import { GlobalState } from '../redux/reducers';
@@ -74,49 +75,51 @@ class Tabs extends Component<Props, State> {
     return (
       <div style={{ height: '100%' }}>
         <Row>
-          <ul className="overflow-scroll table">
-            {tabs.map((tab, index) => {
-              return (
-                <Draggable
-                  key={index}
-                  axis="both"
-                  handle=".handle"
-                  defaultPosition={{ x: 0, y: 0 }}
-                  position={{ x: 0, y: 0 }}
-                  grid={[25, 25]}
-                  scale={1}
-                  onStop={this.onStop}
-                  onDrag={() => this.onDrag(tab.id)}
-                >
-                  <li
+          <Scroll>
+            <ul className=" flex">
+              {tabs.map((tab, index) => {
+                return (
+                  <Draggable
                     key={index}
-                    className="float-left handle cursor-pointer p-2 overflow-hidden"
-                    id={tab.id}
-                    onClick={() => this.onSelect(tab.id)}
+                    axis="both"
+                    handle=".handle"
+                    defaultPosition={{ x: 0, y: 0 }}
+                    position={{ x: 0, y: 0 }}
+                    grid={[25, 25]}
+                    scale={1}
+                    onStop={this.onStop}
+                    onDrag={() => this.onDrag(tab.id)}
                   >
-                    {dragged === tab.id ? (
-                      '|'
-                    ) : (
-                      <Chip
-                        style={
-                          dragged && dragged != tab.id
-                            ? {
-                                backgroundColor: 'transparent',
-                                border: 'solid 1px',
-                              }
-                            : selected === tab.id
-                            ? { backgroundColor: '#b1b3b5' }
-                            : {}
-                        }
-                        label={tab.name}
-                        onDelete={() => this.onClose(tab.id)}
-                      />
-                    )}
-                  </li>
-                </Draggable>
-              );
-            })}
-          </ul>
+                    <li
+                      key={index}
+                      className="float-left handle cursor-pointer p-2"
+                      id={tab.id}
+                      onClick={() => this.onSelect(tab.id)}
+                    >
+                      {dragged === tab.id ? (
+                        '|'
+                      ) : (
+                        <Chip
+                          style={
+                            dragged && dragged != tab.id
+                              ? {
+                                  backgroundColor: 'transparent',
+                                  border: 'solid 1px',
+                                }
+                              : selected === tab.id
+                              ? { backgroundColor: '#b1b3b5' }
+                              : {}
+                          }
+                          label={tab.name}
+                          onDelete={() => this.onClose(tab.id)}
+                        />
+                      )}
+                    </li>
+                  </Draggable>
+                );
+              })}
+            </ul>
+          </Scroll>
         </Row>
         <Row style={{ height: 'calc(100% - 115px)' }}>
           {tabs.map((tab, index) => (

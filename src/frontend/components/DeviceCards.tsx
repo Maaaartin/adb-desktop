@@ -10,17 +10,14 @@ import DeviceConsole from './consoles/DeviceConsole';
 import EmulatorConsole from './consoles/EmulatorConsole';
 import MonkeyConsole from './consoles/MonkeyConsole';
 import IconBtn from './subcomponents/IconBtn';
-import Scrollable from './subcomponents/Scrollable';
+import Scroll from './subcomponents/Scrollable';
 import { getColor } from '../colors';
 
 const DeviceCards = (props: any) => {
   const { devices, tabAdd, tabDel } = props as PropsRedux;
   return (
-    <Scrollable className="pt-1 pb-1">
-      <div
-        className="overflow-hidden overflow-y-scroll pr-1"
-        style={{ height: 'calc(77vh - 80px)' }}
-      >
+    <Scroll className="pt-1 pb-1">
+      <div className="pr-1" style={{ height: 'calc(77vh - 80px)' }}>
         {emp(devices) ? (
           <Typography className="pl-1">No devices connected</Typography>
         ) : (
@@ -54,7 +51,7 @@ const DeviceCards = (props: any) => {
                           tabAdd(tab);
                         }}
                         IconEl={FaTerminal}
-                        tag="Shell console"
+                        tag="Device console"
                       />
                     </Col>
                     <Col sm={isEmulator ? 3 : 6}>
@@ -102,7 +99,7 @@ const DeviceCards = (props: any) => {
           })
         )}
       </div>
-    </Scrollable>
+    </Scroll>
   );
 };
 

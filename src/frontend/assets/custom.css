@@ -21,3 +21,7 @@ body {
 .react-contextmenu-item--selected {
   background-color: var(--bg);
 }
+
+.ps--active-x {
+  padding-bottom: 15px;
+}

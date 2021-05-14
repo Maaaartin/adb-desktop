@@ -35,3 +35,4 @@ export const OPEN_LINK = 'OPEN_LINK';
 export const PULL_FILE = 'PULL_FILE';
 export const DELETE_FILE = 'DELETE_FILE';
 export const MKDIR = 'MKDIR';
+export const CP = 'CP';

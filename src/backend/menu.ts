@@ -12,6 +12,7 @@ import { EmulatorClient } from 'emulator-ts';
 import open from 'open';
 import Path from 'path';
 import {
+  CP,
   DELETE_FILE,
   DISPLAY_ERROR,
   EXEC_ADB,
@@ -142,6 +143,21 @@ export default class MenuBuilder {
           this.send(MKDIR, { id, path });
         }
       });
+    });
+
+    ipc.on(CP, (event, data) => {
+      const { id, serial, srcPath, destPath } = data;
+      this.adbHandler
+        .getClient()
+        .cp(serial, srcPath, destPath, (error, output) => {
+          if (error) {
+            this.send(CP, { id, error });
+          } else if (output) {
+            this.send(CP, { id, error: new Error(`${output}`) });
+          } else {
+            this.send(CP, { id, srcPath, destPath });
+          }
+        });
     });
   }
 

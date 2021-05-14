@@ -6,26 +6,25 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  TextField,
-  TextFieldProps,
   Typography,
 } from '@material-ui/core';
+import bytes from 'bytes';
 import { Dictionary, get as getProp, isEmpty as emp, orderBy } from 'lodash';
 import moment from 'moment';
 import React, { Component } from 'react';
 import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
 import { Col, Row } from 'react-flexbox-grid';
-import bytes from 'bytes';
 import { FaCaretDown, FaCaretRight, FaSpinner } from 'react-icons/fa';
 import { error as notifError, success } from 'react-notification-system-redux';
 import { connect, ConnectedProps } from 'react-redux';
 import { AdbFilePath, FileSystemData, TableSort } from '../../shared';
-import { deleteFile, mkdir, pullFile } from '../ipc/fileSystem';
+import { cp, deleteFile, mkdir, pullFile } from '../ipc/fileSystem';
 import { getFiles } from '../ipc/getters';
 import { GlobalState } from '../redux/reducers';
+import CreateDialog from './subcomponents/CreateDialog';
 import Li from './subcomponents/Li';
 import RefreshSearch from './subcomponents/RefreshSearch';
-import CreateDialog from './subcomponents/CreateDialog';
+import Scroll from './subcomponents/Scrollable';
 
 type Props = { serial: string };
 
@@ -36,11 +35,10 @@ type State = {
   delFilePath?: AdbFilePath;
   mkdirPath?: AdbFilePath;
   menuType: string;
+  cpPath?: AdbFilePath;
 };
-// TODO copy path
-// TODO try delete option
-// TODO select multiple
-// TODO convert bytes to mb
+// TODO update after mkdir and cp
+// TODO modal enter
 
 const triggerPath = (el: HTMLElement): string => {
   // id starting with slash is a path
@@ -100,7 +98,9 @@ class FileSystem extends Component<Props, State> {
     this.setFiles = this.setFiles.bind(this);
     this.toggleDir = this.toggleDir.bind(this);
     this.handleMkdirModal = this.handleMkdirModal.bind(this);
+  }
 
+  componentDidMount() {
     this.getRootFiles();
   }
 
@@ -289,6 +289,7 @@ class FileSystem extends Component<Props, State> {
     data: Dictionary<any>,
     target: HTMLElement
   ) {
+    const { cpPath } = this.state;
     const { serial, notifError, success } = this.props as PropsRedux;
     switch (data.type) {
       case 'pull':
@@ -312,6 +313,32 @@ class FileSystem extends Component<Props, State> {
         break;
       case 'mkdir':
         this.setState({ mkdirPath: new AdbFilePath(triggerPath(target)) });
+        break;
+      case 'cp':
+        this.setState({ cpPath: new AdbFilePath(triggerPath(target)) });
+        break;
+      case 'paste':
+        {
+          if (cpPath) {
+            const destPath = triggerPath(target);
+            cp(serial, cpPath?.toString(), destPath, (error) => {
+              if (error) {
+                notifError({
+                  title: 'Could not copy file',
+                  message: error.message,
+                  position: 'tr',
+                });
+              } else {
+                this.updateFiles(cpPath.getParent());
+                this.updateFiles(AdbFilePath.parse(destPath));
+                success({
+                  title: 'File copied',
+                  position: 'tr',
+                });
+              }
+            });
+          }
+        }
         break;
       default:
         break;
@@ -341,12 +368,30 @@ class FileSystem extends Component<Props, State> {
     }
   }
 
+  private getDirFromPath(path?: AdbFilePath) {
+    const { files } = this;
+    const pathArr = path?.getPathArray();
+    const internal = (
+      collection?: FileSystemData[],
+      dir?: string
+    ): FileSystemData | undefined => {
+      const match = collection?.find((item) => item.name === dir);
+      const shift = pathArr?.shift();
+      if (shift) {
+        return internal(match?.children, shift);
+      } else if (match) {
+        return match;
+      }
+      return undefined;
+    };
+    return internal(files, pathArr?.shift());
+  }
+
   private updateFiles(path?: AdbFilePath) {
     const { serial } = this.props;
-    const parentPath = path?.getParent() || '';
-    getFiles(serial, parentPath, (error, output) => {
+    getFiles(serial, path?.toString() || '', (error, output) => {
       if (!error) {
-        const dir = this.getParentDir(path);
+        const dir = this.getDirFromPath(path);
         if (dir) {
           dir.children = output.children;
           this.setFiles(this.files);
@@ -358,8 +403,8 @@ class FileSystem extends Component<Props, State> {
   private handleMkdirModal(dirName: string) {
     const { serial, notifError, success } = this.props as PropsRedux;
     const { mkdirPath } = this.state;
-    const newDir = mkdirPath?.clone().append(dirName).toString() || '';
-    mkdir(serial, newDir, (error) => {
+    const newDir = mkdirPath?.clone().append(dirName);
+    mkdir(serial, newDir?.toString() || '', (error) => {
       if (error) {
         notifError({
           title: 'Could not create directory',
@@ -400,13 +445,52 @@ class FileSystem extends Component<Props, State> {
     this.setState({ delFilePath: undefined });
   }
 
+  private getContextMenu() {
+    const { menuType, cpPath } = this.state;
+    return (
+      <ContextMenu id="context_menu">
+        {!/dir/.test(menuType) ? (
+          <MenuItem data={{ type: 'pull' }} onClick={this.handleClick}>
+            Pull
+          </MenuItem>
+        ) : (
+          menuType &&
+          /dir/.test(menuType) && (
+            <MenuItem data={{ type: 'mkdir' }} onClick={this.handleClick}>
+              New Directory
+            </MenuItem>
+          )
+        )}
+        <MenuItem data={{ type: 'delete' }} onClick={this.handleClick}>
+          Delete
+        </MenuItem>
+        <MenuItem data={{ type: 'cp' }} onClick={this.handleClick}>
+          Copy
+        </MenuItem>
+        {cpPath && (
+          <MenuItem data={{ type: 'paste' }} onClick={this.handleClick}>
+            Paste
+          </MenuItem>
+        )}
+      </ContextMenu>
+    );
+  }
+
   render() {
     const { files } = this;
-    const { sort, search, delFilePath, menuType, mkdirPath } = this.state;
+    const {
+      sort,
+      search,
+      delFilePath,
+      menuType,
+      mkdirPath,
+      cpPath,
+    } = this.state;
     const { serial } = this.props;
     const entries = this.sortEntries(files);
     return (
       <div className="h-full">
+        {this.getContextMenu()}
         <CreateDialog
           open={!!mkdirPath}
           title="Create Directory"
@@ -426,25 +510,6 @@ class FileSystem extends Component<Props, State> {
             <Button onClick={this.handleDelModalClick}>OK</Button>
           </DialogActions>
         </Dialog>
-        {menuType && (
-          <ContextMenu id="context_menu">
-            {!/dir/.test(menuType) ? (
-              <MenuItem data={{ type: 'pull' }} onClick={this.handleClick}>
-                Pull
-              </MenuItem>
-            ) : (
-              menuType &&
-              /dir/.test(menuType) && (
-                <MenuItem data={{ type: 'mkdir' }} onClick={this.handleClick}>
-                  New Directory
-                </MenuItem>
-              )
-            )}
-            <MenuItem data={{ type: 'delete' }} onClick={this.handleClick}>
-              Delete
-            </MenuItem>
-          </ContextMenu>
-        )}
         <Row className="pr-4 mb-2">
           <Col xs={12} sm={5}>
             <Typography className="p-2">File system of {serial}</Typography>
@@ -488,28 +553,30 @@ class FileSystem extends Component<Props, State> {
             onClick={this.handleSortClick}
           />
         </Row>
-        <ul
-          className="overflow-y-scroll border-black border-2 break-all h-full"
-          style={{ height: 'calc(100% - 90px)' }}
+        <Scroll
+          style={{ height: 'calc(100% - 85px)' }}
+          className="border-black border-2 break-all h-full"
         >
-          {emp(files) && (
-            <Row style={{ margin: 0 }} center="xs">
-              <FaSpinner
-                color="black"
-                size="25"
-                className="animate-spin m-auto"
-              />
-            </Row>
-          )}
-          {entries.map((entry, index) => {
-            return this.getFileItem(
-              index,
-              0,
-              new AdbFilePath().append(entry.name),
-              entry
-            );
-          })}
-        </ul>
+          <ul>
+            {emp(files) && (
+              <Row style={{ margin: 0 }} center="xs">
+                <FaSpinner
+                  color="black"
+                  size="25"
+                  className="animate-spin m-auto"
+                />
+              </Row>
+            )}
+            {entries.map((entry, index) => {
+              return this.getFileItem(
+                index,
+                0,
+                new AdbFilePath().append(entry.name),
+                entry
+              );
+            })}
+          </ul>
+        </Scroll>
       </div>
     );
   }

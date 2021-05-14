@@ -3,11 +3,13 @@ import { isEmpty as emp } from 'lodash';
 import React, { Component } from 'react';
 import { FaLink } from 'react-icons/fa';
 import { connect, ConnectedProps } from 'react-redux';
+import Scroll from 'react-perfect-scrollbar';
 import { openLink } from '../ipc/send';
 import { addHistory } from '../redux/actions';
 import { GlobalState } from '../redux/reducers';
 import HiddenInput from './subcomponents/HiddenInput';
 import IconBtn from './subcomponents/IconBtn';
+import Scrollable from './subcomponents/Scrollable';
 
 type State = {
   logs: { isCommand?: boolean; value: string; isLink?: boolean }[];
@@ -27,11 +29,8 @@ type Props = {
   links?: string[];
 };
 
-// TODO remove empty lines
-// TODO display error output as well
 class Console extends Component<Props, State> {
   private input = React.createRef<HiddenInput>();
-  private list = React.createRef<HTMLUListElement>();
   constructor(props: any) {
     super(props);
     this.state = {
@@ -67,7 +66,6 @@ class Console extends Component<Props, State> {
   }
 
   focus() {
-    this.list.current?.scrollTo(0, this.list.current.scrollHeight);
     this.input.current?.focus();
   }
 
@@ -144,7 +142,8 @@ class Console extends Component<Props, State> {
           exec({ id, cmd }, (error, output) => {
             if (error) {
               logs.push(...this.parseExec(error.message));
-            } else {
+            }
+            if (output) {
               logs.push(...this.parseExec(output));
             }
             this.setState({ logs, execution: false }, () => this.focus());
@@ -181,44 +180,45 @@ class Console extends Component<Props, State> {
           onClick={() => openShell(id)}
           IconEl={FaLink}
         />
-        <ul
-          ref={this.list}
-          className="border border-solid border-white-500 bg-black overflow-scroll overflow-x-hidden whitespace-pre-wrap"
-          style={{ width: '100%', height: 'calc(100% - 60px)' }}
-        >
-          {logs.map((line, index) => {
-            return (
-              <li key={index}>
-                {line.isCommand && (
-                  <span className="text-gray-500">{`${tag || id}> `}</span>
-                )}
-                <span>
-                  {line.isLink ? (
-                    <span
-                      className="underline cursor-pointer"
-                      onClick={() => openLink(line.value)}
-                    >
-                      {line.value}
-                    </span>
-                  ) : (
-                    line.value
+        <Scrollable className="border border-solid border-white-500 bg-black whitespace-pre-wrap">
+          <ul
+            // className="border border-solid border-white-500  bg-black whitespace-pre-wrap"
+            style={{ width: '100%', height: 'calc(100% - 60px)' }}
+          >
+            {logs.map((line, index) => {
+              return (
+                <li key={index}>
+                  {line.isCommand && (
+                    <span className="text-gray-500">{`${tag || id}> `}</span>
                   )}
-                </span>
-              </li>
-            );
-          })}
-          <li onClick={() => this.focus()}>
-            <div>
-              <span className="text-gray-500">{`${tag || id}> `}</span>
-              <HiddenInput
-                disabled={execution}
-                ref={this.input}
-                history={history}
-                onEnter={(value) => this.onEnter(value)}
-              ></HiddenInput>
-            </div>
-          </li>
-        </ul>
+                  <span>
+                    {line.isLink ? (
+                      <span
+                        className="underline cursor-pointer"
+                        onClick={() => openLink(line.value)}
+                      >
+                        {line.value}
+                      </span>
+                    ) : (
+                      line.value
+                    )}
+                  </span>
+                </li>
+              );
+            })}
+            <li onClick={() => this.focus()}>
+              <div>
+                <span className="text-gray-500">{`${tag || id}> `}</span>
+                <HiddenInput
+                  disabled={execution}
+                  ref={this.input}
+                  history={history}
+                  onEnter={(value) => this.onEnter(value)}
+                ></HiddenInput>
+              </div>
+            </li>
+          </ul>
+        </Scrollable>
       </div>
     );
   }
