@@ -1,19 +1,16 @@
-import React from 'react';
 import { ADB_LINK, ADB_TS_LINK } from '../../../links';
-import { execAdbDevice } from '../../ipc/exec';
-import { openAdbShell } from '../../ipc/send';
+
 import Console from '../Console';
+import React from 'react';
+import { typedIpcRenderer as ipc } from '../../../rpc';
 
 const DeviceConsole = (props: { id: string; onExit?: VoidFunction }) => {
   const { id } = props;
   return (
     <Console
-      id={id}
-      exec={(opt, cb) => {
-        const { id, cmd } = opt;
-        execAdbDevice(id, cmd, cb);
-      }}
-      openShell={openAdbShell}
+      serial={id}
+      exec={(_, cmd) => ipc.invoke('execDevice', id, cmd)}
+      openShell={() => ipc.send('openAdbShell', id)}
       onExit={props.onExit}
       links={[ADB_LINK, ADB_TS_LINK]}
     />

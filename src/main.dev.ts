@@ -10,11 +10,18 @@
  */
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
-import path from 'path';
-import { app, BrowserWindow, shell } from 'electron';
+
+import { BrowserWindow, app, shell, webContents } from 'electron';
+
+import { Events } from './rpc';
+import MenuBuilder from './backend/menu';
+import { TypedWebContents } from 'electron-typed-ipc';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import MenuBuilder from './backend/menu';
+import path from 'path';
+import { registerIpc } from './backend/ipc';
+
+registerIpc();
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -144,3 +151,11 @@ app.on('activate', () => {
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) createWindow();
 });
+
+export const getMenu = () => {
+  if (menuBuilder) {
+    return Promise.resolve(menuBuilder);
+  } else {
+    return Promise.reject(new Error('Internal error'));
+  }
+};

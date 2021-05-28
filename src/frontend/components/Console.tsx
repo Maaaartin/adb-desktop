@@ -1,15 +1,16 @@
-import { Fireworks } from 'fireworks/lib/react';
-import { isEmpty as emp } from 'lodash';
+import { ConnectedProps, connect } from 'react-redux';
 import React, { Component } from 'react';
+
+import { CommandResponse } from '../../rpc';
 import { FaLink } from 'react-icons/fa';
-import { connect, ConnectedProps } from 'react-redux';
-import Scroll from 'react-perfect-scrollbar';
-import { openLink } from '../ipc/send';
-import { addHistory } from '../redux/actions';
+import { Fireworks } from 'fireworks/lib/react';
 import { GlobalState } from '../redux/reducers';
 import HiddenInput from './subcomponents/HiddenInput';
 import IconBtn from './subcomponents/IconBtn';
 import Scrollable from './subcomponents/Scrollable';
+import { addHistory } from '../redux/actions';
+import { isEmpty as emp } from 'lodash';
+import { openLink } from '../ipc/send';
 
 type State = {
   logs: { isCommand?: boolean; value: string; isLink?: boolean }[];
@@ -18,12 +19,9 @@ type State = {
 };
 
 type Props = {
-  id: string;
+  serial: string;
   openShell: (id: string) => void;
-  exec: (
-    opt: { id: string; cmd: string },
-    cb: (error: Error, output: string) => void
-  ) => void;
+  exec: (serial: string, cmd: string) => Promise<CommandResponse<string>>;
   tag?: string;
   onExit?: VoidFunction;
   links?: string[];
@@ -110,7 +108,7 @@ class Console extends Component<Props, State> {
         break;
       case 'help':
         {
-          const { id, addHistory, exec, links } = this.props as PropsRedux;
+          const { serial, addHistory, exec, links } = this.props as PropsRedux;
           logs.push({ value: cmd, isCommand: true });
           logs.push(
             { value: `${this.formatHelp('exit', 'close the console')}` },
@@ -124,10 +122,9 @@ class Console extends Component<Props, State> {
           logs.push({ value: '\r\n' });
           this.setState({ logs, execution: true });
           addHistory(cmd);
-          exec({ id, cmd }, (error, output) => {
+          exec(serial, cmd).then(({ error, output }) => {
             if (error) {
               this.setState({ execution: false }, () => this.focus());
-              return;
             } else {
               logs.push(...this.parseExec(output));
               this.setState({ logs, execution: false }, () => this.focus());
@@ -137,12 +134,9 @@ class Console extends Component<Props, State> {
         break;
       default:
         {
-          const { id, addHistory, exec } = this.props as PropsRedux;
+          const { serial, addHistory, exec } = this.props as PropsRedux;
           logs.push({ value: cmd, isCommand: true });
-          exec({ id, cmd }, (error, output) => {
-            if (error) {
-              logs.push(...this.parseExec(error.message));
-            }
+          exec(serial, cmd).then(({ output }) => {
             if (output) {
               logs.push(...this.parseExec(output));
             }
@@ -158,7 +152,7 @@ class Console extends Component<Props, State> {
 
   render() {
     const { logs, firework, execution } = this.state;
-    const { id, openShell, tag, history } = this.props as PropsRedux;
+    const { serial: id, openShell, tag, history } = this.props as PropsRedux;
     return (
       <div className="font-mono h-full w-full">
         {firework && (

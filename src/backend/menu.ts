@@ -1,16 +1,24 @@
-import { AdbClientOptions } from 'adb-ts';
 import {
-  app,
+  ADB_SETTINGS_LOAD,
+  ADB_SETTINGS_WRITE,
+  ADB_STATUS,
+  DEVICE_ADD,
+  DEVICE_CHANGE,
+  DEVICE_REMOVE,
+  LOAD_CONSOLE_SETTINGS,
+  LOAD_TOKEN,
+  WRITE_CONSOLE_SETTINGS,
+  WRITE_TOKEN,
+} from '../frontend/redux/actionTypes';
+import {
   BrowserWindow,
-  dialog,
-  ipcMain as ipc,
   Menu,
   MenuItemConstructorOptions,
+  app,
+  dialog,
+  ipcMain as ipc,
   shell,
 } from 'electron';
-import { EmulatorClient } from 'emulator-ts';
-import open from 'open';
-import Path from 'path';
 import {
   CP,
   DELETE_FILE,
@@ -45,23 +53,16 @@ import {
   SET_PROP,
   TOGGLE_ADB,
 } from '../constants';
-import {
-  ADB_SETTINGS_LOAD,
-  ADB_SETTINGS_WRITE,
-  ADB_STATUS,
-  DEVICE_ADD,
-  DEVICE_CHANGE,
-  DEVICE_REMOVE,
-  LOAD_CONSOLE_SETTINGS,
-  LOAD_TOKEN,
-  WRITE_CONSOLE_SETTINGS,
-  WRITE_TOKEN,
-} from '../frontend/redux/actionTypes';
 import { DOCS_LINK, ISSUES_LINK } from '../links';
+
+import { AdbClientOptions } from 'adb-ts';
 import AdbHandler from './adb';
+import { EmulatorClient } from 'emulator-ts';
 import EmulatorHandler from './emulator';
 import OpenShell from './OpenShell';
+import Path from 'path';
 import Preferences from './Preferences';
+import open from 'open';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;

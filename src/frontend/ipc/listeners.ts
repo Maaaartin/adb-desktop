@@ -1,9 +1,3 @@
-import { AdbClientOptions, IAdbDevice } from 'adb-ts';
-import { ipcRenderer as ipc } from 'electron';
-import { Dictionary, get as getProp, isEmpty as emp } from 'lodash';
-import Notifications from 'react-notification-system-redux';
-import { DISPLAY_ERROR } from '../../constants';
-import { AdbStatus } from '../redux/actions';
 import {
   ADB_SETTINGS_LOAD,
   ADB_STATUS,
@@ -14,7 +8,14 @@ import {
   LOAD_CONSOLE_SETTINGS,
   LOAD_TOKEN,
 } from '../redux/actionTypes';
+import { AdbClientOptions, IAdbDevice } from 'adb-ts';
+import { Dictionary, isEmpty as emp, get as getProp } from 'lodash';
+
 import { Action } from '../redux/reducers';
+import { AdbStatus } from '../redux/actions';
+import { DISPLAY_ERROR } from '../../constants';
+import Notifications from 'react-notification-system-redux';
+import { ipcRenderer as ipc } from 'electron';
 import store from '../redux/store';
 
 const hookIpc = () => {

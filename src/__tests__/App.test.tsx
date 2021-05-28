@@ -1,9 +1,8 @@
-import { IAdbDevice } from 'adb-ts';
-import React from 'react';
-import { Provider } from 'react-redux';
-import rederer from 'react-test-renderer';
-import Console from '../frontend/components/Console';
-import store from '../frontend/redux/store';
+import {
+  ADB_STATUS,
+  DEVICE_ADD,
+  WRITE_CONSOLE_SETTINGS,
+} from '../frontend/redux/actionTypes';
 import {
   AdbStatus,
   addHistory,
@@ -11,11 +10,13 @@ import {
   setAdbStatus,
   writeConsoleSettings,
 } from '../frontend/redux/actions';
-import {
-  ADB_STATUS,
-  DEVICE_ADD,
-  WRITE_CONSOLE_SETTINGS,
-} from '../frontend/redux/actionTypes';
+
+import Console from '../frontend/components/Console';
+import { IAdbDevice } from 'adb-ts';
+import { Provider } from 'react-redux';
+import React from 'react';
+import rederer from 'react-test-renderer';
+import store from '../frontend/redux/store';
 
 describe('redux', () => {
   it('device add', () => {
@@ -53,7 +54,11 @@ describe('react', () => {
   it('console', () => {
     const component = rederer.create(
       <Provider store={store}>
-        <Console id="test" exec={(otp, cb) => {}} openShell={(id) => null} />
+        <Console
+          serial="test"
+          exec={(otp, cb) => {}}
+          openShell={(id) => null}
+        />
       </Provider>
     );
     const tree = component.toJSON();
