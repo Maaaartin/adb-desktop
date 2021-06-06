@@ -2,7 +2,7 @@ import { EMULATOR_LINK, EMULATOR_TS_LINK } from '../../../links';
 
 import Console from '../Console';
 import React from 'react';
-import { typedIpcRenderer as ipc } from '../../../rpc';
+import { typedIpcRenderer as ipc } from '../../../ipcIndex';
 
 const EmulatorConsole = (props: { id: string; onExit?: VoidFunction }) => {
   const { id, onExit } = props;

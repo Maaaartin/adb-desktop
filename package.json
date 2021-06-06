@@ -245,7 +245,7 @@
   "dependencies": {
     "@material-ui/core": "^4.11.3",
     "@material-ui/lab": "^4.0.0-alpha.57",
-    "adb-ts": "^2.1.0",
+    "adb-ts": "^2.1.1",
     "appdata-path": "^1.0.0",
     "bluebird": "^3.7.2",
     "bytes": "^3.1.0",

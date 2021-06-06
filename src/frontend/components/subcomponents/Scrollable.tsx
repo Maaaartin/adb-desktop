@@ -1,6 +1,7 @@
-import React from 'react';
-import { get as getProp, set as setProp } from 'lodash';
 import Scroll, { ScrollBarProps } from 'react-perfect-scrollbar';
+import { get as getProp, set as setProp } from 'lodash';
+
+import React from 'react';
 
 const Scrollable: React.FunctionComponent<any> = (props: ScrollBarProps) => {
   let lastY: string | null = null;

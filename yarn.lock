@@ -2513,10 +2513,10 @@ acorn@^8.0.4:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.0.5.tgz#a3bfb872a74a6a7f661bc81b9849d9cac12601b7"
   integrity sha512-v+DieK/HJkJOpFBETDJioequtc3PfxsWMaxIdIwujtF7FEV/MAyDQLlm6/zPvr7Mix07mLh6ccVwIsloceodlg==
 
-adb-ts@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/adb-ts/-/adb-ts-2.1.0.tgz#ed354581b512140e6686e61d4e7989a12f277cf2"
-  integrity sha512-sn3rTUx+9+8XlxoG/Ypk6Kv2lWUCMZLQ8q1rEjpysZdg82eVjdsF/BaeOlFqkmJmXlXG/k3axO7GalTwO8Dugg==
+adb-ts@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/adb-ts/-/adb-ts-2.1.1.tgz#388c8ddbfb55a86432fbe8748990d37ea43428bd"
+  integrity sha512-NmRwtBRw8qJHlyCCr9+DwrtrNkYaxL6M16I1O1GvUuDJpqSJ3lLqLtnQHewb8iMZckGJiE6ePjulZOMzlpgMOg==
   dependencies:
     bluebird "^3.7.2"
     child_process "^1.0.2"

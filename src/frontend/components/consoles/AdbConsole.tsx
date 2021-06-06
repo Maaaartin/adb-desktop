@@ -2,7 +2,7 @@ import { ADB_LINK, ADB_TS_LINK } from '../../../links';
 
 import Console from '../Console';
 import React from 'react';
-import { typedIpcRenderer as ipc } from '../../../rpc';
+import { typedIpcRenderer as ipc } from '../../../ipcIndex';
 
 const AdbConsole = (props: { onExit?: VoidFunction }) => {
   return (

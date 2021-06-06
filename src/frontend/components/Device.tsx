@@ -5,12 +5,12 @@ import {
   Collapse,
   Divider,
 } from '@material-ui/core';
-import { IAdbDevice } from 'adb-ts';
-import { Dictionary } from 'lodash';
-import React, { useState } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
+import { ConnectedProps, connect } from 'react-redux';
+import { Dictionary, noop } from 'lodash';
 import { FaFolder, FaMobileAlt, FaRobot, FaTerminal } from 'react-icons/fa';
-import { connect, ConnectedProps } from 'react-redux';
+import React, { useState } from 'react';
+import { Tab, tabAdd, tabDel } from '../redux/actions';
 import {
   getBattery,
   getFeatures,
@@ -19,10 +19,10 @@ import {
   getProps,
   getSettingGlobal,
   getSettingSecure,
+  getSettingSystem,
   getSettingsGlobal,
   getSettingsSecure,
   getSettingsSystem,
-  getSettingSystem,
 } from '../ipc/getters';
 import {
   putSettingGlobal,
@@ -30,18 +30,20 @@ import {
   putSettingSystem,
   setProp,
 } from '../ipc/setters';
-import { Tab, tabAdd, tabDel } from '../redux/actions';
+
 import CollapseButton from './subcomponents/CollapseButton';
 import DeviceConsole from './consoles/DeviceConsole';
-import EmulatorConsole from './consoles/EmulatorConsole';
-import MonkeyConsole from './consoles/MonkeyConsole';
 import DeviceItem from './DeviceItem';
+import EmulatorConsole from './consoles/EmulatorConsole';
 import FileSystem from './FileSystem';
+import { IAdbDevice } from 'adb-ts';
 import IconBtn from './subcomponents/IconBtn';
+import MonkeyConsole from './consoles/MonkeyConsole';
 import { getColor } from '../colors';
+import { typedIpcRenderer as ipc } from '../../ipcIndex';
 
 type Props = { device: IAdbDevice };
-
+// TODO ipc display errors
 const Device = (props: Props) => {
   const [open, setOpen] = useState(false);
   const {
@@ -143,9 +145,11 @@ const Device = (props: Props) => {
           serial={serial}
           tag="Battery"
           getter={(cb) => {
-            getBattery(serial, (err, output: Dictionary<any>) => {
-              cb(output);
-            });
+            ipc.invoke('getBattery', serial).then(({ output }) => {
+              if (output) {
+                cb(output);
+              }
+            }, noop);
           }}
           itemMaker={{
             createKey: (item: [string, any]) => item[0],
@@ -160,9 +164,11 @@ const Device = (props: Props) => {
           serial={serial}
           tag="Properties"
           getter={(cb) => {
-            getProps(serial, (err, output: Dictionary<any>) => {
-              cb(output);
-            });
+            ipc.invoke('getProps', serial).then(({ output }) => {
+              if (output) {
+                cb(output);
+              }
+            }, noop);
           }}
           itemMaker={{
             createKey: (item: [string, any]) => item[0],
@@ -182,9 +188,11 @@ const Device = (props: Props) => {
             tag="Global"
             style={{ marginLeft: '5px' }}
             getter={(cb) => {
-              getSettingsGlobal(serial, (err, output: Dictionary<any>) => {
-                cb(output);
-              });
+              ipc.invoke('getSettingsGlobal', serial).then(({ output }) => {
+                if (output) {
+                  cb(output);
+                }
+              }, noop);
             }}
             itemMaker={{
               createKey: (item: [string, any]) => item[0],
@@ -203,9 +211,11 @@ const Device = (props: Props) => {
             style={{ marginLeft: '5px' }}
             tag="System"
             getter={(cb) => {
-              getSettingsSystem(serial, (err, output: Dictionary<any>) => {
-                cb(output);
-              });
+              ipc.invoke('getSettingsSystem', serial).then(({ output }) => {
+                if (output) {
+                  cb(output);
+                }
+              }, noop);
             }}
             itemMaker={{
               createKey: (item: [string, any]) => item[0],
@@ -224,9 +234,11 @@ const Device = (props: Props) => {
             style={{ marginLeft: '5px' }}
             tag="Secure"
             getter={(cb) => {
-              getSettingsSecure(serial, (err, output: Dictionary<any>) => {
-                cb(output);
-              });
+              ipc.invoke('getSettingsSecure', serial).then(({ output }) => {
+                if (output) {
+                  cb(output);
+                }
+              }, noop);
             }}
             itemMaker={{
               createKey: (item: [string, any]) => item[0],
@@ -245,9 +257,11 @@ const Device = (props: Props) => {
           serial={serial}
           tag="Features"
           getter={(cb) => {
-            getFeatures(serial, (err, output: Dictionary<any>) => {
-              cb(output);
-            });
+            ipc.invoke('getFeatures', serial).then(({ output }) => {
+              if (output) {
+                cb(output);
+              }
+            }, noop);
           }}
           itemMaker={{
             createKey: (item: [string, any]) => item[0],
@@ -263,11 +277,13 @@ const Device = (props: Props) => {
           serial={serial}
           tag="Packages"
           getter={(cb: (output: Dictionary<string>) => void) => {
-            getPackages(serial, (err, output) => {
-              const map: Dictionary<string> = {};
-              Object.assign(map, [...output]);
-              cb(map);
-            });
+            ipc.invoke('getPackages', serial).then(({ output }) => {
+              if (output) {
+                const map: Dictionary<string> = {};
+                Object.assign(map, [...output]);
+                cb(map);
+              }
+            }, noop);
           }}
           itemMaker={{
             createValue: (item: [string, any]) => item[1],

@@ -1,6 +1,7 @@
-import { Button } from '@material-ui/core';
 import React, { Component, KeyboardEvent, useEffect, useState } from 'react';
+
 import BlinkCursor from './BlinkCursor';
+import { Button } from '@material-ui/core';
 
 type State = {
   start: string;
@@ -118,6 +119,7 @@ class HiddenInput extends Component<Props, State> {
       case 'ArrowUp':
         {
           const { history } = this.props;
+          console.log(history);
           if (history) {
             const value = this.getValue();
             const index = history.indexOf(value);

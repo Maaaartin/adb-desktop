@@ -1,7 +1,7 @@
 import { ConnectedProps, connect } from 'react-redux';
 import React, { Component } from 'react';
 
-import { CommandResponse } from '../../rpc';
+import { CommandResponse } from '../../ipcIndex';
 import { FaLink } from 'react-icons/fa';
 import { Fireworks } from 'fireworks/lib/react';
 import { GlobalState } from '../redux/reducers';
@@ -121,7 +121,9 @@ class Console extends Component<Props, State> {
           }
           logs.push({ value: '\r\n' });
           this.setState({ logs, execution: true });
-          addHistory(cmd);
+          if (cmd) {
+            addHistory(cmd);
+          }
           exec(serial, cmd).then(({ error, output }) => {
             if (error) {
               this.setState({ execution: false }, () => this.focus());
@@ -136,7 +138,10 @@ class Console extends Component<Props, State> {
         {
           const { serial, addHistory, exec } = this.props as PropsRedux;
           logs.push({ value: cmd, isCommand: true });
-          exec(serial, cmd).then(({ output }) => {
+          exec(serial, cmd).then(({ error, output }) => {
+            if (error) {
+              logs.push(...this.parseExec(error.message));
+            }
             if (output) {
               logs.push(...this.parseExec(output));
             }
@@ -152,7 +157,7 @@ class Console extends Component<Props, State> {
 
   render() {
     const { logs, firework, execution } = this.state;
-    const { serial: id, openShell, tag, history } = this.props as PropsRedux;
+    const { serial, openShell, tag, history } = this.props as PropsRedux;
     return (
       <div className="font-mono h-full w-full">
         {firework && (
@@ -171,19 +176,18 @@ class Console extends Component<Props, State> {
         )}
         <IconBtn
           tag="Open dedicated console"
-          onClick={() => openShell(id)}
+          onClick={() => openShell(serial)}
           IconEl={FaLink}
         />
         <Scrollable className="border border-solid border-white-500 bg-black whitespace-pre-wrap">
-          <ul
-            // className="border border-solid border-white-500  bg-black whitespace-pre-wrap"
-            style={{ width: '100%', height: 'calc(100% - 60px)' }}
-          >
+          <ul style={{ width: '100%', height: 'calc(100% - 60px)' }}>
             {logs.map((line, index) => {
               return (
                 <li key={index}>
                   {line.isCommand && (
-                    <span className="text-gray-500">{`${tag || id}> `}</span>
+                    <span className="text-gray-500">{`${
+                      tag || serial
+                    }> `}</span>
                   )}
                   <span>
                     {line.isLink ? (
@@ -202,7 +206,7 @@ class Console extends Component<Props, State> {
             })}
             <li onClick={() => this.focus()}>
               <div>
-                <span className="text-gray-500">{`${tag || id}> `}</span>
+                <span className="text-gray-500">{`${tag || serial}> `}</span>
                 <HiddenInput
                   disabled={execution}
                   ref={this.input}

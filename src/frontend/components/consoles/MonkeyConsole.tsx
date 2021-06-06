@@ -1,7 +1,7 @@
 import Console from '../Console';
 import { MONKEY_LINK } from '../../../links';
 import React from 'react';
-import { typedIpcRenderer as ipc } from '../../../rpc';
+import { typedIpcRenderer as ipc } from '../../../ipcIndex';
 
 const MonkeyConsole = (props: { id: string; onExit?: VoidFunction }) => {
   const { id, onExit } = props;

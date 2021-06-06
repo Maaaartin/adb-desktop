@@ -13,7 +13,7 @@ import 'regenerator-runtime/runtime';
 
 import { BrowserWindow, app, shell, webContents } from 'electron';
 
-import { Events } from './rpc';
+import { Events } from './ipcIndex';
 import MenuBuilder from './backend/menu';
 import { TypedWebContents } from 'electron-typed-ipc';
 import { autoUpdater } from 'electron-updater';

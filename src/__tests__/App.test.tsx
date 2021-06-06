@@ -50,18 +50,14 @@ describe('redux', () => {
   });
 });
 
-describe('react', () => {
-  it('console', () => {
-    const component = rederer.create(
-      <Provider store={store}>
-        <Console
-          serial="test"
-          exec={(otp, cb) => {}}
-          openShell={(id) => null}
-        />
-      </Provider>
-    );
-    const tree = component.toJSON();
-    expect(tree).toMatchSnapshot();
-  });
-});
+// describe('react', () => {
+//   it('console', () => {
+//     const component = rederer.create(
+//       <Provider store={store}>
+//         <Console serial="test" exec={Promise.resolve} openShell={() => null} />
+//       </Provider>
+//     );
+//     const tree = component.toJSON();
+//     expect(tree).toMatchSnapshot();
+//   });
+// });

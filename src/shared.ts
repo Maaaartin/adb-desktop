@@ -1,5 +1,5 @@
-import { IFileStats } from 'adb-ts/lib/filestats';
 import { Dictionary } from 'lodash';
+import { IFileStats } from 'adb-ts/lib/filestats';
 
 export type ItemMaker<T> = {
   createKey?: (item: [string, T]) => string;
@@ -37,11 +37,6 @@ export type ExecFileSystemEntry = Dictionary<ExecFileSystemData>;
 export type SocketFileSystemEntry = Dictionary<SocketFileSystemData>;
 
 export type FileSystemEntry = Dictionary<FileSystemData>;
-
-interface ControlsMap {
-  [key: string]: any;
-}
-const asdf: ControlsMap = [];
 
 export type TableSort = {
   type: 'asc' | 'desc';
