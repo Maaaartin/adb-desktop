@@ -69,7 +69,7 @@ interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   submenu?: DarwinMenuItemConstructorOptions[] | Menu;
 }
 
-export default class MenuBuilder {
+export default class Root {
   mainWindow: BrowserWindow;
   adbHandler: AdbHandler;
   emulatorHandler: EmulatorHandler;

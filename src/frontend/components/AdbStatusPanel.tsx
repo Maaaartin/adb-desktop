@@ -1,10 +1,11 @@
 import { Button, Card, Typography } from '@material-ui/core';
-import React from 'react';
 import { Col, Row } from 'react-flexbox-grid';
-import { connect, ConnectedProps } from 'react-redux';
-import { toggleAdb } from '../ipc/send';
-import { setAdbStatus } from '../redux/actions';
+import { ConnectedProps, connect } from 'react-redux';
+
 import { GlobalState } from '../redux/reducers';
+import React from 'react';
+import { typedIpcRenderer as ipc } from '../../ipcIndex';
+import { setAdbStatus } from '../redux/actions';
 
 const AdbStatusPanel = (props: any) => {
   const {
@@ -33,7 +34,11 @@ const AdbStatusPanel = (props: any) => {
           Status: {status}
         </Col>
         <Col xs={6}>
-          <Button variant="contained" size="small" onClick={() => toggleAdb()}>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => ipc.send('toggleAdb')}
+          >
             {start ? 'Start' : 'Stop'}
           </Button>
         </Col>

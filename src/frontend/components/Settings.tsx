@@ -7,22 +7,23 @@ import {
   Divider,
   TextField,
 } from '@material-ui/core';
-import { AdbClientOptions } from 'adb-ts';
-import { isEqual as eql } from 'lodash';
-import React, { ChangeEvent, Component } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
-import { FaSync } from 'react-icons/fa';
-import { connect, ConnectedProps } from 'react-redux';
-import { getColor } from '../colors';
-import { renewToken } from '../ipc/send';
+import { ConnectedProps, connect } from 'react-redux';
+import React, { ChangeEvent, Component } from 'react';
+import { isEqual as eql, noop } from 'lodash';
 import {
   writeAdbSettings,
   writeConsoleSettings,
   writeToken,
 } from '../redux/actions';
-import { GlobalState } from '../redux/reducers';
+
+import { AdbClientOptions } from 'adb-ts';
 import CollapseButton from './subcomponents/CollapseButton';
+import { FaSync } from 'react-icons/fa';
+import { GlobalState } from '../redux/reducers';
 import IconBtn from './subcomponents/IconBtn';
+import { getColor } from '../colors';
+import { typedIpcRenderer as ipc } from '../../ipcIndex';
 
 type State = {
   adb: AdbClientOptions;
@@ -54,6 +55,7 @@ class Settings extends Component<any, State> {
     this.resetAdbSettings = this.resetAdbSettings.bind(this);
     this.resetToken = this.resetToken.bind(this);
     this.resetConsole = this.resetConsole.bind(this);
+    this.renewToken = this.renewToken.bind(this);
   }
 
   componentDidUpdate(prevProps: PropsRedux, prevState: State) {
@@ -142,6 +144,13 @@ class Settings extends Component<any, State> {
   componentDidMount() {
     const { adb, token, lines, historyLen } = this.props as PropsRedux;
     this.setState({ adb, token, lines, historyLen });
+  }
+
+  private renewToken() {
+    const { writeToken } = this.props as PropsRedux;
+    ipc
+      .invoke('renewToken')
+      .then(({ output }) => output && writeToken(output), noop);
   }
 
   onChangeFile(event: ChangeEvent<HTMLInputElement>) {
@@ -260,7 +269,7 @@ class Settings extends Component<any, State> {
                 <IconBtn
                   tag="Renew token"
                   IconEl={FaSync}
-                  onClick={() => renewToken()}
+                  onClick={this.renewToken}
                 />
               </Col>
             </Row>

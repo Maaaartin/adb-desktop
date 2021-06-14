@@ -6,8 +6,12 @@ export type ItemMaker<T> = {
   createValue?: (item: [string, T]) => any;
   delimiter?: string;
   styleValue?: boolean;
-  itemSetter?: (key: string, value: string, cb?: (err: Error) => void) => void;
-  itemGetter?: (key: string, cb?: (err: Error, output: any) => void) => void;
+  itemSetter?: (
+    key: string,
+    value: string,
+    cb?: (err?: Error | null) => void
+  ) => void;
+  itemGetter?: (key: string, cb?: (output: any) => void) => void;
 };
 
 export type CollectionFunctions<T> = {

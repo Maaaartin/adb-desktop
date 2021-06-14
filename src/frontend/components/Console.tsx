@@ -10,6 +10,7 @@ import IconBtn from './subcomponents/IconBtn';
 import Scrollable from './subcomponents/Scrollable';
 import { addHistory } from '../redux/actions';
 import { isEmpty as emp } from 'lodash';
+import { typedIpcRenderer as ipc } from '../../ipcIndex';
 import { openLink } from '../ipc/send';
 
 type State = {
@@ -193,7 +194,7 @@ class Console extends Component<Props, State> {
                     {line.isLink ? (
                       <span
                         className="underline cursor-pointer"
-                        onClick={() => openLink(line.value)}
+                        onClick={() => ipc.send('openLink', line.value)}
                       >
                         {line.value}
                       </span>

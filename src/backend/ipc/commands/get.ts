@@ -1,11 +1,12 @@
-import { getMenu } from '../../../main.dev';
+import { getRoot } from '../../../main.dev';
 import { typedIpcMain as ipc } from '../../../ipcIndex';
+import { ipcExec } from '../../ipc';
 
 export default function () {
   ipc.handle('getBattery', (e, serial) => {
-    return getMenu().then((menu) => {
+    return getRoot().then((root) => {
       return new Promise((resolve) => {
-        menu.adbHandler.getClient().batteryStatus(serial, (error, output) => {
+        root.adbHandler.getClient().batteryStatus(serial, (error, output) => {
           resolve({ output, error });
         });
       });
@@ -13,9 +14,9 @@ export default function () {
   });
 
   ipc.handle('getProps', (e, serial) => {
-    return getMenu().then((menu) => {
+    return getRoot().then((root) => {
       return new Promise((resolve) => {
-        menu.adbHandler.getClient().listProperties(serial, (error, output) => {
+        root.adbHandler.getClient().listProperties(serial, (error, output) => {
           resolve({ output, error });
         });
       });
@@ -23,9 +24,9 @@ export default function () {
   });
 
   ipc.handle('getSettingsGlobal', (e, serial) => {
-    return getMenu().then((menu) => {
+    return getRoot().then((root) => {
       return new Promise((resolve) => {
-        menu.adbHandler
+        root.adbHandler
           .getClient()
           .listSettings(serial, 'global', (error, output) => {
             resolve({ output, error });
@@ -35,9 +36,9 @@ export default function () {
   });
 
   ipc.handle('getSettingsSecure', (e, serial) => {
-    return getMenu().then((menu) => {
+    return getRoot().then((root) => {
       return new Promise((resolve) => {
-        menu.adbHandler
+        root.adbHandler
           .getClient()
           .listSettings(serial, 'secure', (error, output) => {
             resolve({ output, error });
@@ -47,9 +48,9 @@ export default function () {
   });
 
   ipc.handle('getSettingsSystem', (e, serial) => {
-    return getMenu().then((menu) => {
+    return getRoot().then((root) => {
       return new Promise((resolve) => {
-        menu.adbHandler
+        root.adbHandler
           .getClient()
           .listSettings(serial, 'system', (error, output) => {
             resolve({ output, error });
@@ -59,9 +60,9 @@ export default function () {
   });
 
   ipc.handle('getFeatures', (e, serial) => {
-    return getMenu().then((menu) => {
+    return getRoot().then((root) => {
       return new Promise((resolve) => {
-        menu.adbHandler.getClient().listFeatures(serial, (error, output) => {
+        root.adbHandler.getClient().listFeatures(serial, (error, output) => {
           resolve({ output, error });
         });
       });
@@ -69,9 +70,9 @@ export default function () {
   });
 
   ipc.handle('getPackages', (e, serial) => {
-    return getMenu().then((menu) => {
+    return getRoot().then((root) => {
       return new Promise((resolve) => {
-        menu.adbHandler.getClient().listPackages(serial, (error, output) => {
+        root.adbHandler.getClient().listPackages(serial, (error, output) => {
           resolve({ output, error });
         });
       });
@@ -79,9 +80,9 @@ export default function () {
   });
 
   ipc.handle('getFiles', (e, serial, path) => {
-    return getMenu().then((menu) => {
+    return getRoot().then((root) => {
       return new Promise((resolve) => {
-        menu.adbHandler
+        root.adbHandler
           .getFiles(serial, path)
           .then((output) => {
             resolve({ output });
@@ -90,6 +91,36 @@ export default function () {
             resolve({ error });
           });
       });
+    });
+  });
+
+  ipc.handle('getSettingGlobal', (e, serial, key) => {
+    return ipcExec((root) => {
+      return root.adbHandler.getClient().getSetting(serial, 'global', key);
+    });
+  });
+
+  ipc.handle('getSettingSecure', (e, serial, key) => {
+    return ipcExec((root) => {
+      return root.adbHandler.getClient().getSetting(serial, 'secure', key);
+    });
+  });
+
+  ipc.handle('getSettingSecure', (e, serial, key) => {
+    return ipcExec((root) => {
+      return root.adbHandler.getClient().getSetting(serial, 'secure', key);
+    });
+  });
+
+  ipc.handle('getSettingSystem', (e, serial, key) => {
+    return ipcExec((root) => {
+      return root.adbHandler.getClient().getSetting(serial, 'system', key);
+    });
+  });
+
+  ipc.handle('getProp', (e, serial, key) => {
+    return ipcExec((root) => {
+      return root.adbHandler.getClient().getProp(serial, key);
     });
   });
 }

@@ -1,3 +1,4 @@
+import { AdbFilePath, FileSystemData, TableSort } from '../../shared';
 import {
   Button,
   Collapse,
@@ -8,23 +9,30 @@ import {
   Divider,
   Typography,
 } from '@material-ui/core';
-import bytes from 'bytes';
-import { Dictionary, get as getProp, isEmpty as emp, orderBy } from 'lodash';
-import moment from 'moment';
-import React, { Component } from 'react';
-import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
 import { Col, Row } from 'react-flexbox-grid';
+import { ConnectedProps, connect } from 'react-redux';
+import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
+import {
+  Dictionary,
+  isEmpty as emp,
+  get as getProp,
+  noop,
+  orderBy,
+} from 'lodash';
 import { FaCaretDown, FaCaretRight, FaSpinner } from 'react-icons/fa';
-import { error as notifError, success } from 'react-notification-system-redux';
-import { connect, ConnectedProps } from 'react-redux';
-import { AdbFilePath, FileSystemData, TableSort } from '../../shared';
+import React, { Component } from 'react';
 import { cp, deleteFile, mkdir, pullFile } from '../ipc/fileSystem';
-import { getFiles } from '../ipc/getters';
-import { GlobalState } from '../redux/reducers';
+import { error as notifError, success } from 'react-notification-system-redux';
+
 import CreateDialog from './subcomponents/CreateDialog';
+import { GlobalState } from '../redux/reducers';
 import Li from './subcomponents/Li';
 import RefreshSearch from './subcomponents/RefreshSearch';
 import Scroll from './subcomponents/Scrollable';
+import bytes from 'bytes';
+import { getFiles } from '../ipc/getters';
+import { typedIpcRenderer as ipc } from '../../ipcIndex';
+import moment from 'moment';
 
 type Props = { serial: string };
 
@@ -112,11 +120,11 @@ class FileSystem extends Component<Props, State> {
   private getRootFiles() {
     const { serial } = this.props;
     this.setFiles([]);
-    getFiles(serial, '/', (error, output) => {
-      if (!error && !emp(output)) {
+    ipc.invoke('getFiles', serial, '/').then(({ output }) => {
+      if (output) {
         this.setFiles(output.children || []);
       }
-    });
+    }, noop);
   }
 
   private entriesToStringArray() {
@@ -138,12 +146,12 @@ class FileSystem extends Component<Props, State> {
     const { serial } = this.props;
     if (!opened[id]) {
       opened[id] = true;
-      getFiles(serial, id, (error, output) => {
-        if (!error && !emp(output)) {
+      ipc.invoke('getFiles', serial, id).then(({ output }) => {
+        if (output) {
           item.children = output.children;
           this.setFiles(this.files);
         }
-      });
+      }, noop);
     } else {
       // closing subfolders
       Object.entries(opened).forEach(([key, value]) => {
@@ -389,15 +397,17 @@ class FileSystem extends Component<Props, State> {
 
   private updateFiles(path?: AdbFilePath) {
     const { serial } = this.props;
-    getFiles(serial, path?.toString() || '', (error, output) => {
-      if (!error) {
-        const dir = this.getDirFromPath(path);
-        if (dir) {
-          dir.children = output.children;
-          this.setFiles(this.files);
+    ipc
+      .invoke('getFiles', serial, path?.toString() || '')
+      .then(({ output }) => {
+        if (output) {
+          const dir = this.getDirFromPath(path);
+          if (dir) {
+            dir.children = output.children;
+            this.setFiles(this.files);
+          }
         }
-      }
-    });
+      }, noop);
   }
 
   private handleMkdirModal(dirName: string) {

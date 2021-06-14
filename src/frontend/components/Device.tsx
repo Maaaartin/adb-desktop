@@ -11,25 +11,6 @@ import { Dictionary, noop } from 'lodash';
 import { FaFolder, FaMobileAlt, FaRobot, FaTerminal } from 'react-icons/fa';
 import React, { useState } from 'react';
 import { Tab, tabAdd, tabDel } from '../redux/actions';
-import {
-  getBattery,
-  getFeatures,
-  getPackages,
-  getProp,
-  getProps,
-  getSettingGlobal,
-  getSettingSecure,
-  getSettingSystem,
-  getSettingsGlobal,
-  getSettingsSecure,
-  getSettingsSystem,
-} from '../ipc/getters';
-import {
-  putSettingGlobal,
-  putSettingSecure,
-  putSettingSystem,
-  setProp,
-} from '../ipc/setters';
 
 import CollapseButton from './subcomponents/CollapseButton';
 import DeviceConsole from './consoles/DeviceConsole';
@@ -43,7 +24,7 @@ import { getColor } from '../colors';
 import { typedIpcRenderer as ipc } from '../../ipcIndex';
 
 type Props = { device: IAdbDevice };
-// TODO ipc display errors
+
 const Device = (props: Props) => {
   const [open, setOpen] = useState(false);
   const {
@@ -175,8 +156,16 @@ const Device = (props: Props) => {
             createValue: (item: [string, any]) => item[1],
             delimiter: ': ',
             styleValue: true,
-            itemGetter: (key, cb) => getProp(serial, key, cb),
-            itemSetter: (key, value, cb) => setProp(serial, key, value, cb),
+            itemGetter: (key, cb) => {
+              ipc.invoke('getProp', serial, key).then(({ output }) => {
+                cb?.(output);
+              }, noop);
+            },
+            itemSetter: (key, value, cb) => {
+              ipc.invoke('setProp', serial, key, value).then(({ error }) => {
+                cb?.(error);
+              }, noop);
+            },
           }}
           onSearch={(item, text) => item[0].includes(text)}
           valueToString={(item) => item[0]}
@@ -199,9 +188,20 @@ const Device = (props: Props) => {
               createValue: (item: [string, any]) => item[1],
               delimiter: ': ',
               styleValue: true,
-              itemGetter: (key, cb) => getSettingGlobal(serial, key, cb),
-              itemSetter: (key, value, cb) =>
-                putSettingGlobal(serial, key, value, cb),
+              itemGetter: (key, cb) => {
+                ipc
+                  .invoke('getSettingGlobal', serial, key)
+                  .then(({ output }) => {
+                    cb?.(output);
+                  }, noop);
+              },
+              itemSetter: (key, value, cb) => {
+                ipc
+                  .invoke('putSettingGlobal', serial, key, value)
+                  .then(({ error }) => {
+                    cb?.(error);
+                  }, noop);
+              },
             }}
             onSearch={(item, text) => item[0].includes(text)}
             valueToString={(item) => item[0]}
@@ -222,9 +222,20 @@ const Device = (props: Props) => {
               createValue: (item: [string, any]) => item[1],
               delimiter: ': ',
               styleValue: true,
-              itemGetter: (key, cb) => getSettingSystem(serial, key, cb),
-              itemSetter: (key, value, cb) =>
-                putSettingSystem(serial, key, value, cb),
+              itemGetter: (key, cb) => {
+                ipc
+                  .invoke('getSettingSystem', serial, key)
+                  .then(({ output }) => {
+                    cb?.(output);
+                  }, noop);
+              },
+              itemSetter: (key, value, cb) => {
+                ipc
+                  .invoke('putSettingSystem', serial, key, value)
+                  .then(({ error }) => {
+                    cb?.(error);
+                  }, noop);
+              },
             }}
             onSearch={(item, text) => item[0].includes(text)}
             valueToString={(item) => item[0]}
@@ -245,9 +256,20 @@ const Device = (props: Props) => {
               createValue: (item: [string, any]) => item[1],
               delimiter: ': ',
               styleValue: true,
-              itemGetter: (key, cb) => getSettingSecure(serial, key, cb),
-              itemSetter: (key, value, cb) =>
-                putSettingSecure(serial, key, value, cb),
+              itemGetter: (key, cb) => {
+                ipc
+                  .invoke('getSettingSecure', serial, key)
+                  .then(({ output }) => {
+                    cb?.(output);
+                  }, noop);
+              },
+              itemSetter: (key, value, cb) => {
+                ipc
+                  .invoke('putSettingSecure', serial, key, value)
+                  .then(({ error }) => {
+                    cb?.(error);
+                  }, noop);
+              },
             }}
             onSearch={(item, text) => item[0].includes(text)}
             valueToString={(item) => item[0]}

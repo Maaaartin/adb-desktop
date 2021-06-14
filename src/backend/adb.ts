@@ -1,18 +1,19 @@
 import { AdbClient, AdbClientOptions, IAdbDevice, Tracker } from 'adb-ts';
-import AdbDevice from 'adb-ts/lib/device';
-import { IFileStats } from 'adb-ts/lib/filestats';
-import Monkey from 'adb-ts/lib/monkey/client';
-import Promise from 'bluebird';
-import { exec } from 'child_process';
-import { EventEmitter } from 'events';
-import { clone, Dictionary } from 'lodash';
+import { Dictionary, clone, noop } from 'lodash';
 import {
   ExecFileSystemEntry,
   FileSystemData,
   FileSystemEntry,
   SocketFileSystemEntry,
 } from '../shared';
+
+import AdbDevice from 'adb-ts/lib/device';
+import { EventEmitter } from 'events';
+import { IFileStats } from 'adb-ts/lib/filestats';
+import Monkey from 'adb-ts/lib/monkey/client';
 import Preferences from './Preferences';
+import Promise from 'bluebird';
+import { exec } from 'child_process';
 
 export default class AdbHandler extends EventEmitter {
   private adb: AdbClient;
@@ -59,8 +60,8 @@ export default class AdbHandler extends EventEmitter {
   start(options?: AdbClientOptions) {
     options = clone(options);
     if (options) {
-      Preferences.save('adb', options);
       this.adb = new AdbClient(options);
+      Preferences.save('adb', options).catch(noop);
     }
     if (this.running) {
       this.stop(() => {
@@ -169,10 +170,6 @@ export default class AdbHandler extends EventEmitter {
       });
       return files;
     });
-  }
-
-  private getFileStats(serial: string, path: string) {
-    return this.adb.fileStat(serial, path);
   }
 
   getFiles(serial: string, path: string): Promise<FileSystemData> {

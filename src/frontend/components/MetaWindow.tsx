@@ -1,14 +1,15 @@
-import { Typography } from '@material-ui/core';
+import { Col, Row } from 'react-flexbox-grid';
+import { CollectionFunctions, ItemMaker } from '../../shared';
+import { ConnectedProps, connect } from 'react-redux';
 import { Dictionary, isEmpty as emp } from 'lodash';
 import React, { Component } from 'react';
-import { Col, Row } from 'react-flexbox-grid';
-import { error as notifError } from 'react-notification-system-redux';
-import { connect, ConnectedProps } from 'react-redux';
+
 import { GlobalState } from '../redux/reducers';
-import { CollectionFunctions, ItemMaker } from '../../shared';
 import RefreshSearch from './subcomponents/RefreshSearch';
 import Scrollable from './subcomponents/Scrollable';
 import SettableLi from './subcomponents/SettableLi';
+import { Typography } from '@material-ui/core';
+import { error as notifError } from 'react-notification-system-redux';
 
 type Props<T> = {
   tag: string;
@@ -93,7 +94,7 @@ class MetaWindow<T> extends Component<Props<T>, State<T>> {
                                 position: 'tr',
                               });
                             } else
-                              itemGetter(item[0], (err, output) => {
+                              itemGetter(item[0], (output) => {
                                 if (!emp(output)) {
                                   this.setState({
                                     collection: {

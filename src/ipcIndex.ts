@@ -3,22 +3,33 @@ import { ipcMain, ipcRenderer } from 'electron';
 
 import { Dictionary } from 'lodash';
 import { FileSystemData } from './shared';
+import { SimpleType } from 'adb-ts';
 
-export type CommandResponse<T> = {
-  error?: Error;
+export type CommandResponse<T = void> = {
+  error?: Error | null;
   output?: T;
 };
 
 type GetCallback = (serial: string) => CommandResponse<Dictionary<any>>;
 
+type GetItemCallback = (serial: string, key: string) => CommandResponse<any>;
+
+type SetCallback = (
+  serial: string,
+  key: string,
+  value: SimpleType
+) => CommandResponse;
+
 export type Events = {
-  displayError: (msg: string) => void;
+  displayError: (err?: Error | null) => void;
+  toggleAdb: VoidFunction;
   /**
    * open
    */
   openAdbShell: (serial: string) => void;
   openAdb: () => void;
   openEmulator: (serial: string) => void;
+  openLink: (link: string) => void;
 };
 
 export type Commands = {
@@ -40,6 +51,23 @@ export type Commands = {
   getFeatures: GetCallback;
   getPackages: (serial: string) => CommandResponse<string[]>;
   getFiles: (serial: string, path: string) => CommandResponse<FileSystemData>;
+  getSettingGlobal: GetItemCallback;
+  getSettingSecure: GetItemCallback;
+  getSettingSystem: GetItemCallback;
+  getProp: GetItemCallback;
+
+  /**
+   * put - set
+   */
+  putSettingSystem: SetCallback;
+  putSettingGlobal: SetCallback;
+  putSettingSecure: SetCallback;
+  setProp: SetCallback;
+
+  /**
+   * other
+   */
+  renewToken: () => CommandResponse<string>;
 };
 
 export const typedIpcMain = ipcMain as TypedIpcMain<Events, Commands>;

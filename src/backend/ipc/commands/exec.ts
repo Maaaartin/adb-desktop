@@ -1,6 +1,8 @@
 import { CommandResponse, typedIpcMain as ipc } from '../../../ipcIndex';
 
-import { getMenu } from '../../../main.dev';
+import { EmulatorClient } from 'emulator-ts';
+import { getRoot } from '../../../main.dev';
+import { noop } from 'lodash';
 
 const handleExecResponse = (
   error: Error | null,
@@ -19,7 +21,7 @@ const handleExecResponse = (
 };
 export default function () {
   ipc.handle('execDevice', (e, serial, cmd) => {
-    return getMenu().then((menu) => {
+    return getRoot().then((menu) => {
       return new Promise((resolve) => {
         menu.adbHandler.getClient().execDevice(serial, cmd, (err, value) => {
           resolve(handleExecResponse(err, value));
@@ -29,7 +31,7 @@ export default function () {
   });
 
   ipc.handle('execAdb', (e, cmd) => {
-    return getMenu().then((menu) => {
+    return getRoot().then((menu) => {
       return new Promise((resolve) => {
         menu.adbHandler.getClient().exec(cmd, (err, value) => {
           resolve(handleExecResponse(err, value));
@@ -39,7 +41,7 @@ export default function () {
   });
 
   ipc.handle('execMonkey', (e, serial, cmd) => {
-    return getMenu().then((menu) => {
+    return getRoot().then((menu) => {
       return new Promise((resolve) => {
         menu.adbHandler.getMonkey(serial, (error, monkey) => {
           if (error) {
@@ -59,11 +61,19 @@ export default function () {
   });
 
   ipc.handle('execEmulator', (e, serial, cmd) => {
-    return getMenu().then((menu) => {
+    return getRoot().then((menu) => {
       return new Promise((resolve) => {
         menu.emulatorHandler.exec(serial, cmd, (err, value) => {
           resolve(handleExecResponse(err, value));
         });
+      });
+    });
+  });
+  ipc.handle('renewToken', () => {
+    return EmulatorClient.readToken().then((output) => {
+      return getRoot().then((root) => {
+        root.emulatorHandler.setToken(output);
+        return { output };
       });
     });
   });
