@@ -12,7 +12,7 @@ import { AdbClientOptions, IAdbDevice } from 'adb-ts';
 import { Dictionary, isEmpty as emp, get as getProp } from 'lodash';
 
 import { Action } from '../redux/reducers';
-import { AdbStatus } from '../redux/actions';
+import { AdbStatus } from '../../shared';
 import { DISPLAY_ERROR } from '../../constants';
 import Notifications from 'react-notification-system-redux';
 import { ipcRenderer as ipc } from 'electron';

@@ -31,7 +31,7 @@ export default class AdbHandler extends EventEmitter {
       tracker.on('error', (err) => {
         this.running = false;
         this.emit('error', err);
-        this.start();
+        this.saveAndStart();
       });
       tracker.on('add', (device) => {
         this.emit('add', device);
@@ -57,7 +57,7 @@ export default class AdbHandler extends EventEmitter {
     });
   }
 
-  start(options?: AdbClientOptions) {
+  saveAndStart(options?: AdbClientOptions) {
     options = clone(options);
     if (options) {
       this.adb = new AdbClient(options);
@@ -223,17 +223,6 @@ export default class AdbHandler extends EventEmitter {
         };
       });
     });
-    // return Promise.all([
-    //   this.getExecFiles(serial, path),
-    //   this.getSocketFiles(serial, path),
-    // ]).then(([execFiles, socketFiles]) => {
-    //   const files: Dictionary<any> = {};
-    //   Object.entries(execFiles).forEach(([key, data]) => {
-    //     const socketFile = socketFiles[key] || {};
-    //     files[key] = { ...data, ...socketFile };
-    //   });
-    //   return files;
-    // });
   }
 
   getAdbOptions(): AdbClientOptions {

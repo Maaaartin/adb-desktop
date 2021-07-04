@@ -1,11 +1,12 @@
-import { ipcRenderer as ipc } from 'electron';
-import { Dictionary } from 'lodash';
 import {
-  SET_PROP,
   PUT_SETTING_GLOBAL,
   PUT_SETTING_SECURE,
   PUT_SETTING_SYSTEM,
+  SET_PROP,
 } from '../../constants';
+
+import { Dictionary } from 'lodash';
+import { ipcRenderer as ipc } from 'electron';
 
 const setterCalls: Dictionary<((error: Error) => void) | undefined> = {};
 const hookSetter = (cb?: (error: Error) => void) => {
@@ -37,42 +38,42 @@ ipc.on(PUT_SETTING_SECURE, (event, data) => {
   handleSetterResponse(data);
 });
 
-export const setProp = (
-  serial: string,
-  key: string,
-  value: string,
-  cb?: (error: Error) => void
-) => {
-  const id = hookSetter(cb);
-  ipc.send(SET_PROP, { id, serial, key, value });
-};
+// export const setProp = (
+//   serial: string,
+//   key: string,
+//   value: string,
+//   cb?: (error: Error) => void
+// ) => {
+//   const id = hookSetter(cb);
+//   ipc.send(SET_PROP, { id, serial, key, value });
+// };
 
-export const putSettingGlobal = (
-  serial: string,
-  key: string,
-  value: string,
-  cb?: (error: Error) => void
-) => {
-  const id = hookSetter(cb);
-  ipc.send(PUT_SETTING_GLOBAL, { id, serial, key, value });
-};
+// export const putSettingGlobal = (
+//   serial: string,
+//   key: string,
+//   value: string,
+//   cb?: (error: Error) => void
+// ) => {
+//   const id = hookSetter(cb);
+//   ipc.send(PUT_SETTING_GLOBAL, { id, serial, key, value });
+// };
 
-export const putSettingSecure = (
-  serial: string,
-  key: string,
-  value: string,
-  cb?: (error: Error) => void
-) => {
-  const id = hookSetter(cb);
-  ipc.send(PUT_SETTING_SECURE, { id, serial, key, value });
-};
+// export const putSettingSecure = (
+//   serial: string,
+//   key: string,
+//   value: string,
+//   cb?: (error: Error) => void
+// ) => {
+//   const id = hookSetter(cb);
+//   ipc.send(PUT_SETTING_SECURE, { id, serial, key, value });
+// };
 
-export const putSettingSystem = (
-  serial: string,
-  key: string,
-  value: string,
-  cb?: (error: Error) => void
-) => {
-  const id = hookSetter(cb);
-  ipc.send(PUT_SETTING_SYSTEM, { id, serial, key, value });
-};
+// export const putSettingSystem = (
+//   serial: string,
+//   key: string,
+//   value: string,
+//   cb?: (error: Error) => void
+// ) => {
+//   const id = hookSetter(cb);
+//   ipc.send(PUT_SETTING_SYSTEM, { id, serial, key, value });
+// };

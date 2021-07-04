@@ -1,6 +1,7 @@
-import { ipcRenderer as ipc } from 'electron';
+import { CP, DELETE_FILE, MKDIR, PULL_FILE } from '../../constants';
+
 import { Dictionary } from 'lodash';
-import { PULL_FILE, DELETE_FILE, MKDIR, CP } from '../../constants';
+import { ipcRenderer as ipc } from 'electron';
 
 const calls: Dictionary<
   ((error?: Error, data?: Dictionary<any>) => void) | undefined
@@ -35,39 +36,39 @@ const handleResponse = (data: any) => {
   delete calls[id];
 };
 
-export const pullFile = (
-  serial: string,
-  srcPath: string,
-  cb?: (error?: Error, data?: Dictionary<any>) => void
-) => {
-  const id = hook(cb);
-  ipc.send(PULL_FILE, { id, serial, srcPath });
-};
+// export const pullFile = (
+//   serial: string,
+//   srcPath: string,
+//   cb?: (error?: Error, data?: Dictionary<any>) => void
+// ) => {
+//   const id = hook(cb);
+//   ipc.send(PULL_FILE, { id, serial, srcPath });
+// };
 
-export const deleteFile = (
-  serial: string,
-  path: string,
-  cb?: (error?: Error) => void
-) => {
-  const id = hook(cb);
-  ipc.send(DELETE_FILE, { id, path, serial });
-};
+// export const deleteFile = (
+//   serial: string,
+//   path: string,
+//   cb?: (error?: Error) => void
+// ) => {
+//   const id = hook(cb);
+//   ipc.send(DELETE_FILE, { id, path, serial });
+// };
 
-export const mkdir = (
-  serial: string,
-  path: string,
-  cb?: (error?: Error) => void
-) => {
-  const id = hook(cb);
-  ipc.send(MKDIR, { id, path, serial });
-};
+// export const mkdir = (
+//   serial: string,
+//   path: string,
+//   cb?: (error?: Error) => void
+// ) => {
+//   const id = hook(cb);
+//   ipc.send(MKDIR, { id, path, serial });
+// };
 
-export const cp = (
-  serial: string,
-  srcPath: string,
-  destPath: string,
-  cb?: (error?: Error) => void
-) => {
-  const id = hook(cb);
-  ipc.send(CP, { id, srcPath, destPath, serial });
-};
+// export const cp = (
+//   serial: string,
+//   srcPath: string,
+//   destPath: string,
+//   cb?: (error?: Error) => void
+// ) => {
+//   const id = hook(cb);
+//   ipc.send(CP, { id, srcPath, destPath, serial });
+// };

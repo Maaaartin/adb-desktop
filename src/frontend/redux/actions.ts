@@ -1,7 +1,3 @@
-import { AdbClientOptions, IAdbDevice } from 'adb-ts';
-import { ipcRenderer as ipc } from 'electron';
-import { Dictionary } from 'lodash';
-import Notifications from 'react-notification-system-redux';
 import {
   ADB_SETTINGS_WRITE,
   ADB_STATUS,
@@ -16,6 +12,12 @@ import {
   WRITE_CONSOLE_SETTINGS,
   WRITE_TOKEN,
 } from './actionTypes';
+import { AdbClientOptions, IAdbDevice } from 'adb-ts';
+
+import { AdbStatus } from '../../shared';
+import { Dictionary } from 'lodash';
+import Notifications from 'react-notification-system-redux';
+import { ipcRenderer as ipc } from 'electron';
 import store from './store';
 
 export class Tab {
@@ -32,14 +34,6 @@ export class Tab {
     return this.id;
   }
 }
-
-export type AdbState = 'starting' | 'running' | 'stopped' | 'error';
-
-export type AdbStatus = {
-  status: AdbState;
-  running: boolean;
-  error: Error | null;
-};
 
 const SettingsAction = Notifications.success({ title: 'Settings saved' });
 

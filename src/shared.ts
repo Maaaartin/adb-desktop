@@ -1,6 +1,20 @@
 import { Dictionary } from 'lodash';
 import { IFileStats } from 'adb-ts/lib/filestats';
 
+export type AdbState = 'starting' | 'running' | 'stopped' | 'error';
+
+export type AdbStatus = {
+  status: AdbState;
+  running: boolean;
+  error: Error | null;
+};
+
+export type ConsoleSettings = {
+  lines: number;
+  history: string[];
+  historyLen: number;
+};
+
 export type ItemMaker<T> = {
   createKey?: (item: [string, T]) => string;
   createValue?: (item: [string, T]) => any;

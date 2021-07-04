@@ -9,11 +9,20 @@ import _set from './ipc/commands/set';
 import { callbackify } from 'util';
 import { getRoot } from '../main.dev';
 import { noop } from 'lodash';
+import { webContents } from 'electron';
 
 export const mainWebContent = (cb: (c: TypedWebContents<Events>) => void) => {
   getRoot().then((menu) => {
     cb(menu.mainWindow.webContents as TypedWebContents<Events>);
   }, noop);
+};
+
+export const allWebContents = (cb: (c: TypedWebContents<Events>) => void) => {
+  webContents
+    .getAllWebContents()
+    .forEach((renderer: TypedWebContents<Events>) => {
+      cb(renderer);
+    });
 };
 
 let registered = false;
@@ -38,19 +47,28 @@ export const registerIpc = () => {
   }
 };
 
+// TODO params for error title
 export const ipcExec = <T>(
   caller: (root: Root) => Promise<T>
 ): Promise<CommandResponse<T>> => {
-  return getRoot().then((menu) => {
-    return new Promise((resolve) => {
-      callbackify(() => caller(menu))((error, output) => {
-        if (error) {
-          mainWebContent((c) => {
-            c.send('displayError', error);
-          });
-        }
-        resolve({ error, output });
+  return getRoot().then(
+    (root) => {
+      return new Promise((resolve) => {
+        callbackify(() => caller(root))((error, output) => {
+          if (error) {
+            mainWebContent((c) => {
+              c.send('displayError', error);
+            });
+          }
+          resolve({ error, output });
+        });
       });
-    });
-  });
+    },
+    (error) => {
+      mainWebContent((c) => {
+        c.send('displayError', error);
+      });
+      return { error };
+    }
+  );
 };

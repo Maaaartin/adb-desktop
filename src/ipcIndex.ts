@@ -1,9 +1,9 @@
+import { AdbClientOptions, IAdbDevice, SimpleType } from 'adb-ts';
+import { AdbStatus, ConsoleSettings, FileSystemData } from './shared';
 import { TypedIpcMain, TypedIpcRenderer } from 'electron-typed-ipc';
 import { ipcMain, ipcRenderer } from 'electron';
 
 import { Dictionary } from 'lodash';
-import { FileSystemData } from './shared';
-import { SimpleType } from 'adb-ts';
 
 export type CommandResponse<T = void> = {
   error?: Error | null;
@@ -14,10 +14,20 @@ type GetCallback = (serial: string) => CommandResponse<Dictionary<any>>;
 
 type GetItemCallback = (serial: string, key: string) => CommandResponse<any>;
 
+type EventCallback<T> = (data: T) => void;
+
 type SetCallback = (
   serial: string,
   key: string,
   value: SimpleType
+) => CommandResponse;
+
+type FsSingleCallback = (serial: string, path: string) => CommandResponse;
+
+type FsDoubleCallback = (
+  serial: string,
+  srcPath: string,
+  destPath: string
 ) => CommandResponse;
 
 export type Events = {
@@ -30,6 +40,25 @@ export type Events = {
   openAdb: () => void;
   openEmulator: (serial: string) => void;
   openLink: (link: string) => void;
+  /**
+   * redux - load
+   */
+  loadAdbSettings: EventCallback<AdbClientOptions>;
+  loadToken: EventCallback<string>;
+  loadConsoleSettings: EventCallback<ConsoleSettings>;
+  /**
+   * redux - write
+   */
+  writeAdbSettings: EventCallback<AdbClientOptions>;
+  writeToken: EventCallback<string>;
+  writeConsoleSettings: EventCallback<ConsoleSettings>;
+  /**
+   * redux - adb
+   */
+  deviceAdd: EventCallback<IAdbDevice>;
+  deviceChange: EventCallback<IAdbDevice>;
+  deviceRemove: EventCallback<IAdbDevice>;
+  adbStatus: EventCallback<AdbStatus>;
 };
 
 export type Commands = {
@@ -64,6 +93,14 @@ export type Commands = {
   putSettingSecure: SetCallback;
   setProp: SetCallback;
 
+  /**
+   * fs
+   */
+  cp: FsDoubleCallback;
+  mkdir: FsSingleCallback;
+  rm: FsSingleCallback;
+  pull: FsSingleCallback;
+  touch: FsSingleCallback;
   /**
    * other
    */

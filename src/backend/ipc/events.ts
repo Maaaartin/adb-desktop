@@ -1,11 +1,13 @@
 import OpenShell from '../OpenShell';
+import Preferences from '../Preferences';
 import { getRoot } from '../../main.dev';
 import { typedIpcMain as ipc } from '../../ipcIndex';
 import { mainWebContent } from '../ipc';
+import { noop } from 'lodash';
 import open from 'open';
 
 export default function () {
-  ipc.on('openAdbShell', (e, serial) => {
+  ipc.on('openAdbShell', (_e, serial) => {
     OpenShell.adbShell(serial).catch((err) => {
       mainWebContent((content) => {
         content.send('displayError', err.message);
@@ -21,7 +23,7 @@ export default function () {
     });
   });
 
-  ipc.on('openEmulator', (e, serial) => {
+  ipc.on('openEmulator', (_e, serial) => {
     OpenShell.emulator(serial).catch((err) => {
       mainWebContent((content) => {
         content.send('displayError', err.message);
@@ -35,12 +37,28 @@ export default function () {
       if (running) {
         root.adbHandler.stop();
       } else {
-        root.adbHandler.start();
+        root.adbHandler.saveAndStart();
       }
-    });
+    }, noop);
   });
 
-  ipc.on('openLink', (e, link) => {
+  ipc.on('openLink', (_e, link) => {
     open(link);
+  });
+  // TODO display error?
+  ipc.on('writeAdbSettings', (_e, data) => {
+    getRoot().then((root) => {
+      root.adbHandler.saveAndStart(data);
+    }, noop);
+  });
+
+  ipc.on('writeConsoleSettings', (_e, data) => {
+    Preferences.save('console', data).catch(noop);
+  });
+
+  ipc.on('writeToken', (_e, token) => {
+    getRoot().then((root) => {
+      root.emulatorHandler.setToken(token).catch(noop);
+    }, noop);
   });
 }

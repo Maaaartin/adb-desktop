@@ -11,7 +11,6 @@ import Scrollable from './subcomponents/Scrollable';
 import { addHistory } from '../redux/actions';
 import { isEmpty as emp } from 'lodash';
 import { typedIpcRenderer as ipc } from '../../ipcIndex';
-import { openLink } from '../ipc/send';
 
 type State = {
   logs: { isCommand?: boolean; value: string; isLink?: boolean }[];

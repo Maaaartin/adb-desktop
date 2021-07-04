@@ -2,7 +2,7 @@ import { CommandResponse, typedIpcMain as ipc } from '../../../ipcIndex';
 
 import { EmulatorClient } from 'emulator-ts';
 import { getRoot } from '../../../main.dev';
-import { noop } from 'lodash';
+import { ipcExec } from '../../ipc';
 
 const handleExecResponse = (
   error: Error | null,
@@ -20,27 +20,25 @@ const handleExecResponse = (
   }
 };
 export default function () {
-  ipc.handle('execDevice', (e, serial, cmd) => {
-    return getRoot().then((menu) => {
-      return new Promise((resolve) => {
-        menu.adbHandler.getClient().execDevice(serial, cmd, (err, value) => {
-          resolve(handleExecResponse(err, value));
+  ipc.handle('execDevice', (_e, serial, cmd) => {
+    return ipcExec((root) => {
+      return root.adbHandler
+        .getClient()
+        .execDevice(serial, cmd, (err, value) => {
+          return handleExecResponse(err, value);
         });
+    });
+  });
+
+  ipc.handle('execAdb', (_e, cmd) => {
+    return ipcExec((root) => {
+      return root.adbHandler.getClient().exec(cmd, (err, value) => {
+        return handleExecResponse(err, value);
       });
     });
   });
 
-  ipc.handle('execAdb', (e, cmd) => {
-    return getRoot().then((menu) => {
-      return new Promise((resolve) => {
-        menu.adbHandler.getClient().exec(cmd, (err, value) => {
-          resolve(handleExecResponse(err, value));
-        });
-      });
-    });
-  });
-
-  ipc.handle('execMonkey', (e, serial, cmd) => {
+  ipc.handle('execMonkey', (_e, serial, cmd) => {
     return getRoot().then((menu) => {
       return new Promise((resolve) => {
         menu.adbHandler.getMonkey(serial, (error, monkey) => {
@@ -60,20 +58,19 @@ export default function () {
     });
   });
 
-  ipc.handle('execEmulator', (e, serial, cmd) => {
-    return getRoot().then((menu) => {
-      return new Promise((resolve) => {
-        menu.emulatorHandler.exec(serial, cmd, (err, value) => {
-          resolve(handleExecResponse(err, value));
-        });
+  ipc.handle('execEmulator', (_e, serial, cmd) => {
+    return ipcExec((root) => {
+      return root.emulatorHandler.exec(serial, cmd, (err, value) => {
+        return handleExecResponse(err, value);
       });
     });
   });
+
   ipc.handle('renewToken', () => {
-    return EmulatorClient.readToken().then((output) => {
-      return getRoot().then((root) => {
+    return ipcExec((root) => {
+      return EmulatorClient.readToken().then((output) => {
         root.emulatorHandler.setToken(output);
-        return { output };
+        return output;
       });
     });
   });

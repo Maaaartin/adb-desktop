@@ -21,7 +21,6 @@ import {
 } from 'lodash';
 import { FaCaretDown, FaCaretRight, FaSpinner } from 'react-icons/fa';
 import React, { Component } from 'react';
-import { cp, deleteFile, mkdir, pullFile } from '../ipc/fileSystem';
 import { error as notifError, success } from 'react-notification-system-redux';
 
 import CreateDialog from './subcomponents/CreateDialog';
@@ -30,7 +29,6 @@ import Li from './subcomponents/Li';
 import RefreshSearch from './subcomponents/RefreshSearch';
 import Scroll from './subcomponents/Scrollable';
 import bytes from 'bytes';
-import { getFiles } from '../ipc/getters';
 import { typedIpcRenderer as ipc } from '../../ipcIndex';
 import moment from 'moment';
 
@@ -301,20 +299,15 @@ class FileSystem extends Component<Props, State> {
     const { serial, notifError, success } = this.props as PropsRedux;
     switch (data.type) {
       case 'pull':
-        pullFile(serial, triggerPath(target), (error) => {
-          if (error) {
-            notifError({
-              title: 'Could not pull file',
-              message: error.message,
-              position: 'tr',
-            });
-          } else {
+        ipc.invoke('pull', serial, triggerPath(target)).then(({ error }) => {
+          if (!error) {
             success({
               title: 'File pulled',
               position: 'tr',
             });
           }
-        });
+        }, noop);
+
         break;
       case 'delete':
         this.setState({ delFilePath: new AdbFilePath(triggerPath(target)) });
@@ -329,22 +322,18 @@ class FileSystem extends Component<Props, State> {
         {
           if (cpPath) {
             const destPath = triggerPath(target);
-            cp(serial, cpPath?.toString(), destPath, (error) => {
-              if (error) {
-                notifError({
-                  title: 'Could not copy file',
-                  message: error.message,
-                  position: 'tr',
-                });
-              } else {
-                this.updateFiles(cpPath.getParent());
-                this.updateFiles(AdbFilePath.parse(destPath));
-                success({
-                  title: 'File copied',
-                  position: 'tr',
-                });
-              }
-            });
+            ipc
+              .invoke('cp', serial, cpPath?.toString(), destPath)
+              .then(({ error }) => {
+                if (!error) {
+                  this.updateFiles(cpPath.getParent());
+                  this.updateFiles(AdbFilePath.parse(destPath));
+                  success({
+                    title: 'File copied',
+                    position: 'tr',
+                  });
+                }
+              });
           }
         }
         break;
@@ -414,21 +403,15 @@ class FileSystem extends Component<Props, State> {
     const { serial, notifError, success } = this.props as PropsRedux;
     const { mkdirPath } = this.state;
     const newDir = mkdirPath?.clone().append(dirName);
-    mkdir(serial, newDir?.toString() || '', (error) => {
-      if (error) {
-        notifError({
-          title: 'Could not create directory',
-          message: error.message,
-          position: 'tr',
-        });
-      } else {
+    ipc.invoke('mkdir', serial, newDir?.toString() || '').then(({ error }) => {
+      if (!error) {
         this.updateFiles(mkdirPath);
         success({
           title: 'Directory created',
           position: 'tr',
         });
       }
-    });
+    }, noop);
 
     this.setState({ mkdirPath: undefined });
   }
@@ -437,14 +420,8 @@ class FileSystem extends Component<Props, State> {
     const { serial, notifError, success } = this.props as PropsRedux;
     const { delFilePath } = this.state;
     const filePath = delFilePath?.toString() || '';
-    deleteFile(serial, filePath, (error) => {
-      if (error) {
-        notifError({
-          title: 'Could not delete file',
-          message: error.message,
-          position: 'tr',
-        });
-      } else {
+    ipc.invoke('rm', serial, filePath).then(({ error }) => {
+      if (!error) {
         this.updateFiles(delFilePath);
         success({
           title: 'File deleted',

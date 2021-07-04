@@ -1,11 +1,12 @@
-import { AdbClientOptions } from 'adb-ts';
-import { Action } from '.';
-import { AdbStatus } from '../actions';
 import {
   ADB_SETTINGS_LOAD,
   ADB_SETTINGS_WRITE,
   ADB_STATUS,
 } from '../actionTypes';
+
+import { Action } from '.';
+import { AdbClientOptions } from 'adb-ts';
+import { AdbStatus } from '../../../shared';
 
 type State = { status: AdbStatus; settings: AdbClientOptions };
 

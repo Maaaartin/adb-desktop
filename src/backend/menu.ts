@@ -57,12 +57,15 @@ import { DOCS_LINK, ISSUES_LINK } from '../links';
 
 import { AdbClientOptions } from 'adb-ts';
 import AdbHandler from './adb';
+import { ConsoleSettings } from '../shared';
 import { EmulatorClient } from 'emulator-ts';
 import EmulatorHandler from './emulator';
 import OpenShell from './OpenShell';
 import Path from 'path';
 import Preferences from './Preferences';
+import { allWebContents } from './ipc';
 import open from 'open';
+import { typedIpcMain } from '../ipcIndex';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -90,6 +93,90 @@ export default class Root {
     this.hookSetters();
     this.hookSends();
     this.hookFileSystem();
+    // TODO token load/renew
+    this.mainWindow.once('show', () => {
+      const options = this.adbHandler.getAdbOptions();
+      this.adbHandler.saveAndStart(options);
+      allWebContents((c) => {
+        c.send('loadAdbSettings', options);
+      });
+
+      this.emulatorHandler.getToken((token) => {
+        allWebContents((c) => {
+          c.send('loadToken', token);
+        });
+      });
+
+      const consoleSett = Preferences.get('console');
+      allWebContents((c) => {
+        c.send('loadConsoleSettings', {
+          lines: consoleSett.lines || 20,
+          history: consoleSett.history || [],
+          historyLen: consoleSett.historyLen || 50,
+        });
+      });
+    });
+
+    this.adbHandler.on('add', (device) => {
+      allWebContents((c) => {
+        c.send('deviceAdd', device);
+      });
+    });
+
+    this.adbHandler.on('change', (device) => {
+      allWebContents((c) => {
+        c.send('deviceChange', device);
+      });
+    });
+
+    this.adbHandler.on('remove', (device) => {
+      allWebContents((c) => {
+        c.send('deviceRemove', device);
+      });
+    });
+
+    this.adbHandler.on('starting', () => {
+      console.log('starting');
+      allWebContents((c) => {
+        console.log('sending');
+        c.send('adbStatus', {
+          running: false,
+          error: null,
+          status: 'starting',
+        });
+      });
+    });
+
+    this.adbHandler.on('start', () => {
+      console.log('started');
+      allWebContents((c) => {
+        c.send('adbStatus', {
+          running: true,
+          error: null,
+          status: 'running',
+        });
+      });
+    });
+
+    this.adbHandler.on('stopped', () => {
+      allWebContents((c) => {
+        c.send('adbStatus', {
+          running: false,
+          error: null,
+          status: 'stopped',
+        });
+      });
+    });
+
+    this.adbHandler.on('error', (err) => {
+      allWebContents((c) => {
+        c.send('adbStatus', {
+          running: false,
+          error: err,
+          status: 'error',
+        });
+      });
+    });
   }
 
   destroy() {
@@ -163,64 +250,62 @@ export default class Root {
   }
 
   private hookWindow() {
-    this.mainWindow.once('show', () => {
-      const options = this.adbHandler.getAdbOptions();
-      this.adbHandler.start(options);
-      this.send(ADB_SETTINGS_LOAD, options);
-
-      this.emulatorHandler.getToken((token) => {
-        this.send(LOAD_TOKEN, token);
-      });
-
-      const consoleSett = Preferences.get('console');
-      this.send(LOAD_CONSOLE_SETTINGS, consoleSett);
-    });
+    // this.mainWindow.once('show', () => {
+    //   const options = this.adbHandler.getAdbOptions();
+    //   this.adbHandler.saveAndStart(options);
+    //   this.send(ADB_SETTINGS_LOAD, options);
+    //   this.emulatorHandler.getToken((token) => {
+    //     this.send(LOAD_TOKEN, token);
+    //   });
+    //   const consoleSett = Preferences.get('console');
+    //   this.send(LOAD_CONSOLE_SETTINGS, consoleSett);
+    // });
   }
 
   private hookAdbHandler() {
-    this.adbHandler.on('add', (device) => {
-      this.send(DEVICE_ADD, device);
-    });
-
-    this.adbHandler.on('change', (device) => {
-      this.send(DEVICE_CHANGE, device);
-    });
-
-    this.adbHandler.on('remove', (device) => {
-      this.send(DEVICE_REMOVE, device);
-    });
-
-    this.adbHandler.on('starting', () => {
-      this.send(ADB_STATUS, {
-        running: true,
-        error: null,
-        status: 'starting',
-      });
-    });
-
-    this.adbHandler.on('start', () => {
-      this.send(ADB_STATUS, {
-        running: true,
-        error: null,
-        status: 'running',
-      });
-    });
-
-    this.adbHandler.on('stopped', () => {
-      this.send(ADB_STATUS, {
-        running: false,
-        error: null,
-        status: 'stopped',
-      });
-    });
-
-    this.adbHandler.on('error', (err) => {
-      this.send(ADB_STATUS, {
-        running: false,
-        error: err,
-        status: 'error',
-      });
-    });
+    // this.adbHandler.on('add', (device) => {
+    //   allWebContents((c) => {
+    //     c.send('deviceAdd', device);
+    //   });
+    // });
+    // this.adbHandler.on('change', (device) => {
+    //   allWebContents((c) => {
+    //     c.send('deviceChange', device);
+    //   });
+    // });
+    // this.adbHandler.on('remove', (device) => {
+    //   allWebContents((c) => {
+    //     c.send('deviceRemove', device);
+    //   });
+    // });
+    // this.adbHandler.on('starting', () => {
+    //   this.send(ADB_STATUS, {
+    //     running: true,
+    //     error: null,
+    //     status: 'starting',
+    //   });
+    // });
+    // this.adbHandler.on('start', () => {
+    //   this.send(ADB_STATUS, {
+    //     running: true,
+    //     error: null,
+    //     status: 'running',
+    //   });
+    // });
+    // this.adbHandler.on('stopped', () => {
+    //   this.send(ADB_STATUS, {
+    //     running: false,
+    //     error: null,
+    //     status: 'stopped',
+    //   });
+    // });
+    // this.adbHandler.on('error', (err) => {
+    //   this.send(ADB_STATUS, {
+    //     running: false,
+    //     error: err,
+    //     status: 'error',
+    //   });
+    // });
   }
 
   private hookExec() {
@@ -280,7 +365,7 @@ export default class Root {
     });
 
     ipc.on(ADB_SETTINGS_WRITE, (event, data: AdbClientOptions) => {
-      this.adbHandler.start(data);
+      this.adbHandler.saveAndStart(data);
     });
 
     ipc.on(WRITE_CONSOLE_SETTINGS, (event, data) => {
@@ -483,7 +568,7 @@ export default class Root {
       if (running) {
         this.adbHandler.stop();
       } else {
-        this.adbHandler.start();
+        this.adbHandler.saveAndStart();
       }
     });
 
