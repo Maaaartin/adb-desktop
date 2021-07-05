@@ -8,12 +8,13 @@ import {
   DEVICE_ADD,
   DEVICE_CHANGE,
   DEVICE_REMOVE,
+  LOAD_CONSOLE_SETTINGS,
   LOAD_TOKEN,
 } from './frontend/redux/actionTypes';
 import { AdbClientOptions, IAdbDevice } from 'adb-ts';
+import { AdbStatus, ConsoleSettings } from './shared';
 
 import { Action } from './frontend/redux/reducers';
-import { AdbStatus } from './shared';
 import Notifications from 'react-notification-system-redux';
 import { Provider } from 'react-redux';
 import React from 'react';
@@ -40,12 +41,21 @@ ipc.on('loadAdbSettings', (_e, data) => {
     type: ADB_SETTINGS_LOAD,
     payload: data,
   });
+});
 
-  ipc.on('loadToken', (_e, token) => {
-    store.dispatch<Action<string>>({
-      type: LOAD_TOKEN,
-      payload: token,
-    });
+ipc.on('loadToken', (_e, token) => {
+  store.dispatch<Action<string>>({
+    type: LOAD_TOKEN,
+    payload: token,
+  });
+});
+
+ipc.on('loadConsoleSettings', (_e, data) => {
+  console.log('got ya');
+  console.log(data);
+  store.dispatch<Action<ConsoleSettings>>({
+    type: LOAD_CONSOLE_SETTINGS,
+    payload: data,
   });
 });
 

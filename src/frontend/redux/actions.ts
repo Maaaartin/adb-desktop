@@ -13,11 +13,11 @@ import {
   WRITE_TOKEN,
 } from './actionTypes';
 import { AdbClientOptions, IAdbDevice } from 'adb-ts';
+import { AdbStatus, ConsoleSettings } from '../../shared';
 
-import { AdbStatus } from '../../shared';
 import { Dictionary } from 'lodash';
 import Notifications from 'react-notification-system-redux';
-import { ipcRenderer as ipc } from 'electron';
+import { typedIpcRenderer as ipc } from '../../ipcIndex';
 import store from './store';
 
 export class Tab {
@@ -39,7 +39,7 @@ const SettingsAction = Notifications.success({ title: 'Settings saved' });
 
 export const writeAdbSettings = (data: AdbClientOptions) => {
   if (process.env.NODE_ENV != 'test') {
-    ipc.send(ADB_SETTINGS_WRITE, data);
+    ipc.send('writeAdbSettings', data);
   }
   store.dispatch(SettingsAction);
   return {
@@ -86,7 +86,7 @@ export const addHistory = (content: string) => ({
 
 export const writeToken = (token: string) => {
   if (process.env.NODE_ENV != 'test') {
-    ipc.send(WRITE_TOKEN, token);
+    ipc.send('writeToken', token);
   }
   store.dispatch(SettingsAction);
   return {
@@ -109,9 +109,9 @@ export const setAdbStatus = (data: AdbStatus) => {
   };
 };
 
-export const writeConsoleSettings = (data: Dictionary<any>) => {
+export const writeConsoleSettings = (data: ConsoleSettings) => {
   if (process.env.NODE_ENV != 'test') {
-    ipc.send(WRITE_CONSOLE_SETTINGS, data);
+    ipc.send('writeConsoleSettings', data);
   }
   store.dispatch(SettingsAction);
   return {

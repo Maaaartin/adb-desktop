@@ -234,20 +234,24 @@ export default class AdbHandler extends EventEmitter {
   getMonkey(serial: string, cb?: (err: Error, monkey: Monkey) => void) {
     const internal = (serial: string): Promise<Monkey> => {
       return new Promise<Monkey>((resolve, reject) => {
-        if (this.monkeys[serial]) return resolve(this.monkeys[serial]);
-        else {
+        if (this.monkeys[serial]) {
+          return resolve(this.monkeys[serial]);
+        } else {
           return this.adb.openMonkey(serial, (err, monkey) => {
-            if (err) return reject(err);
-            else {
+            if (err) {
+              return reject(err);
+            } else {
               monkey.once('end', (err) => {
                 return reject(err);
               });
               monkey.once('error', (err) => {
                 return reject(err);
               });
+              // checking if monkey is correct
               monkey.getAmCurrentAction((err) => {
-                if (err) return reject(err);
-                else {
+                if (err) {
+                  return reject(err);
+                } else {
                   this.monkeys[serial] = monkey;
                   monkey.on('end', () => {
                     delete this.monkeys[serial];

@@ -43,7 +43,7 @@ export default function () {
   });
 
   ipc.on('openLink', (_e, link) => {
-    open(link);
+    open(link).catch(noop);
   });
   // TODO display error?
   ipc.on('writeAdbSettings', (_e, data) => {

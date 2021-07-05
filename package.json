@@ -256,6 +256,7 @@
     "emulator-ts": "^1.0.2",
     "fireworks": "^2.2.7",
     "fs": "^0.0.1-security",
+    "immutable": "^4.0.0-rc.12",
     "lodash": "^4.17.20",
     "moment": "^2.29.1",
     "open": "^8.0.4",

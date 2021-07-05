@@ -49,13 +49,15 @@ export const registerIpc = () => {
 
 // TODO params for error title
 export const ipcExec = <T>(
-  caller: (root: Root) => Promise<T>
+  caller: (root: Root) => Promise<T>,
+  options?: { noDisplayErr?: boolean }
 ): Promise<CommandResponse<T>> => {
+  const noErr = options?.noDisplayErr || false;
   return getRoot().then(
     (root) => {
       return new Promise((resolve) => {
         callbackify(() => caller(root))((error, output) => {
-          if (error) {
+          if (error && !noErr) {
             mainWebContent((c) => {
               c.send('displayError', error);
             });
@@ -65,9 +67,11 @@ export const ipcExec = <T>(
       });
     },
     (error) => {
-      mainWebContent((c) => {
-        c.send('displayError', error);
-      });
+      if (error && !noErr) {
+        mainWebContent((c) => {
+          c.send('displayError', error);
+        });
+      }
       return { error };
     }
   );

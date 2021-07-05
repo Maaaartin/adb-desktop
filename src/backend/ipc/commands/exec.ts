@@ -21,49 +21,78 @@ const handleExecResponse = (
 };
 export default function () {
   ipc.handle('execDevice', (_e, serial, cmd) => {
-    return ipcExec((root) => {
-      return root.adbHandler
-        .getClient()
-        .execDevice(serial, cmd, (err, value) => {
-          return handleExecResponse(err, value);
-        });
-    });
+    return ipcExec(
+      (root) => {
+        return root.adbHandler
+          .getClient()
+          .execDevice(serial, cmd, (err, value) => {
+            return handleExecResponse(err, value);
+          });
+      },
+      { noDisplayErr: true }
+    );
   });
 
   ipc.handle('execAdb', (_e, cmd) => {
-    return ipcExec((root) => {
-      return root.adbHandler.getClient().exec(cmd, (err, value) => {
-        return handleExecResponse(err, value);
-      });
-    });
+    return ipcExec(
+      (root) => {
+        return root.adbHandler.getClient().exec(cmd, (err, value) => {
+          return handleExecResponse(err, value);
+        });
+      },
+      { noDisplayErr: true }
+    );
   });
 
   ipc.handle('execMonkey', (_e, serial, cmd) => {
-    return getRoot().then((menu) => {
-      return new Promise((resolve) => {
-        menu.adbHandler.getMonkey(serial, (error, monkey) => {
-          if (error) {
-            resolve({ error, output: '' });
-          } else {
-            monkey.send(cmd, (error, value) => {
-              if (error) {
-                resolve({ error, output: '' });
-              } else {
-                resolve({ error, output: value || '' });
-              }
-            });
-          }
+    return ipcExec(
+      (root) => {
+        return new Promise((resolve, reject) => {
+          root.adbHandler.getMonkey(serial, (error, monkey) => {
+            if (error) {
+              reject(error);
+            } else {
+              monkey.send(cmd, (error, value) => {
+                if (error) {
+                  reject(error);
+                } else {
+                  resolve(value || '');
+                }
+              });
+            }
+          });
         });
-      });
-    });
+      },
+      { noDisplayErr: true }
+    );
+    // return getRoot().then((menu) => {
+    //   return new Promise((resolve) => {
+    //     menu.adbHandler.getMonkey(serial, (error, monkey) => {
+    //       if (error) {
+    //         resolve({ error, output: '' });
+    //       } else {
+    //         monkey.send(cmd, (error, value) => {
+    //           if (error) {
+    //             resolve({ error, output: '' });
+    //           } else {
+    //             resolve({ error, output: value || '' });
+    //           }
+    //         });
+    //       }
+    //     });
+    //   });
+    // });
   });
 
   ipc.handle('execEmulator', (_e, serial, cmd) => {
-    return ipcExec((root) => {
-      return root.emulatorHandler.exec(serial, cmd, (err, value) => {
-        return handleExecResponse(err, value);
-      });
-    });
+    return ipcExec(
+      (root) => {
+        return root.emulatorHandler.exec(serial, cmd, (err, value) => {
+          return handleExecResponse(err, value);
+        });
+      },
+      { noDisplayErr: true }
+    );
   });
 
   ipc.handle('renewToken', () => {

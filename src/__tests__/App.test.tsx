@@ -3,8 +3,7 @@ import {
   DEVICE_ADD,
   WRITE_CONSOLE_SETTINGS,
 } from '../frontend/redux/actionTypes';
-import {
-  AdbStatus,
+import {,
   addHistory,
   deviceAdd,
   setAdbStatus,
