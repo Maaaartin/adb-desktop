@@ -3,19 +3,15 @@ import {
   DEVICE_ADD,
   WRITE_CONSOLE_SETTINGS,
 } from '../frontend/redux/actionTypes';
-import {,
+import {
   addHistory,
   deviceAdd,
   setAdbStatus,
   writeConsoleSettings,
 } from '../frontend/redux/actions';
 
-import Console from '../frontend/components/Console';
+import { AdbStatus } from '../shared';
 import { IAdbDevice } from 'adb-ts';
-import { Provider } from 'react-redux';
-import React from 'react';
-import rederer from 'react-test-renderer';
-import store from '../frontend/redux/store';
 
 describe('redux', () => {
   it('device add', () => {
@@ -41,7 +37,7 @@ describe('redux', () => {
     for (let i = 0; i < 50; i++) {
       addHistory(i.toString());
     }
-    const settings = { lines: 30, historyLen: 20 };
+    const settings = { lines: 30, historyLen: 20, history: [] };
     expect(writeConsoleSettings(settings)).toEqual({
       type: WRITE_CONSOLE_SETTINGS,
       payload: settings,

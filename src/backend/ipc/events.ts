@@ -15,7 +15,7 @@ export default function () {
     });
   });
 
-  ipc.on('openAdb', (e) => {
+  ipc.on('openAdb', (_e) => {
     OpenShell.adb().catch((err) => {
       mainWebContent((content) => {
         content.send('displayError', err.message);
@@ -53,6 +53,7 @@ export default function () {
   });
 
   ipc.on('writeConsoleSettings', (_e, data) => {
+    // TODO might delete history
     Preferences.save('console', data).catch(noop);
   });
 

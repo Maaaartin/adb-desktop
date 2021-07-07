@@ -1,19 +1,13 @@
 import { AdbClient, AdbClientOptions, IAdbDevice, Tracker } from 'adb-ts';
 import { Dictionary, clone, noop } from 'lodash';
-import {
-  ExecFileSystemEntry,
-  FileSystemData,
-  FileSystemEntry,
-  SocketFileSystemEntry,
-} from '../shared';
 
 import AdbDevice from 'adb-ts/lib/device';
 import { EventEmitter } from 'events';
+import { FileSystemData } from '../shared';
 import { IFileStats } from 'adb-ts/lib/filestats';
 import Monkey from 'adb-ts/lib/monkey/client';
 import Preferences from './Preferences';
 import Promise from 'bluebird';
-import { exec } from 'child_process';
 
 export default class AdbHandler extends EventEmitter {
   private adb: AdbClient;
@@ -26,7 +20,7 @@ export default class AdbHandler extends EventEmitter {
   }
 
   private track() {
-    this.adb.trackDevices((err, tracker) => {
+    this.adb.trackDevices((_err, tracker) => {
       this.tracker = tracker;
       tracker.on('error', (err) => {
         this.running = false;
@@ -82,94 +76,6 @@ export default class AdbHandler extends EventEmitter {
   }
   getClient() {
     return this.adb;
-  }
-
-  private isFileError(err: Error | null) {
-    if (!err) return false;
-    else return !/Permission denied/.test(err.message);
-  }
-
-  private parseNoAccessFiles(data: string) {
-    const files = [];
-    const regExp = /^ls: \/\/([\s\S]*?):/gm;
-    let match;
-    while ((match = regExp.exec(data))) {
-      files.push(match[1]);
-    }
-    return files;
-  }
-
-  private parseFiles(data: string) {
-    const files = [];
-    const regExp = /^([\s\S]*?)\r\n/gm;
-    let match;
-    while ((match = regExp.exec(data))) {
-      files.push(match[1]);
-    }
-    return files;
-  }
-
-  private getExecFiles(
-    serial: string,
-    path: string
-  ): Promise<Dictionary<ExecFileSystemEntry>> {
-    return new Promise((resolve, reject) => {
-      const bin = this.getAdbOptions().bin || '';
-      exec(`${bin} -s ${serial} shell ls ${path}`, (err, stdout, stderr) => {
-        if (this.isFileError(err)) {
-          reject(err);
-        } else {
-          const noAccessFiles = this.parseNoAccessFiles(stderr);
-          const rootFiles = this.parseFiles(stdout);
-          Promise.map(rootFiles, (file) => {
-            return new Promise<{ name: string; type: string }>((resolve2) => {
-              exec(
-                `${bin} -s ${serial} shell ls ${path}/${file}`,
-                (err2, subStdout) => {
-                  if (err2) {
-                    resolve2({ name: file, type: 'no-access' });
-                  } else {
-                    const subFiles = this.parseFiles(subStdout);
-                    if (subFiles.length > 0) {
-                      const subpath = subFiles[0].split('/');
-                      if (subpath[subpath.length - 1].includes(file)) {
-                        resolve2({ name: file, type: 'file' });
-                      } else {
-                        resolve2({ name: file, type: 'dir' });
-                      }
-                    } else {
-                      resolve2({ name: file, type: 'no-access' });
-                    }
-                  }
-                }
-              );
-            });
-          }).then((res) => {
-            const files: Dictionary<any> = {};
-            noAccessFiles.forEach((item) => {
-              files[item] = { type: 'no-access' };
-            });
-            res.forEach((item) => {
-              files[item.name] = { type: item.type };
-            });
-            resolve(files);
-          });
-        }
-      });
-    });
-  }
-
-  private getSocketFiles(
-    serial: string,
-    path: string
-  ): Promise<Dictionary<SocketFileSystemEntry>> {
-    return this.adb.readDir(serial, path).then((data) => {
-      const files: Dictionary<any> = {};
-      data.forEach((item) => {
-        files[item.name] = { date: item.mtime, size: item.size };
-      });
-      return files;
-    });
   }
 
   getFiles(serial: string, path: string): Promise<FileSystemData> {

@@ -3,7 +3,6 @@ import {
   GET_DIR,
   GET_FEATURES,
   GET_PACKAGES,
-  GET_PROP,
   GET_PROPS,
   GET_SETTINGS,
   GET_SETTINGS_GLOBAL,
@@ -15,19 +14,11 @@ import {
 } from '../../constants';
 
 import { Dictionary } from 'lodash';
-import FileStats from 'adb-ts/lib/filestats';
-import { FileSystemData } from '../../shared';
 import { ipcRenderer as ipc } from 'electron';
 
 const getterCalls: Dictionary<
   ((error: Error, output: any) => void) | undefined
 > = {};
-
-const hookGetter = (cb?: (error: Error, output: any) => void) => {
-  const id = Math.random().toString(36).substring(7);
-  getterCalls[id] = cb;
-  return id;
-};
 
 const handleGetterResponse = (data: any) => {
   const { output, id, error } = data;
@@ -35,51 +26,51 @@ const handleGetterResponse = (data: any) => {
   delete getterCalls[id];
 };
 
-ipc.on(GET_BATTERY, (event, data) => {
+ipc.on(GET_BATTERY, (_e, data) => {
   handleGetterResponse(data);
 });
 
-ipc.on(GET_SETTINGS, (event, data) => {
+ipc.on(GET_SETTINGS, (_e, data) => {
   handleGetterResponse(data);
 });
 
-ipc.on(GET_SETTINGS_GLOBAL, (event, data) => {
+ipc.on(GET_SETTINGS_GLOBAL, (_e, data) => {
   handleGetterResponse(data);
 });
 
-ipc.on(GET_SETTINGS_SECURE, (event, data) => {
+ipc.on(GET_SETTINGS_SECURE, (_e, data) => {
   handleGetterResponse(data);
 });
 
-ipc.on(GET_SETTINGS_SYSTEM, (event, data) => {
+ipc.on(GET_SETTINGS_SYSTEM, (_e, data) => {
   handleGetterResponse(data);
 });
 
-ipc.on(GET_PROPS, (event, data) => {
+ipc.on(GET_PROPS, (_e, data) => {
   handleGetterResponse(data);
 });
 
-ipc.on(GET_FEATURES, (event, data) => {
+ipc.on(GET_FEATURES, (_e, data) => {
   handleGetterResponse(data);
 });
 
-ipc.on(GET_PACKAGES, (event, data) => {
+ipc.on(GET_PACKAGES, (_e, data) => {
   handleGetterResponse(data);
 });
 
-ipc.on(GET_SETTING_GLOBAL, (event, data) => {
+ipc.on(GET_SETTING_GLOBAL, (_e, data) => {
   handleGetterResponse(data);
 });
 
-ipc.on(GET_SETTING_SECURE, (event, data) => {
+ipc.on(GET_SETTING_SECURE, (_e, data) => {
   handleGetterResponse(data);
 });
 
-ipc.on(GET_SETTING_SYSTEM, (event, data) => {
+ipc.on(GET_SETTING_SYSTEM, (_e, data) => {
   handleGetterResponse(data);
 });
 
-ipc.on(GET_DIR, (event, data) => {
+ipc.on(GET_DIR, (_e, data) => {
   handleGetterResponse(data);
 });
 

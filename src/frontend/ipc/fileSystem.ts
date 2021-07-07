@@ -6,25 +6,25 @@ import { ipcRenderer as ipc } from 'electron';
 const calls: Dictionary<
   ((error?: Error, data?: Dictionary<any>) => void) | undefined
 > = {};
-const hook = (cb?: (error?: Error, data?: Dictionary<any>) => void) => {
-  const id = Math.random().toString(36).substring(7);
-  calls[id] = cb;
-  return id;
-};
+// const hook = (cb?: (error?: Error, data?: Dictionary<any>) => void) => {
+//   const id = Math.random().toString(36).substring(7);
+//   calls[id] = cb;
+//   return id;
+// };
 
-ipc.on(PULL_FILE, (event, data) => {
+ipc.on(PULL_FILE, (_e, data) => {
   handleResponse(data);
 });
 
-ipc.on(DELETE_FILE, (event, data) => {
+ipc.on(DELETE_FILE, (_e, data) => {
   handleResponse(data);
 });
 
-ipc.on(MKDIR, (event, data) => {
+ipc.on(MKDIR, (_e, data) => {
   handleResponse(data);
 });
 
-ipc.on(CP, (event, data) => {
+ipc.on(CP, (_e, data) => {
   handleResponse(data);
 });
 

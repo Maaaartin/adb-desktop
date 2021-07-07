@@ -42,7 +42,7 @@ class DeviceItem<T> extends Component<Props<T>, State<T>> {
     };
   }
 
-  componentDidUpdate(prevProps: Props<T>, prevState: State<T>) {
+  componentDidUpdate(_prevProps: Props<T>, prevState: State<T>) {
     const { open: prevOpen } = prevState;
     const { open } = this.state;
     const { getter } = this.props;

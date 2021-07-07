@@ -6,9 +6,9 @@ import {
   WRITE_HISTORY_LEN,
   WRITE_LINES,
 } from '../actionTypes';
-import { Dictionary, clone, without } from 'lodash';
 
 import { Action } from '.';
+import { Dictionary } from 'lodash';
 import { List } from 'immutable';
 
 type State = {
@@ -61,38 +61,20 @@ export default function (
       };
     }
     case ADD_HISTORY: {
-      // let history = clone(state.history || []);
       const { payload } = action as { payload: string };
-
-      ///
       const { history, historyLen } = state;
-      const tmp = List(
-        history
-          .reduceRight(
-            (red, value, i) => {
-              if (i < historyLen && value !== payload) {
+      return {
+        ...state,
+        history: List(
+          history
+            .reduce((red, value, i, arr) => {
+              if (i > arr.count() - historyLen && value !== payload) {
                 red.push(value);
               }
               return red;
-            },
-            [payload]
-          )
-          .reverse()
-      );
-      ///
-
-      // const index = history.indexOf(payload);
-      // if (index > -1) {
-      //   history.splice(index, 1);
-      // }
-      // history.push(payload);
-      // if (history.length > state.historyLen) {
-      //   const diff = history.length - state.historyLen;
-      //   history = history.slice(diff);
-      // }
-      return {
-        ...state,
-        history: tmp,
+            }, new Array<string>())
+            .concat(payload)
+        ),
       };
     }
     case LOAD_HISTORY: {

@@ -9,6 +9,12 @@ export type AdbStatus = {
   error: Error | null;
 };
 
+export type ConsoleSettingsUpdate = {
+  lines?: number;
+  history?: string[];
+  historyLen?: number;
+};
+
 export type ConsoleSettings = {
   lines: number;
   history: string[];

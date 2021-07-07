@@ -18,7 +18,7 @@ export default class EmulatorHandler {
       this.token = token;
       cb(token);
     } else {
-      EmulatorClient.readToken((err, token) => {
+      EmulatorClient.readToken((_err, token) => {
         this.token = token;
         Preferences.save('emulator', { token });
         cb(token);
@@ -26,7 +26,6 @@ export default class EmulatorHandler {
     }
   }
 
-  // TODO remove cb param
   exec(
     serial: string,
     cmd: string,
@@ -43,12 +42,12 @@ export default class EmulatorHandler {
                 this.clients[serial] = new EmulatorClient(this.token, {
                   port,
                 });
-                return this.clients[serial];
+                this.clients[serial];
               }
             });
           })
           .then(() => internal());
     };
-    return internal();
+    return internal().nodeify(cb);
   }
 }

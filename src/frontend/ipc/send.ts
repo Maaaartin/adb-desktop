@@ -1,13 +1,13 @@
-import {
-  OPEN_ADB,
-  OPEN_ADB_SHELL,
-  OPEN_EMULATOR,
-  OPEN_LINK,
-  RENEW_TOKEN,
-  TOGGLE_ADB,
-} from '../../constants';
+// import {
+//   OPEN_ADB,
+//   OPEN_ADB_SHELL,
+//   OPEN_EMULATOR,
+//   OPEN_LINK,
+//   RENEW_TOKEN,
+//   TOGGLE_ADB,
+// } from '../../constants';
 
-import { ipcRenderer as ipc } from 'electron';
+// import { ipcRenderer as ipc } from 'electron';
 
 // export const openAdbShell = (id: string) => ipc.send(OPEN_ADB_SHELL, id);
 

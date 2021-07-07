@@ -291,12 +291,12 @@ class FileSystem extends Component<Props, State> {
   }
 
   handleClick(
-    e: React.TouchEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>,
+    _e: React.TouchEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>,
     data: Dictionary<any>,
     target: HTMLElement
   ) {
     const { cpPath } = this.state;
-    const { serial, notifError, success } = this.props as PropsRedux;
+    const { serial, success } = this.props as PropsRedux;
     switch (data.type) {
       case 'pull':
         ipc.invoke('pull', serial, triggerPath(target)).then(({ error }) => {
@@ -342,29 +342,6 @@ class FileSystem extends Component<Props, State> {
     }
   }
 
-  private getParentDir(path?: AdbFilePath) {
-    const { files } = this;
-    const pathArr = path?.getPathArray();
-    if (pathArr) {
-      pathArr.pop();
-      const find = (items: FileSystemData[], s: string) => {
-        return items?.find((item) => {
-          return item.name === s;
-        });
-      };
-      let dir = find(files, pathArr.shift() || '');
-      while (pathArr.length) {
-        const item = find(dir?.children || [], pathArr.shift() || '');
-        if (item) {
-          dir = item;
-        }
-      }
-      return dir;
-    } else {
-      return undefined;
-    }
-  }
-
   private getDirFromPath(path?: AdbFilePath) {
     const { files } = this;
     const pathArr = path?.getPathArray();
@@ -400,7 +377,7 @@ class FileSystem extends Component<Props, State> {
   }
 
   private handleMkdirModal(dirName: string) {
-    const { serial, notifError, success } = this.props as PropsRedux;
+    const { serial, success } = this.props as PropsRedux;
     const { mkdirPath } = this.state;
     const newDir = mkdirPath?.clone().append(dirName);
     ipc.invoke('mkdir', serial, newDir?.toString() || '').then(({ error }) => {
@@ -417,7 +394,7 @@ class FileSystem extends Component<Props, State> {
   }
 
   handleDelModalClick() {
-    const { serial, notifError, success } = this.props as PropsRedux;
+    const { serial, success } = this.props as PropsRedux;
     const { delFilePath } = this.state;
     const filePath = delFilePath?.toString() || '';
     ipc.invoke('rm', serial, filePath).then(({ error }) => {
@@ -465,14 +442,7 @@ class FileSystem extends Component<Props, State> {
 
   render() {
     const { files } = this;
-    const {
-      sort,
-      search,
-      delFilePath,
-      menuType,
-      mkdirPath,
-      cpPath,
-    } = this.state;
+    const { sort, search, delFilePath, mkdirPath } = this.state;
     const { serial } = this.props;
     const entries = this.sortEntries(files);
     return (

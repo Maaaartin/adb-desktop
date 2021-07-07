@@ -1,7 +1,6 @@
 import { CommandResponse, typedIpcMain as ipc } from '../../../ipcIndex';
 
 import { EmulatorClient } from 'emulator-ts';
-import { getRoot } from '../../../main.dev';
 import { ipcExec } from '../../ipc';
 
 const handleExecResponse = (

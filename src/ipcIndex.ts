@@ -1,5 +1,10 @@
 import { AdbClientOptions, IAdbDevice, SimpleType } from 'adb-ts';
-import { AdbStatus, ConsoleSettings, FileSystemData } from './shared';
+import {
+  AdbStatus,
+  ConsoleSettings,
+  ConsoleSettingsUpdate,
+  FileSystemData,
+} from './shared';
 import { TypedIpcMain, TypedIpcRenderer } from 'electron-typed-ipc';
 import { ipcMain, ipcRenderer } from 'electron';
 
@@ -51,7 +56,7 @@ export type Events = {
    */
   writeAdbSettings: EventCallback<AdbClientOptions>;
   writeToken: EventCallback<string>;
-  writeConsoleSettings: EventCallback<ConsoleSettings>;
+  writeConsoleSettings: EventCallback<ConsoleSettingsUpdate>;
   /**
    * redux - adb
    */

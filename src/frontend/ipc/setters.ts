@@ -9,11 +9,6 @@ import { Dictionary } from 'lodash';
 import { ipcRenderer as ipc } from 'electron';
 
 const setterCalls: Dictionary<((error: Error) => void) | undefined> = {};
-const hookSetter = (cb?: (error: Error) => void) => {
-  const id = Math.random().toString(36).substring(7);
-  setterCalls[id] = cb;
-  return id;
-};
 
 const handleSetterResponse = (data: any) => {
   const { id, error } = data;
@@ -22,19 +17,19 @@ const handleSetterResponse = (data: any) => {
   delete setterCalls[id];
 };
 
-ipc.on(SET_PROP, (event, data) => {
+ipc.on(SET_PROP, (_e, data) => {
   handleSetterResponse(data);
 });
 
-ipc.on(PUT_SETTING_GLOBAL, (event, data) => {
+ipc.on(PUT_SETTING_GLOBAL, (_e, data) => {
   handleSetterResponse(data);
 });
 
-ipc.on(PUT_SETTING_SYSTEM, (event, data) => {
+ipc.on(PUT_SETTING_SYSTEM, (_e, data) => {
   handleSetterResponse(data);
 });
 
-ipc.on(PUT_SETTING_SECURE, (event, data) => {
+ipc.on(PUT_SETTING_SECURE, (_e, data) => {
   handleSetterResponse(data);
 });
 

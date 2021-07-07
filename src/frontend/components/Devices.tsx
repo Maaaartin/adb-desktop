@@ -1,11 +1,11 @@
-import { isEmpty as emp } from 'lodash';
-import React from 'react';
-import { Grid } from 'react-flexbox-grid';
-import { connect, ConnectedProps } from 'react-redux';
+import { ConnectedProps, connect } from 'react-redux';
 import { deviceChange, tabAdd } from '../redux/actions';
-import { GlobalState } from '../redux/reducers';
+
 import Device from './Device';
+import { GlobalState } from '../redux/reducers';
+import React from 'react';
 import Scrollable from './subcomponents/Scrollable';
+import { isEmpty as emp } from 'lodash';
 
 const Devices = (props: any) => {
   const { devices } = props as PropsRedux;

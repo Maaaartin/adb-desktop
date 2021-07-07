@@ -10,12 +10,10 @@ import {
   TAB_ADD,
   TAB_DEL,
   WRITE_CONSOLE_SETTINGS,
-  WRITE_TOKEN,
 } from './actionTypes';
 import { AdbClientOptions, IAdbDevice } from 'adb-ts';
-import { AdbStatus, ConsoleSettings } from '../../shared';
 
-import { Dictionary } from 'lodash';
+import { AdbStatus } from '../../shared';
 import Notifications from 'react-notification-system-redux';
 import { typedIpcRenderer as ipc } from '../../ipcIndex';
 import store from './store';
@@ -109,7 +107,11 @@ export const setAdbStatus = (data: AdbStatus) => {
   };
 };
 
-export const writeConsoleSettings = (data: ConsoleSettings) => {
+export const writeConsoleSettings = (data: {
+  history?: string[];
+  historyLen?: number;
+  lines?: number;
+}) => {
   if (process.env.NODE_ENV != 'test') {
     ipc.send('writeConsoleSettings', data);
   }

@@ -19,7 +19,7 @@ import Notifications from 'react-notification-system-redux';
 import { Provider } from 'react-redux';
 import React from 'react';
 import Root from './frontend/Root';
-import hookIpc from './frontend/ipc/listeners';
+// import hookIpc from './frontend/ipc/listeners';
 import { typedIpcRenderer as ipc } from './ipcIndex';
 import { render } from 'react-dom';
 import store from './frontend/redux/store';
@@ -63,15 +63,15 @@ ipc.on('adbStatus', (_e, data) => {
   store.dispatch<Action<AdbStatus>>({ type: ADB_STATUS, payload: data });
 });
 
-ipc.on('deviceAdd', (e_, device) => {
+ipc.on('deviceAdd', (_e, device) => {
   store.dispatch<Action<IAdbDevice>>({ type: DEVICE_ADD, payload: device });
 });
 
-ipc.on('deviceChange', (e_, device) => {
+ipc.on('deviceChange', (_e, device) => {
   store.dispatch<Action<IAdbDevice>>({ type: DEVICE_CHANGE, payload: device });
 });
 
-ipc.on('deviceRemove', (e_, device) => {
+ipc.on('deviceRemove', (_e, device) => {
   store.dispatch<Action<IAdbDevice>>({ type: DEVICE_REMOVE, payload: device });
 });
 
