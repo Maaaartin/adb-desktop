@@ -13,7 +13,7 @@ type State = { status: AdbStatus; settings: AdbClientOptions };
 const initialState: State = {
   status: {
     running: false,
-    status: '' as any,
+    status: 'stopped',
     error: null,
   },
   settings: {},
