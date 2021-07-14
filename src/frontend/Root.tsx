@@ -29,7 +29,10 @@ class Root extends Component {
     super(props);
     window.addEventListener('beforeunload', () => {
       const { writeConsoleSettings, console } = this.props as PropsRedux;
-      writeConsoleSettings({ ...console, history: console.history.toArray() });
+      writeConsoleSettings({
+        ...console.toJS(),
+        history: console.get('history').toArray(),
+      });
     });
 
     this.onSelect = this.onSelect.bind(this);

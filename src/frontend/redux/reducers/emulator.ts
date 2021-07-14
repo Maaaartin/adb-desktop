@@ -1,22 +1,25 @@
-import { Action } from '.';
-import { LOAD_TOKEN, WRITE_TOKEN } from '../actionTypes';
+import { EmulatorAction } from '../actionTypes';
+import { Record } from 'immutable';
 
-type State = { token: string };
-
-const initialState: State = {
-  token: '',
+export type EmulatorStateProps = {
+  token: string;
 };
 
-export default function (state = initialState, action: Action<string>) {
+export type EmulatorState = Record<EmulatorStateProps> &
+  Readonly<EmulatorStateProps>;
+
+const StateConstructor = Record<EmulatorStateProps>({
+  token: '',
+});
+
+export default function (
+  state = StateConstructor(),
+  action: EmulatorAction
+): EmulatorState {
   switch (action.type) {
-    case LOAD_TOKEN:
-    case WRITE_TOKEN: {
-      return {
-        ...state,
-        token: action.payload,
-      };
+    case 'Load':
+    case 'Write': {
+      return state.update('token', () => action.payload);
     }
-    default:
-      return state;
   }
 }

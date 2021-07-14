@@ -1,16 +1,17 @@
 import { Card, CardContent, CardHeader, Typography } from '@material-ui/core';
-import React from 'react';
 import { Col, Row } from 'react-flexbox-grid';
+import { ConnectedProps, connect } from 'react-redux';
 import { FaMobileAlt, FaRobot, FaTerminal } from 'react-icons/fa';
-import { connect, ConnectedProps } from 'react-redux';
-import { isEmpty as emp } from 'lodash';
 import { Tab, tabAdd, tabDel } from '../redux/actions';
-import { GlobalState } from '../redux/reducers';
+
 import DeviceConsole from './consoles/DeviceConsole';
 import EmulatorConsole from './consoles/EmulatorConsole';
-import MonkeyConsole from './consoles/MonkeyConsole';
+import { GlobalState } from '../redux/reducers';
 import IconBtn from './subcomponents/IconBtn';
+import MonkeyConsole from './consoles/MonkeyConsole';
+import React from 'react';
 import Scroll from './subcomponents/Scrollable';
+import { isEmpty as emp } from 'lodash';
 import { getColor } from '../colors';
 
 const DeviceCards = (props: any) => {
@@ -105,7 +106,7 @@ const DeviceCards = (props: any) => {
 
 const mapStateToProps = (state: GlobalState) => {
   return {
-    devices: state.devices.list,
+    devices: state.get(''),
   };
 };
 

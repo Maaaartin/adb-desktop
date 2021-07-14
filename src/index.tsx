@@ -8,24 +8,22 @@ import {
   DEVICE_ADD,
   DEVICE_CHANGE,
   DEVICE_REMOVE,
+  DEVICE_REMOVE_ALL,
+  DeviceAT,
   LOAD_CONSOLE_SETTINGS,
   LOAD_TOKEN,
 } from './frontend/redux/actionTypes';
-import { AdbClientOptions, IAdbDevice } from 'adb-ts';
-import { AdbStatus, ConsoleSettings } from './shared';
 
-import { Action } from './frontend/redux/reducers';
 import Notifications from 'react-notification-system-redux';
 import { Provider } from 'react-redux';
 import React from 'react';
 import Root from './frontend/Root';
-// import hookIpc from './frontend/ipc/listeners';
 import { typedIpcRenderer as ipc } from './ipcIndex';
 import { render } from 'react-dom';
 import store from './frontend/redux/store';
 
+store.dispatch({ type: DeviceAT.Add, payload: {} });
 // TODO make CI take package.json version
-// hookIpc();
 ipc.on('displayError', (_e, err) => {
   store.dispatch(
     Notifications.error({
@@ -37,14 +35,14 @@ ipc.on('displayError', (_e, err) => {
 });
 
 ipc.on('loadAdbSettings', (_e, data) => {
-  store.dispatch<Action<AdbStatus | AdbClientOptions>>({
+  store.dispatch({
     type: ADB_SETTINGS_LOAD,
     payload: data,
   });
 });
 
 ipc.on('loadToken', (_e, token) => {
-  store.dispatch<Action<string>>({
+  store.dispatch({
     type: LOAD_TOKEN,
     payload: token,
   });
@@ -53,26 +51,29 @@ ipc.on('loadToken', (_e, token) => {
 ipc.on('loadConsoleSettings', (_e, data) => {
   console.log('got ya');
   console.log(data);
-  store.dispatch<Action<ConsoleSettings>>({
+  store.dispatch({
     type: LOAD_CONSOLE_SETTINGS,
     payload: data,
   });
 });
 
 ipc.on('adbStatus', (_e, data) => {
-  store.dispatch<Action<AdbStatus>>({ type: ADB_STATUS, payload: data });
+  store.dispatch({ type: ADB_STATUS, payload: data });
+  if (data.status === 'stopped') {
+    store.dispatch({ type: DEVICE_REMOVE_ALL });
+  }
 });
 
 ipc.on('deviceAdd', (_e, device) => {
-  store.dispatch<Action<IAdbDevice>>({ type: DEVICE_ADD, payload: device });
+  store.dispatch({ type: DEVICE_ADD, payload: device });
 });
 
 ipc.on('deviceChange', (_e, device) => {
-  store.dispatch<Action<IAdbDevice>>({ type: DEVICE_CHANGE, payload: device });
+  store.dispatch({ type: DEVICE_CHANGE, payload: device });
 });
 
 ipc.on('deviceRemove', (_e, device) => {
-  store.dispatch<Action<IAdbDevice>>({ type: DEVICE_REMOVE, payload: device });
+  store.dispatch({ type: DEVICE_REMOVE, payload: device });
 });
 
 render(

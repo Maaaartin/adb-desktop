@@ -3,7 +3,7 @@ import { IFileStats } from 'adb-ts/lib/filestats';
 
 export type AdbState = 'starting' | 'running' | 'stopped' | 'error';
 
-export type AdbStatus = {
+export type AdbRuntimeStatus = {
   status: AdbState;
   running: boolean;
   error: Error | null;

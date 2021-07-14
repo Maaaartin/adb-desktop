@@ -53,8 +53,8 @@ export default function () {
   });
 
   ipc.on('writeConsoleSettings', (_e, data) => {
-    // TODO might delete history
-    Preferences.save('console', data).catch(noop);
+    const curr = Preferences.get('console');
+    Preferences.save('console', { ...curr, ...data }).catch(noop);
   });
 
   ipc.on('writeToken', (_e, token) => {

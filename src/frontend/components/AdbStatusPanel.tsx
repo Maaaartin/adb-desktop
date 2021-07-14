@@ -2,6 +2,7 @@ import { Button, Card, Typography } from '@material-ui/core';
 import { Col, Row } from 'react-flexbox-grid';
 import { ConnectedProps, connect } from 'react-redux';
 
+import { AdbRedState } from '../redux/reducers/adb';
 import { GlobalState } from '../redux/reducers';
 import React from 'react';
 import { typedIpcRenderer as ipc } from '../../ipcIndex';
@@ -49,7 +50,7 @@ const AdbStatusPanel = (props: any) => {
 
 const mapStateToProps = (state: GlobalState) => {
   return {
-    status: state.adb.status,
+    status: state.get('adb') as AdbRedState,
   };
 };
 

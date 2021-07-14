@@ -1,6 +1,6 @@
 import { AdbClientOptions, IAdbDevice, SimpleType } from 'adb-ts';
 import {
-  AdbStatus,
+  AdbRuntimeStatus,
   ConsoleSettings,
   ConsoleSettingsUpdate,
   FileSystemData,
@@ -63,7 +63,7 @@ export type Events = {
   deviceAdd: EventCallback<IAdbDevice>;
   deviceChange: EventCallback<IAdbDevice>;
   deviceRemove: EventCallback<IAdbDevice>;
-  adbStatus: EventCallback<AdbStatus>;
+  adbStatus: EventCallback<AdbRuntimeStatus>;
 };
 
 export type Commands = {

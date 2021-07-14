@@ -21,12 +21,13 @@ import { AdbClientOptions } from 'adb-ts';
 import CollapseButton from './subcomponents/CollapseButton';
 import { FaSync } from 'react-icons/fa';
 import { GlobalState } from '../redux/reducers';
+import I from 'immutable';
 import IconBtn from './subcomponents/IconBtn';
 import { getColor } from '../colors';
 import { typedIpcRenderer as ipc } from '../../ipcIndex';
 
 type State = {
-  adb: AdbClientOptions;
+  adb: I.Record<AdbClientOptions>;
   token: string;
   lines: number;
   openAdb: boolean;
@@ -39,7 +40,7 @@ class Settings extends Component<any, State> {
   constructor(props: Record<string, any>) {
     super(props);
     this.state = {
-      adb: {},
+      adb: I.Record({})(),
       token: '',
       openAdb: false,
       openEmulator: false,
@@ -90,7 +91,7 @@ class Settings extends Component<any, State> {
     }
 
     if (prevOpenAdb && !openAdb && !eql(adb, adbProp)) {
-      writeAdbSettings(adb);
+      writeAdbSettings(adb.toJSON());
     }
 
     if (prevOpenEmulator && !openEmulator && !eql(token, tokenProp)) {
@@ -126,7 +127,7 @@ class Settings extends Component<any, State> {
       historyLen: historyLenProp,
     } = this.props as PropsRedux;
     if (openAdb && !eql(adb, adbProp)) {
-      writeAdbSettings(adb);
+      writeAdbSettings(adb.toJSON());
     }
 
     if (openEmulator && !eql(token, tokenProp)) {
@@ -155,12 +156,16 @@ class Settings extends Component<any, State> {
 
   onChangeFile(event: ChangeEvent<HTMLInputElement>) {
     const { adb } = this.state;
-    this.setState({ adb: { ...adb, bin: event.target.files?.[0].path } });
+    this.setState({
+      adb: adb.update('bin', () => event.target.files?.[0].path),
+    });
   }
 
   onPortChange(event: ChangeEvent<HTMLInputElement>) {
     const { adb } = this.state;
-    this.setState({ adb: { ...adb, port: Number(event.target.value) } });
+    this.setState({
+      adb: adb.update('port', () => Number(event.target.value)),
+    });
   }
 
   onTokenChange(event: ChangeEvent<HTMLInputElement>) {
@@ -193,7 +198,7 @@ class Settings extends Component<any, State> {
 
   render() {
     const {
-      adb: { bin, port },
+      adb,
       token,
       openAdb,
       openEmulator,
@@ -201,6 +206,7 @@ class Settings extends Component<any, State> {
       lines,
       historyLen,
     } = this.state;
+
     return (
       <Card style={{ backgroundColor: getColor('card') }} className="w-full">
         <CardHeader title={'Settings'} />
@@ -232,13 +238,13 @@ class Settings extends Component<any, State> {
                 </Button>
               </Col>
               <Col className="ml-3" style={{ lineHeight: '40px' }}>
-                {bin || 'ADB path not set!'}
+                {adb.get('bin') || 'ADB path not set!'}
               </Col>
               <Col className="ml-3" sm={4}>
                 <TextField
                   label="port"
                   type="number"
-                  value={port}
+                  value={adb.get('port')}
                   InputLabelProps={{
                     shrink: true,
                   }}
@@ -311,7 +317,8 @@ class Settings extends Component<any, State> {
 const mapStateToProps = (state: GlobalState) => {
   return {
     adb: state.adb.settings,
-    token: state.emulator.token,
+    token: '',
+    // token: state.emulator.token,
     lines: state.console.lines,
     historyLen: state.console.historyLen,
   };

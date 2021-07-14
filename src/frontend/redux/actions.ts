@@ -6,6 +6,8 @@ import {
   DEVICE_CHANGE,
   DEVICE_REMOVE,
   DEVICE_REMOVE_ALL,
+  DeviceAT,
+  DeviceAction,
   LOAD_TOKEN,
   TAB_ADD,
   TAB_DEL,
@@ -13,7 +15,7 @@ import {
 } from './actionTypes';
 import { AdbClientOptions, IAdbDevice } from 'adb-ts';
 
-import { AdbStatus } from '../../shared';
+import { AdbRuntimeStatus } from '../../shared';
 import Notifications from 'react-notification-system-redux';
 import { typedIpcRenderer as ipc } from '../../ipcIndex';
 import store from './store';
@@ -46,27 +48,6 @@ export const writeAdbSettings = (data: AdbClientOptions) => {
   };
 };
 
-export const deviceAdd = (content: IAdbDevice) => {
-  store.dispatch(Notifications.info({ title: `${content.id} plugged in` }));
-  return {
-    type: DEVICE_ADD,
-    payload: content,
-  };
-};
-
-export const deviceChange = (content: IAdbDevice) => ({
-  type: DEVICE_CHANGE,
-  payload: content,
-});
-
-export const deviceRemove = (content: IAdbDevice) => {
-  store.dispatch(Notifications.info({ title: `${content.id} plugged out` }));
-  return {
-    type: DEVICE_REMOVE,
-    payload: content,
-  };
-};
-
 export const tabAdd = (tab: Tab) => ({
   type: TAB_ADD,
   payload: tab,
@@ -77,23 +58,7 @@ export const tabDel = (id: string) => ({
   payload: id,
 });
 
-export const addHistory = (content: string) => ({
-  type: ADD_HISTORY,
-  payload: content,
-});
-
-export const writeToken = (token: string) => {
-  if (process.env.NODE_ENV != 'test') {
-    ipc.send('writeToken', token);
-  }
-  store.dispatch(SettingsAction);
-  return {
-    type: LOAD_TOKEN,
-    payload: token,
-  };
-};
-
-export const setAdbStatus = (data: AdbStatus) => {
+export const setAdbStatus = (data: AdbRuntimeStatus) => {
   if (data.status === 'stopped') {
     store.dispatch({ type: DEVICE_REMOVE_ALL });
   } else if (data.status === 'error') {
@@ -103,21 +68,6 @@ export const setAdbStatus = (data: AdbStatus) => {
   }
   return {
     type: ADB_STATUS,
-    payload: data,
-  };
-};
-
-export const writeConsoleSettings = (data: {
-  history?: string[];
-  historyLen?: number;
-  lines?: number;
-}) => {
-  if (process.env.NODE_ENV != 'test') {
-    ipc.send('writeConsoleSettings', data);
-  }
-  store.dispatch(SettingsAction);
-  return {
-    type: WRITE_CONSOLE_SETTINGS,
     payload: data,
   };
 };

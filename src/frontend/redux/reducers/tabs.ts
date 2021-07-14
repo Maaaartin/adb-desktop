@@ -1,35 +1,36 @@
-import { clone } from 'lodash';
+import { List, Record } from 'immutable';
+import { TAB_ADD, TAB_DEL, TabAction } from '../actionTypes';
+
 import { Action } from '.';
 import { Tab } from '../actions';
-import { TAB_ADD, TAB_DEL } from '../actionTypes';
+import { clone } from 'lodash';
 
-type State = { list: Tab[] };
-
-const initialState: State = {
-  list: [],
+export type TabsStateProps = {
+  list: List<Tab>;
 };
 
-export default function (state = initialState, action: Action): State {
-  const list = clone(state.list);
+export type TabsState = Record<TabsStateProps> & Readonly<TabsStateProps>;
+
+const StateConstructor = Record<TabsStateProps>({
+  list: List(),
+});
+
+export default function (
+  state = StateConstructor(),
+  action: TabAction
+): TabsState {
   switch (action.type) {
-    case TAB_ADD: {
-      const { payload } = action;
-      payload.id = payload.id || Math.random().toString(36).substring(7);
-      list.push(action.payload);
-      return {
-        ...state,
-        list: list,
-      };
+    case 'Add': {
+      return state.update('list', (list) => {
+        const { payload } = action;
+        payload.id = payload.id || Math.random().toString(36).substring(7);
+        return list.concat(payload);
+      });
     }
-    case TAB_DEL: {
-      const match = list.find((tab) => tab.id === action.payload);
-      if (match) list.splice(list.indexOf(match), 1);
-      return {
-        ...state,
-        list: list,
-      };
+    case 'Del': {
+      return state.update('list', (list) =>
+        list.filter((tab) => tab.id != action.payload)
+      );
     }
-    default:
-      return state;
   }
 }
