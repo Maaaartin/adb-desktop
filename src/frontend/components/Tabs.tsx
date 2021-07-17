@@ -1,12 +1,13 @@
-import { Chip } from '@material-ui/core';
-import { floor, get as getProp, isEmpty as emp, sortBy } from 'lodash';
+import { ConnectedProps, connect } from 'react-redux';
 import React, { Component } from 'react';
+import { Tab, tabAdd, tabDel } from '../redux/actions';
+import { isEmpty as emp, floor, get as getProp, sortBy } from 'lodash';
+
+import { Chip } from '@material-ui/core';
 import Draggable from 'react-draggable';
+import { GlobalState } from '../redux/reducers';
 import { Row } from 'react-flexbox-grid';
 import Scroll from './subcomponents/Scrollable';
-import { connect, ConnectedProps } from 'react-redux';
-import { Tab, tabAdd, tabDel } from '../redux/actions';
-import { GlobalState } from '../redux/reducers';
 
 type Props = { tabs: Tab[] };
 type State = { tabs: Tab[]; selected: string; dragged: string };
@@ -154,4 +155,4 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 
 type PropsRedux = Props & ConnectedProps<typeof connector>;
 
-export default connector(Tabs);
+export default connector(Tabs as any);

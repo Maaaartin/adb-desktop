@@ -1,9 +1,7 @@
 import { List, Record } from 'immutable';
-import { TAB_ADD, TAB_DEL, TabAction } from '../actionTypes';
 
-import { Action } from '.';
 import { Tab } from '../actions';
-import { clone } from 'lodash';
+import { TabAction } from '../actionTypes';
 
 export type TabsStateProps = {
   list: List<Tab>;
@@ -20,17 +18,19 @@ export default function (
   action: TabAction
 ): TabsState {
   switch (action.type) {
-    case 'Add': {
+    case 'TabAdd': {
       return state.update('list', (list) => {
         const { payload } = action;
         payload.id = payload.id || Math.random().toString(36).substring(7);
         return list.concat(payload);
       });
     }
-    case 'Del': {
+    case 'TabDel': {
       return state.update('list', (list) =>
         list.filter((tab) => tab.id != action.payload)
       );
     }
+    default:
+      return state;
   }
 }

@@ -17,9 +17,11 @@ export default function (
   action: EmulatorAction
 ): EmulatorState {
   switch (action.type) {
-    case 'Load':
-    case 'Write': {
+    case 'TokenLoad':
+    case 'TokenWrite': {
       return state.update('token', () => action.payload);
     }
+    default:
+      return state;
   }
 }

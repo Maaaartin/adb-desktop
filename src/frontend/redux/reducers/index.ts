@@ -9,8 +9,9 @@ import { reducer as notifications } from 'react-notification-system-redux';
 import tabs from './tabs';
 
 const reducers = combineReducers({
-  devices,
   tabs,
+  devices,
+
   console,
   emulator,
   adb,

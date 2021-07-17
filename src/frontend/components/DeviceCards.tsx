@@ -106,7 +106,7 @@ const DeviceCards = (props: any) => {
 
 const mapStateToProps = (state: GlobalState) => {
   return {
-    devices: state.get(''),
+    devices: state.devices.get('list'),
   };
 };
 

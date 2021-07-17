@@ -3,16 +3,15 @@ import './frontend/assets/custom.css';
 import './frontend/assets/main.css';
 
 import {
-  ADB_SETTINGS_LOAD,
-  ADB_STATUS,
-  DEVICE_ADD,
-  DEVICE_CHANGE,
-  DEVICE_REMOVE,
-  DEVICE_REMOVE_ALL,
-  DeviceAT,
-  LOAD_CONSOLE_SETTINGS,
-  LOAD_TOKEN,
-} from './frontend/redux/actionTypes';
+  deviceAdd,
+  deviceChange,
+  deviceRemove,
+  deviceRemoveAll,
+  loadAdbSettings,
+  loadConsoleSettings,
+  loadToken,
+  setAdbStatus,
+} from './frontend/redux/actions';
 
 import Notifications from 'react-notification-system-redux';
 import { Provider } from 'react-redux';
@@ -22,7 +21,6 @@ import { typedIpcRenderer as ipc } from './ipcIndex';
 import { render } from 'react-dom';
 import store from './frontend/redux/store';
 
-store.dispatch({ type: DeviceAT.Add, payload: {} });
 // TODO make CI take package.json version
 ipc.on('displayError', (_e, err) => {
   store.dispatch(
@@ -35,45 +33,34 @@ ipc.on('displayError', (_e, err) => {
 });
 
 ipc.on('loadAdbSettings', (_e, data) => {
-  store.dispatch({
-    type: ADB_SETTINGS_LOAD,
-    payload: data,
-  });
+  store.dispatch(loadAdbSettings(data));
 });
 
 ipc.on('loadToken', (_e, token) => {
-  store.dispatch({
-    type: LOAD_TOKEN,
-    payload: token,
-  });
+  store.dispatch(loadToken(token));
 });
 
 ipc.on('loadConsoleSettings', (_e, data) => {
-  console.log('got ya');
-  console.log(data);
-  store.dispatch({
-    type: LOAD_CONSOLE_SETTINGS,
-    payload: data,
-  });
+  store.dispatch(loadConsoleSettings(data));
 });
 
 ipc.on('adbStatus', (_e, data) => {
-  store.dispatch({ type: ADB_STATUS, payload: data });
+  store.dispatch(setAdbStatus(data));
   if (data.status === 'stopped') {
-    store.dispatch({ type: DEVICE_REMOVE_ALL });
+    store.dispatch(deviceRemoveAll());
   }
 });
 
 ipc.on('deviceAdd', (_e, device) => {
-  store.dispatch({ type: DEVICE_ADD, payload: device });
+  store.dispatch(deviceAdd(device));
 });
 
 ipc.on('deviceChange', (_e, device) => {
-  store.dispatch({ type: DEVICE_CHANGE, payload: device });
+  store.dispatch(deviceChange(device));
 });
 
 ipc.on('deviceRemove', (_e, device) => {
-  store.dispatch({ type: DEVICE_REMOVE, payload: device });
+  store.dispatch(deviceRemove(device));
 });
 
 render(

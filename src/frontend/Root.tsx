@@ -30,7 +30,7 @@ class Root extends Component {
     window.addEventListener('beforeunload', () => {
       const { writeConsoleSettings, console } = this.props as PropsRedux;
       writeConsoleSettings({
-        ...console.toJS(),
+        ...console.toObject(),
         history: console.get('history').toArray(),
       });
     });

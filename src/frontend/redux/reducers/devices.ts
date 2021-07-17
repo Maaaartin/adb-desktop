@@ -19,16 +19,18 @@ export default function (
   action: DeviceAction
 ): DevicesState {
   switch (action.type) {
-    case 'Add':
-    case 'Change': {
+    case 'DeviceAdd':
+    case 'DeviceChange': {
       return state.update('list', (list) =>
         list.update(action.payload.id, () => action.payload)
       );
     }
-    case 'Remove': {
+    case 'DeviceRemove': {
       return state.update('list', (list) => list.delete(action.payload.id));
     }
-    case 'RemoveAll':
+    case 'DeviceRemoveAll':
       return state.update('list', (list) => list.clear());
+    default:
+      return state;
   }
 }

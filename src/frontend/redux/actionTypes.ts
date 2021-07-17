@@ -1,13 +1,10 @@
 import { AdbClientOptions, IAdbDevice } from 'adb-ts';
 import {
   AdbRuntimeStatus,
-  AdbState,
   ConsoleSettings,
   ConsoleSettingsUpdate,
 } from '../../shared';
 
-import { Action } from 'redux';
-import { Dictionary } from 'lodash';
 import { Tab } from './actions';
 
 export const ADB_SETTINGS_LOAD = 'ADB_SETTINGS_LOAD';
@@ -33,56 +30,35 @@ export const LOAD_HISTORY = 'LOAD_HISTORY';
 
 export const ADB_STATUS = 'ADB_STATUS';
 
-// export enum DeviceAT {
-//   Add = 'DEVICE_ADD',
-//   Change = 'DEVICE_CHANGE',
-//   Remove = 'DEVICE_REMOVE',
-//   RemoveAll = 'DEVICE_REMOVE_ALL',
-// }
-
-// export enum ConsoleAT {
-//   WriteSettings = 'WRITE_CONSOLE_SETTINGS',
-//   LoadSettings = 'LOAD_CONSOLE_SETTINGS',
-//   AddHistory = 'ADD_HISTORY',
-//   // WriteLines = 'WRITE_LINES',
-//   // WriteHistoryLen = 'WRITE_HISTORY_LEN',
-//   // LoadHistory = 'LOAD_HISTORY',
-// }
-
-// export enum AdbAT {
-//   SettingsLoad = 'ADB_SETTINGS_LOAD',
-//   SettingsWrite = 'ADB_SETTINGS_WRITE',
-//   Status = 'ADB_STATUS',
-// }
-
 export type AdbAction = Readonly<
-  | { type: 'SettingsLoad'; payload: AdbClientOptions }
-  | { type: 'SettingsWrite'; payload: AdbClientOptions }
-  | { type: 'Status'; payload: AdbRuntimeStatus }
+  | { type: 'AdbSettingsLoad'; payload: AdbClientOptions }
+  | { type: 'AdbSettingsWrite'; payload: AdbClientOptions }
+  | { type: 'AdbStatus'; payload: AdbRuntimeStatus }
 >;
 
 export type DeviceAction = Readonly<
-  | { type: 'Add'; payload: IAdbDevice }
-  | { type: 'Change'; payload: IAdbDevice }
-  | { type: 'Remove'; payload: IAdbDevice }
-  | { type: 'RemoveAll' }
+  | { type: 'DeviceAdd'; payload: IAdbDevice }
+  | { type: 'DeviceChange'; payload: IAdbDevice }
+  | { type: 'DeviceRemove'; payload: IAdbDevice }
+  | { type: 'DeviceRemoveAll' }
 >;
 
 export type ConsoleAction = Readonly<
-  | { type: 'AddHistory'; payload: string }
-  | { type: 'LoadHistory'; payload: string[] }
-  | { type: 'LoadSettings'; payload: ConsoleSettings }
-  | { type: 'WriteHistoryLen'; payload: number }
-  | { type: 'WriteLines'; payload: number }
-  | { type: 'WriteSettings'; payload: ConsoleSettingsUpdate }
+  | { type: 'ConsoleAddHistory'; payload: string }
+  | { type: 'ConsoleLoadHistory'; payload: string[] }
+  | { type: 'ConsoleLoadSettings'; payload: ConsoleSettings }
+  | { type: 'ConsoleWriteHistoryLen'; payload: number }
+  | { type: 'ConsoleWriteLines'; payload: number }
+  | { type: 'ConsoleWriteSettings'; payload: ConsoleSettingsUpdate }
 >;
 
 export type TabAction = Readonly<
-  { type: 'Add'; payload: Tab } | { type: 'Del'; payload: string }
+  { type: 'TabAdd'; payload: Tab } | { type: 'TabDel'; payload: string }
 >;
 
 export type EmulatorAction = Readonly<
-  { type: 'Load'; payload: string } | { type: 'Write'; payload: string }
+  | { type: 'TokenLoad'; payload: string }
+  | { type: 'TokenWrite'; payload: string }
 >;
 
 export type Actions =

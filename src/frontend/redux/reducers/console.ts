@@ -1,12 +1,6 @@
-import {
-  ADD_HISTORY,
-  ConsoleAction,
-  LOAD_CONSOLE_SETTINGS,
-  WRITE_CONSOLE_SETTINGS,
-} from '../actionTypes';
 import { List, Record } from 'immutable';
 
-import { Dictionary } from 'lodash';
+import { ConsoleAction } from '../actionTypes';
 
 type ConsoleStateProps = {
   lines: number;
@@ -28,8 +22,8 @@ export default function (
   action: ConsoleAction
 ): ConsoleState {
   switch (action.type) {
-    case 'LoadSettings':
-    case 'WriteSettings': {
+    case 'ConsoleLoadSettings':
+    case 'ConsoleWriteSettings': {
       let { lines, history, historyLen } = action.payload;
       return state
         .update('lines', (prev) => lines || prev)
@@ -37,7 +31,7 @@ export default function (
         .update('historyLen', (prev) => historyLen || prev);
     }
 
-    case 'AddHistory': {
+    case 'ConsoleAddHistory': {
       const { historyLen, history } = state;
       return state.update('history', (prev) =>
         prev
@@ -48,15 +42,17 @@ export default function (
           .push(action.payload)
       );
     }
-    case 'LoadHistory': {
+    case 'ConsoleLoadHistory': {
       return state.update('history', (history) =>
         history.clear().concat(action.payload)
       );
     }
-    case 'WriteLines': {
+    case 'ConsoleWriteLines': {
       return state.update('lines', () => action.payload);
     }
-    case 'WriteHistoryLen':
+    case 'ConsoleWriteHistoryLen':
       return state.update('historyLen', () => action.payload);
+    default:
+      return state;
   }
 }

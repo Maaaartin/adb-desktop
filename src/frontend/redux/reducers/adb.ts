@@ -10,7 +10,7 @@ export type AdbStateProps = {
 
 export type AdbRedState = Record<AdbStateProps> & Readonly<AdbStateProps>;
 
-const StateConstructor = Record<AdbStateProps>({
+export const StateConstructor = Record<AdbStateProps>({
   status: Record<AdbRuntimeStatus>({
     status: 'stopped',
     running: false,
@@ -24,16 +24,18 @@ export default function (
   action: AdbAction
 ): AdbRedState {
   switch (action.type) {
-    case 'Status': {
+    case 'AdbStatus': {
       return state.update('status', (prev) =>
         prev.clear().merge(action.payload)
       );
     }
-    case 'SettingsLoad':
-    case 'SettingsWrite': {
+    case 'AdbSettingsLoad':
+    case 'AdbSettingsWrite': {
       return state.update('settings', (prev) =>
         prev.clear().merge(action.payload)
       );
     }
+    default:
+      return state;
   }
 }

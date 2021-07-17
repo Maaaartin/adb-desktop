@@ -82,9 +82,7 @@ export default class Root {
     });
 
     this.adbHandler.on('starting', () => {
-      console.log('starting');
       allWebContents((c) => {
-        console.log('sending');
         c.send('adbStatus', {
           running: false,
           error: null,
@@ -94,7 +92,6 @@ export default class Root {
     });
 
     this.adbHandler.on('start', () => {
-      console.log('started');
       allWebContents((c) => {
         c.send('adbStatus', {
           running: true,
