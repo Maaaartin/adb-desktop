@@ -14,8 +14,8 @@ import Scroll from './subcomponents/Scrollable';
 import { isEmpty as emp } from 'lodash';
 import { getColor } from '../colors';
 
-const DeviceCards = (props: any) => {
-  const { devices, tabAdd, tabDel } = props as PropsRedux;
+const DeviceCards = (props: PropsRedux) => {
+  const { devices, tabAdd, tabDel } = props;
   return (
     <Scroll className="pt-1 pb-1">
       <div className="pr-1" style={{ height: 'calc(77vh - 80px)' }}>
