@@ -3,7 +3,6 @@ import { Collapse, Divider, TextField } from '@material-ui/core';
 import { ConnectedProps, connect } from 'react-redux';
 import { Dictionary, isEmpty as emp } from 'lodash';
 import React, { Component, DetailedHTMLProps } from 'react';
-import { Tab, tabAdd } from '../redux/actions';
 
 import CollapseButton from './subcomponents/CollapseButton';
 import { FaLink } from 'react-icons/fa';
@@ -14,6 +13,7 @@ import { ItemMaker } from '../../shared';
 import Li from './subcomponents/Li';
 import MetaWindow from './MetaWindow';
 import StyledValue from './subcomponents/StyledValue';
+import { tabAdd } from '../redux/actions';
 
 type Props<T> = {
   getter?: (cb: (output: Dictionary<T>) => void) => void;
@@ -102,21 +102,16 @@ class DeviceItem<T> extends Component<Props<T>, State<T>> {
                     onSearch &&
                     itemMaker &&
                     valueToString &&
-                    tabAdd(
-                      new Tab(
-                        tag,
-                        (
-                          <MetaWindow
-                            getter={getter}
-                            itemMaker={itemMaker as any}
-                            onSearch={onSearch as any}
-                            valueToString={valueToString as any}
-                            tag={tag}
-                            serial={serial}
-                          />
-                        )
-                      )
-                    );
+                    tabAdd(tag, () => (
+                      <MetaWindow
+                        getter={getter}
+                        itemMaker={itemMaker as any}
+                        onSearch={onSearch as any}
+                        valueToString={valueToString as any}
+                        tag={tag}
+                        serial={serial}
+                      />
+                    ));
                 }}
               />
             </Col>,

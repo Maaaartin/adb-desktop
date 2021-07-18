@@ -16,26 +16,23 @@ import Notifications from 'react-notification-system-redux';
 import { typedIpcRenderer as ipc } from '../../ipcIndex';
 import store from './store';
 
-export function createTab(name: string, content: any): Readonly<Tab> {
+export type Tab = {
+  id: string;
+  name: string;
+  content: JSX.Element;
+};
+
+function createTab(
+  name: string,
+  cb: (id: string) => JSX.Element
+): Readonly<Tab> {
+  const id = Math.random().toString(36).substring(7);
+  const content = cb(id);
   return {
     name,
     content,
-    id: Math.random().toString(36).substring(7),
-  } as Readonly<Tab>;
-}
-export class Tab {
-  id: string = '';
-  content: any;
-  name: string = '';
-  constructor(name: string, content: any, id?: string) {
-    this.content = content;
-    this.name = name;
-    this.id = id || '';
-  }
-
-  getId() {
-    return this.id;
-  }
+    id,
+  };
 }
 
 const SettingsAction = Notifications.success({ title: 'Settings saved' });
@@ -89,9 +86,12 @@ export const deviceRemoveAll = (): DeviceAction => ({
   type: 'DeviceRemoveAll',
 });
 
-export const tabAdd = (tab: Tab): TabAction => ({
+export const tabAdd = (
+  name: string,
+  cb: (id: string) => JSX.Element
+): TabAction => ({
   type: 'TabAdd',
-  payload: tab,
+  payload: createTab(name, cb),
 });
 
 export const tabDel = (id: string): TabAction => ({

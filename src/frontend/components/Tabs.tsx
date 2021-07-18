@@ -30,6 +30,7 @@ class Tabs extends Component<Props, State> {
   componentDidUpdate(prevProps: PropsRedux) {
     const { tabs: prevTabs } = prevProps;
     const { tabs } = this.props;
+
     if (prevTabs.length < tabs.length) {
       this.setState({ tabs: tabs, selected: tabs[tabs.length - 1].id });
     } else if (prevTabs.length > tabs.length)
@@ -142,7 +143,7 @@ class Tabs extends Component<Props, State> {
 
 const mapStateToProps = (state: GlobalState) => {
   return {
-    tabs: state.tabs.list,
+    tabs: state.tabs.list.toArray(),
   };
 };
 

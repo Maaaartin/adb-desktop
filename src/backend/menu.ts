@@ -31,15 +31,6 @@ export default class Root {
   }
 
   private hook() {
-    // this.hookGetters();
-    // this.hookWindow();
-    // this.hookActions();
-    // this.hookExec();
-    // this.hookAdbHandler();
-    // this.hookSetters();
-    // this.hookSends();
-    // this.hookFileSystem();
-    // TODO token load/renew
     this.mainWindow.once('show', () => {
       const options = this.adbHandler.getAdbOptions();
       this.adbHandler.saveAndStart(options);

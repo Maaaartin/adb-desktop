@@ -11,7 +11,7 @@ import {
 } from '@material-ui/core';
 import { FaAndroid, FaCog, FaTerminal } from 'react-icons/fa';
 import React, { Component } from 'react';
-import { Tab, tabAdd, tabDel, writeConsoleSettings } from './redux/actions';
+import { tabAdd, tabDel, writeConsoleSettings } from './redux/actions';
 
 import AdbConsole from './components/consoles/AdbConsole';
 import AdbStatusDisplay from './components/AdbStatusPanel';
@@ -42,23 +42,13 @@ class Root extends Component {
     const { tabAdd, tabDel } = this.props as PropsRedux;
     switch (type) {
       case 'settings':
-        tabAdd(new Tab('Settings', <Settings />));
+        tabAdd('Settings', () => <Settings />);
         break;
       case 'devices':
-        tabAdd(new Tab('Devices', <Devices />));
+        tabAdd('Devices', () => <Devices />);
         break;
       case 'adb':
-        const tab = new Tab(
-          'ADB',
-          (
-            <AdbConsole
-              onExit={() => {
-                return tabDel(tab.getId());
-              }}
-            />
-          )
-        );
-        tabAdd(tab);
+        tabAdd('ADB', (id) => <AdbConsole onExit={() => tabDel(id)} />);
         break;
       default:
         break;

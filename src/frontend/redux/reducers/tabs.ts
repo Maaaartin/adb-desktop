@@ -19,11 +19,12 @@ export default function (
 ): TabsState {
   switch (action.type) {
     case 'TabAdd': {
-      return state.update('list', (list) => {
+      const red = state.update('list', (list) => {
         const { payload } = action;
-        payload.id = payload.id || Math.random().toString(36).substring(7);
         return list.concat(payload);
       });
+      console.log(red);
+      return red;
     }
     case 'TabDel': {
       return state.update('list', (list) =>

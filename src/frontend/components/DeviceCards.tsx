@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, Typography } from '@material-ui/core';
 import { Col, Row } from 'react-flexbox-grid';
 import { ConnectedProps, connect } from 'react-redux';
 import { FaMobileAlt, FaRobot, FaTerminal } from 'react-icons/fa';
-import { Tab, tabAdd, tabDel } from '../redux/actions';
+import { tabAdd, tabDel } from '../redux/actions';
 
 import DeviceConsole from './consoles/DeviceConsole';
 import EmulatorConsole from './consoles/EmulatorConsole';
@@ -23,7 +23,7 @@ const DeviceCards = (props: any) => {
           <Typography className="pl-1">No devices connected</Typography>
         ) : (
           devices.map((device, index) => {
-            const { id, state } = device;
+            const { id: serial, state } = device;
             const isEmulator = state === 'emulator';
             return (
               <Card
@@ -33,23 +33,19 @@ const DeviceCards = (props: any) => {
                   marginBottom: '5px',
                 }}
               >
-                <CardHeader title={id} className="break-all" />
+                <CardHeader title={serial} className="break-all" />
                 <CardContent>
                   {device.state}
                   <Row>
                     <Col sm={isEmulator ? 3 : 6}>
                       <IconBtn
                         onClick={() => {
-                          const tab = new Tab(
-                            id,
-                            (
-                              <DeviceConsole
-                                onExit={() => tabDel(tab.getId())}
-                                id={id}
-                              />
-                            )
-                          );
-                          tabAdd(tab);
+                          tabAdd(serial, (id) => (
+                            <DeviceConsole
+                              onExit={() => tabDel(id)}
+                              id={serial}
+                            />
+                          ));
                         }}
                         IconEl={FaTerminal}
                         tag="Device console"
@@ -58,16 +54,12 @@ const DeviceCards = (props: any) => {
                     <Col sm={isEmulator ? 3 : 6}>
                       <IconBtn
                         onClick={() => {
-                          const tab = new Tab(
-                            id,
-                            (
-                              <MonkeyConsole
-                                onExit={() => tabDel(tab.getId())}
-                                id={id}
-                              />
-                            )
-                          );
-                          tabAdd(tab);
+                          tabAdd(serial, (id) => (
+                            <MonkeyConsole
+                              onExit={() => tabDel(id)}
+                              id={serial}
+                            />
+                          ));
                         }}
                         IconEl={FaRobot}
                         tag="Monkey console"
@@ -77,16 +69,12 @@ const DeviceCards = (props: any) => {
                       <Col sm={3}>
                         <IconBtn
                           onClick={() => {
-                            const tab = new Tab(
-                              id,
-                              (
-                                <EmulatorConsole
-                                  onExit={() => tabDel(tab.getId())}
-                                  id={id}
-                                />
-                              )
-                            );
-                            tabAdd(tab);
+                            tabAdd(serial, (id) => (
+                              <EmulatorConsole
+                                onExit={() => tabDel(id)}
+                                id={id}
+                              />
+                            ));
                           }}
                           IconEl={FaMobileAlt}
                           tag="Emulator console"
@@ -106,7 +94,10 @@ const DeviceCards = (props: any) => {
 
 const mapStateToProps = (state: GlobalState) => {
   return {
-    devices: state.devices.get('list'),
+    devices: state.devices
+      .get('list')
+      .toArray()
+      .map(([_i, value]) => value),
   };
 };
 

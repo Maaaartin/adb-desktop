@@ -7,8 +7,8 @@ import React from 'react';
 import { typedIpcRenderer as ipc } from '../../ipcIndex';
 
 const AdbStatusPanel = (props: PropsRedux) => {
-  const { status } = props;
-  const start = status === 'error' || status === 'stopped';
+  const { status, running } = props;
+
   const color =
     status === 'running'
       ? '#a9c9ac'
@@ -36,7 +36,7 @@ const AdbStatusPanel = (props: PropsRedux) => {
             size="small"
             onClick={() => ipc.send('toggleAdb')}
           >
-            {start ? 'Start' : 'Stop'}
+            {!running ? 'Start' : 'Stop'}
           </Button>
         </Col>
       </Row>
@@ -47,6 +47,7 @@ const AdbStatusPanel = (props: PropsRedux) => {
 const mapStateToProps = (state: GlobalState) => {
   return {
     status: state.adb.get('status').get('status'),
+    running: state.adb.get('status').get('running'),
   };
 };
 

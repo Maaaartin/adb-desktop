@@ -10,7 +10,7 @@ import { ConnectedProps, connect } from 'react-redux';
 import { Dictionary, noop } from 'lodash';
 import { FaFolder, FaMobileAlt, FaRobot, FaTerminal } from 'react-icons/fa';
 import React, { useState } from 'react';
-import { Tab, tabAdd, tabDel } from '../redux/actions';
+import { tabAdd, tabDel } from '../redux/actions';
 
 import CollapseButton from './subcomponents/CollapseButton';
 import DeviceConsole from './consoles/DeviceConsole';
@@ -55,16 +55,14 @@ const Device = (props: Props) => {
                 <Col sm={isEmulator ? 3 : 6}>
                   <IconBtn
                     onClick={() => {
-                      const tab = new Tab(
-                        serial,
-                        (
+                      tabAdd(serial, (id) => {
+                        return (
                           <DeviceConsole
-                            onExit={() => tabDel(tab.getId())}
+                            onExit={() => tabDel(id)}
                             id={serial}
                           />
-                        )
-                      );
-                      tabAdd(tab);
+                        );
+                      });
                     }}
                     IconEl={FaTerminal}
                     tag="Shell console"
@@ -73,16 +71,9 @@ const Device = (props: Props) => {
                 <Col sm={isEmulator ? 3 : 6}>
                   <IconBtn
                     onClick={() => {
-                      const tab = new Tab(
-                        serial,
-                        (
-                          <MonkeyConsole
-                            onExit={() => tabDel(tab.getId())}
-                            id={serial}
-                          />
-                        )
-                      );
-                      tabAdd(tab);
+                      tabAdd(serial, (id) => (
+                        <MonkeyConsole onExit={() => tabDel(id)} id={serial} />
+                      ));
                     }}
                     IconEl={FaRobot}
                     tag="Monkey console"
@@ -92,16 +83,12 @@ const Device = (props: Props) => {
                   <Col sm={3}>
                     <IconBtn
                       onClick={() => {
-                        const tab = new Tab(
-                          serial,
-                          (
-                            <EmulatorConsole
-                              onExit={() => tabDel(tab.getId())}
-                              id={serial}
-                            />
-                          )
-                        );
-                        tabAdd(tab);
+                        tabAdd(serial, (id) => (
+                          <EmulatorConsole
+                            onExit={() => tabDel(id)}
+                            id={serial}
+                          />
+                        ));
                       }}
                       IconEl={FaMobileAlt}
                       tag="Emulator console"
@@ -112,9 +99,9 @@ const Device = (props: Props) => {
               <Row>
                 <IconBtn
                   onClick={() =>
-                    tabAdd(
-                      new Tab(serial, <FileSystem serial={serial}></FileSystem>)
-                    )
+                    tabAdd(serial, () => (
+                      <FileSystem serial={serial}></FileSystem>
+                    ))
                   }
                   IconEl={FaFolder}
                   tag="File System"
