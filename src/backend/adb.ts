@@ -1,11 +1,13 @@
-import { clone } from 'lodash';
 import { AdbClient, AdbClientOptions, IAdbDevice, Tracker } from 'adb-ts';
-import Monkey from 'adb-ts/lib/monkey/client';
-import { Dictionary } from 'lodash';
-import Promise from 'bluebird';
-import Preferences from './Preferences';
-import { EventEmitter } from 'events';
+import { Dictionary, clone, noop } from 'lodash';
+
 import AdbDevice from 'adb-ts/lib/device';
+import { EventEmitter } from 'events';
+import { FileSystemData } from '../shared';
+import { IFileStats } from 'adb-ts/lib/filestats';
+import Monkey from 'adb-ts/lib/monkey/client';
+import Preferences from './Preferences';
+import Promise from 'bluebird';
 
 export default class AdbHandler extends EventEmitter {
   private adb: AdbClient;
@@ -18,12 +20,12 @@ export default class AdbHandler extends EventEmitter {
   }
 
   private track() {
-    this.adb.trackDevices((err, tracker) => {
+    this.adb.trackDevices((_err, tracker) => {
       this.tracker = tracker;
       tracker.on('error', (err) => {
         this.running = false;
         this.emit('error', err);
-        this.start();
+        this.saveAndStart();
       });
       tracker.on('add', (device) => {
         this.emit('add', device);
@@ -49,11 +51,11 @@ export default class AdbHandler extends EventEmitter {
     });
   }
 
-  start(options?: AdbClientOptions) {
+  saveAndStart(options?: AdbClientOptions) {
     options = clone(options);
     if (options) {
-      Preferences.save('adb', options);
       this.adb = new AdbClient(options);
+      Preferences.save('adb', options).catch(noop);
     }
     if (this.running) {
       this.stop(() => {
@@ -76,6 +78,59 @@ export default class AdbHandler extends EventEmitter {
     return this.adb;
   }
 
+  getFiles(serial: string, path: string): Promise<FileSystemData> {
+    const buildRes = (stats: IFileStats) => {
+      const split = stats.name.split('/');
+      stats.name = split[split.length - 1];
+      return {
+        name: stats.name,
+        stats,
+        access: true,
+        fullPath: path.concat('/', stats.name),
+      };
+    };
+    return Promise.all([
+      this.adb.fileStat(serial, path),
+      this.adb.readDir(serial, path),
+    ]).then(([stats, files]) => {
+      return Promise.map(files, (item) => {
+        return this.adb
+          .fileStat(serial, `${path.replace(/\/$/, '')}/${item.name}`)
+          .then((data) => {
+            // is symbolic link
+            if (data.name.length !== data.lname.length) {
+              const linkPath = data.lname
+                .split('->')[1]
+                .trim()
+                .replace(/'/g, '');
+              return this.adb.readDir(serial, linkPath).then((entries) => {
+                if (entries.length) {
+                  data.type = 'directory';
+                }
+                return buildRes(data);
+              });
+            }
+            return buildRes(data);
+          })
+          .catch(() => {
+            return {
+              name: item.name,
+              access: false,
+              fullPath: path.concat('/', item.name),
+            };
+          });
+      }).then((children) => {
+        return {
+          name: stats.name,
+          stats,
+          access: true,
+          children,
+          fullPath: path.concat('/', stats.name),
+        };
+      });
+    });
+  }
+
   getAdbOptions(): AdbClientOptions {
     const options = Preferences.get('adb');
     options.port = options.port || 5037;
@@ -85,20 +140,24 @@ export default class AdbHandler extends EventEmitter {
   getMonkey(serial: string, cb?: (err: Error, monkey: Monkey) => void) {
     const internal = (serial: string): Promise<Monkey> => {
       return new Promise<Monkey>((resolve, reject) => {
-        if (this.monkeys[serial]) return resolve(this.monkeys[serial]);
-        else {
+        if (this.monkeys[serial]) {
+          return resolve(this.monkeys[serial]);
+        } else {
           return this.adb.openMonkey(serial, (err, monkey) => {
-            if (err) return reject(err);
-            else {
+            if (err) {
+              return reject(err);
+            } else {
               monkey.once('end', (err) => {
                 return reject(err);
               });
               monkey.once('error', (err) => {
                 return reject(err);
               });
+              // checking if monkey is correct
               monkey.getAmCurrentAction((err) => {
-                if (err) return reject(err);
-                else {
+                if (err) {
+                  return reject(err);
+                } else {
                   this.monkeys[serial] = monkey;
                   monkey.on('end', () => {
                     delete this.monkeys[serial];

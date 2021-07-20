@@ -1,3 +1,6 @@
+import { Col, Row } from 'react-flexbox-grid';
+import { ConnectedProps, connect } from 'react-redux';
+import { DOCS_LINK, ISSUES_LINK } from '../links';
 import {
   Divider,
   Link,
@@ -6,29 +9,30 @@ import {
   MenuList,
   Typography,
 } from '@material-ui/core';
-import React, { Component } from 'react';
-import { Col, Row } from 'react-flexbox-grid';
 import { FaAndroid, FaCog, FaTerminal } from 'react-icons/fa';
-import Notifications from 'react-notification-system-redux';
-import { connect, ConnectedProps } from 'react-redux';
-import AdbStatusDisplay from './components/AdbStatusPanel';
+import React, { Component } from 'react';
+import { tabAdd, tabDel, writeConsoleSettings } from './redux/actions';
+
 import AdbConsole from './components/consoles/AdbConsole';
+import AdbStatusDisplay from './components/AdbStatusPanel';
 import DeviceCards from './components/DeviceCards';
 import Devices from './components/Devices';
+import { GlobalState } from './redux/reducers';
+import Notifications from 'react-notification-system-redux';
 import Settings from './components/Settings';
 import Tabs from './components/Tabs';
-import { Tab, tabAdd, tabDel, writeConsoleSettings } from './redux/actions';
-import { GlobalState } from './redux/reducers';
+import { typedIpcRenderer as ipc } from '../ipcIndex';
 import { version } from '../package.json';
-import { DOCS_LINK, ISSUES_LINK } from '../links';
-import { openLink } from './ipc/send';
 
 class Root extends Component {
   constructor(props: PropsRedux) {
     super(props);
     window.addEventListener('beforeunload', () => {
       const { writeConsoleSettings, console } = this.props as PropsRedux;
-      writeConsoleSettings(console);
+      writeConsoleSettings({
+        ...console.toObject(),
+        history: console.get('history').toArray(),
+      });
     });
 
     this.onSelect = this.onSelect.bind(this);
@@ -38,23 +42,13 @@ class Root extends Component {
     const { tabAdd, tabDel } = this.props as PropsRedux;
     switch (type) {
       case 'settings':
-        tabAdd(new Tab('Settings', <Settings />));
+        tabAdd('Settings', () => <Settings />);
         break;
       case 'devices':
-        tabAdd(new Tab('Devices', <Devices />));
+        tabAdd('Devices', () => <Devices />);
         break;
       case 'adb':
-        const tab = new Tab(
-          'ADB',
-          (
-            <AdbConsole
-              onExit={() => {
-                return tabDel(tab.getId());
-              }}
-            />
-          )
-        );
-        tabAdd(tab);
+        tabAdd('ADB', (id) => <AdbConsole onExit={() => tabDel(id)} />);
         break;
       default:
         break;
@@ -67,12 +61,7 @@ class Root extends Component {
       <div className="h-screen">
         <Notifications notifications={notifications} />
         <Row top="xs" style={{ height: 'calc(100% - 80px)' }}>
-          <Col
-            md={2}
-            sm={4}
-            xs={4}
-            style={{ marginRight: '17px', minWidth: '150px' }}
-          >
+          <Col md={2} sm={4} xs={4} style={{ minWidth: '178px' }}>
             <Divider />
             <MenuList>
               <MenuItem onClick={() => this.onSelect('settings')}>
@@ -117,7 +106,7 @@ class Root extends Component {
               <Col xs={6}>
                 <Link
                   className="cursor-pointer"
-                  onClick={() => openLink(DOCS_LINK)}
+                  onClick={() => ipc.send('openLink', DOCS_LINK)}
                 >
                   Docs
                 </Link>
@@ -125,7 +114,7 @@ class Root extends Component {
               <Col xs={6}>
                 <Link
                   className="cursor-pointer"
-                  onClick={() => openLink(ISSUES_LINK)}
+                  onClick={() => ipc.send('openLink', ISSUES_LINK)}
                 >
                   Issues
                 </Link>

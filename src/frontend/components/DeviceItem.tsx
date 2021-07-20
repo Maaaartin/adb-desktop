@@ -1,35 +1,27 @@
+import { Col, Row } from 'react-flexbox-grid';
 import { Collapse, Divider, TextField } from '@material-ui/core';
-import { HTMLAttributes } from 'enzyme';
+import { ConnectedProps, connect } from 'react-redux';
 import { Dictionary, isEmpty as emp } from 'lodash';
 import React, { Component, DetailedHTMLProps } from 'react';
-import { Col, Row } from 'react-flexbox-grid';
+
+import CollapseButton from './subcomponents/CollapseButton';
 import { FaLink } from 'react-icons/fa';
-import CollapseButton from './CollapseButton';
-import IconBtn from './IconBtn';
-import { Tab, tabAdd } from '../redux/actions';
-import { connect, ConnectedProps } from 'react-redux';
-import MetaWindow from './MetaWindow';
-import StyledValue from './StyledValue';
-import Li from './Li';
 import { GlobalState } from '../redux/reducers';
+import { HTMLAttributes } from 'enzyme';
+import IconBtn from './subcomponents/IconBtn';
+import { ItemMaker } from '../../shared';
+import Li from './subcomponents/Li';
+import MetaWindow from './MetaWindow';
+import StyledValue from './subcomponents/StyledValue';
+import { tabAdd } from '../redux/actions';
 
 type Props<T> = {
   getter?: (cb: (output: Dictionary<T>) => void) => void;
   tag: string;
   onSearch?: (item: [string, T], text: string) => boolean;
   valueToString?: (item: [string, T]) => string;
-  itemMaker?: {
-    createKey?: (item: [string, T]) => string;
-    createValue?: (item: [string, T]) => any;
-    delimiter?: string;
-    styleValue?: boolean;
-    itemSetter?: (
-      key: string,
-      value: string,
-      cb?: (err: Error) => void
-    ) => void;
-    itemGetter?: (key: string, cb?: (err: Error, output: any) => void) => void;
-  };
+  itemMaker?: ItemMaker<T>;
+
   serial: string;
 } & DetailedHTMLProps<HTMLAttributes, any>;
 
@@ -50,7 +42,7 @@ class DeviceItem<T> extends Component<Props<T>, State<T>> {
     };
   }
 
-  componentDidUpdate(prevProps: Props<T>, prevState: State<T>) {
+  componentDidUpdate(_prevProps: Props<T>, prevState: State<T>) {
     const { open: prevOpen } = prevState;
     const { open } = this.state;
     const { getter } = this.props;
@@ -110,21 +102,16 @@ class DeviceItem<T> extends Component<Props<T>, State<T>> {
                     onSearch &&
                     itemMaker &&
                     valueToString &&
-                    tabAdd(
-                      new Tab(
-                        tag,
-                        (
-                          <MetaWindow
-                            getter={getter}
-                            itemMaker={itemMaker as any}
-                            onSearch={onSearch as any}
-                            valueToString={valueToString as any}
-                            tag={tag}
-                            serial={serial}
-                          />
-                        )
-                      )
-                    );
+                    tabAdd(tag, () => (
+                      <MetaWindow
+                        getter={getter}
+                        itemMaker={itemMaker as any}
+                        onSearch={onSearch as any}
+                        valueToString={valueToString as any}
+                        tag={tag}
+                        serial={serial}
+                      />
+                    ));
                 }}
               />
             </Col>,

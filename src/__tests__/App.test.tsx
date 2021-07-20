@@ -1,23 +1,71 @@
-import { IAdbDevice } from 'adb-ts';
-import React from 'react';
-import { Provider } from 'react-redux';
-import rederer from 'react-test-renderer';
-import Console from '../frontend/components/Console';
-import store from '../frontend/redux/store';
+import adbReducer, {
+  AdbStateConstructor,
+} from '../frontend/redux/reducers/adb';
 import {
-  AdbStatus,
   addHistory,
   deviceAdd,
+  loadToken,
   setAdbStatus,
+  tabAdd,
   writeConsoleSettings,
 } from '../frontend/redux/actions';
-import {
-  ADB_STATUS,
-  DEVICE_ADD,
-  WRITE_CONSOLE_SETTINGS,
-} from '../frontend/redux/actionTypes';
+import consoleReducer, {
+  ConsoleStateConstructor,
+} from '../frontend/redux/reducers/console';
+import deviceReducer, {
+  DeviceStateConstructor,
+} from '../frontend/redux/reducers/devices';
+import emulatorReducer, {
+  EmulatorStateConstructor,
+} from '../frontend/redux/reducers/emulator';
 
-describe('redux', () => {
+import { AdbRuntimeStatus } from '../shared';
+import { IAdbDevice } from 'adb-ts';
+
+describe('reducers', () => {
+  it('devices reducer', () => {
+    const device: IAdbDevice = {
+      id: 'one',
+      state: 'device',
+      path: 'some',
+      transport: 'usb',
+    };
+    expect(
+      deviceReducer(DeviceStateConstructor(), deviceAdd(device))
+        .get('list')
+        .count()
+    ).toEqual(1);
+  });
+
+  it('console reducer', () => {
+    expect(
+      consoleReducer(ConsoleStateConstructor(), addHistory('hello')).get(
+        'history'
+      )
+    ).toContain('hello');
+  });
+
+  it('adb reducer', () => {
+    expect(
+      adbReducer(
+        AdbStateConstructor(),
+        setAdbStatus({ running: false, status: 'error', error: null })
+      )
+        .get('status')
+        .get('running')
+    ).toEqual(false);
+  });
+
+  it('emulator reducer', () => {
+    expect(
+      emulatorReducer(EmulatorStateConstructor(), loadToken('some_token')).get(
+        'token'
+      )
+    ).toEqual('some_token');
+  });
+});
+
+describe('action', () => {
   it('device add', () => {
     const device: IAdbDevice = {
       id: 'one',
@@ -25,38 +73,45 @@ describe('redux', () => {
       path: 'some',
       transport: 'usb',
     };
-    expect(deviceAdd(device)).toEqual({ type: DEVICE_ADD, payload: device });
+    expect(deviceAdd(device)).toEqual({ type: 'DeviceAdd', payload: device });
   });
 
   it('adb status', () => {
-    const status: AdbStatus = {
+    const status: AdbRuntimeStatus = {
       status: 'error',
       running: false,
       error: null,
     };
-    expect(setAdbStatus(status)).toEqual({ type: ADB_STATUS, payload: status });
+    expect(setAdbStatus(status)).toEqual({
+      type: 'AdbStatus',
+      payload: status,
+    });
   });
 
   it('history', () => {
     for (let i = 0; i < 50; i++) {
       addHistory(i.toString());
     }
-    const settings = { lines: 30, historyLen: 20 };
+    const settings = { lines: 30, historyLen: 20, history: [] };
     expect(writeConsoleSettings(settings)).toEqual({
-      type: WRITE_CONSOLE_SETTINGS,
+      type: 'ConsoleWriteSettings',
       payload: settings,
     });
   });
-});
 
-describe('react', () => {
-  it('console', () => {
-    const component = rederer.create(
-      <Provider store={store}>
-        <Console id="test" exec={(otp, cb) => {}} openShell={(id) => null} />
-      </Provider>
-    );
-    const tree = component.toJSON();
-    expect(tree).toMatchSnapshot();
+  it('tabs', () => {
+    expect(tabAdd('Test', () => null).payload.name).toEqual('Test');
   });
 });
+
+// describe('react', () => {
+//   it('console', () => {
+//     const component = rederer.create(
+//       <Provider store={store}>
+//         <Console serial="test" exec={Promise.resolve} openShell={() => null} />
+//       </Provider>
+//     );
+//     const tree = component.toJSON();
+//     expect(tree).toMatchSnapshot();
+//   });
+// });

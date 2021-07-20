@@ -1,25 +1,22 @@
-import { isEmpty as emp } from 'lodash';
-import React from 'react';
-import { Grid } from 'react-flexbox-grid';
-import { connect, ConnectedProps } from 'react-redux';
+import { ConnectedProps, connect } from 'react-redux';
 import { deviceChange, tabAdd } from '../redux/actions';
-import { GlobalState } from '../redux/reducers';
+
 import Device from './Device';
-import Scrollable from './Scrollable';
+import { GlobalState } from '../redux/reducers';
+import React from 'react';
+import Scrollable from './subcomponents/Scrollable';
+import { isEmpty as emp } from 'lodash';
 
 const Devices = (props: any) => {
-  const { devices } = props as PropsRedux;
+  const { devices, adbRunning } = props as PropsRedux;
   return (
     <Scrollable>
-      <div
-        className="align-middle overflow-y-scroll"
-        style={{ maxHeight: 'calc(80vh - 100px)' }}
-      >
-        {emp(devices) ? (
-          <span>No devices connected</span>
-        ) : (
-          devices.map((d, index) => <Device key={index} device={d} />)
-        )}
+      <div className="align-middle" style={{ maxHeight: 'calc(80vh - 100px)' }}>
+        {!adbRunning
+          ? 'ADB is not running'
+          : emp(devices)
+          ? 'No Devices Connected'
+          : devices.map((d, index) => <Device key={index} device={d} />)}
       </div>
     </Scrollable>
   );
@@ -27,7 +24,11 @@ const Devices = (props: any) => {
 
 const mapStateToProps = (state: GlobalState) => {
   return {
-    devices: state.devices.list,
+    devices: state.devices
+      .get('list')
+      .toArray()
+      .map(([_i, value]) => value),
+    adbRunning: state.adb.get('status').get('running'),
   };
 };
 
@@ -39,4 +40,4 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 
 type PropsRedux = ConnectedProps<typeof connector>;
 
-export default connector(Devices as any);
+export default connector(Devices);

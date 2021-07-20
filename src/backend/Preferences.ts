@@ -1,8 +1,8 @@
-import { clone } from 'lodash';
-import { stringToType } from 'adb-ts';
-import fs from 'fs';
 import Path from 'path';
+import { clone } from 'lodash';
+import fs from 'fs';
 import getAppDataPath from 'appdata-path';
+import { stringToType } from 'adb-ts';
 
 function getAppData(path: string) {
   switch (process.platform) {
@@ -43,10 +43,15 @@ export default class Preferences {
       ...Preferences.preferences[key],
       ...data,
     };
-    fs.writeFile(
-      Preferences.path,
-      JSON.stringify(Preferences.preferences, null, 3.5),
-      () => null
-    );
+    return new Promise<void>((resolve, reject) => {
+      fs.writeFile(
+        Preferences.path,
+        JSON.stringify(Preferences.preferences, null, 3.5),
+        (err) => {
+          if (err) return reject(err);
+          else return resolve();
+        }
+      );
+    });
   }
 }

@@ -1,22 +1,18 @@
-import React from 'react';
-import { MONKEY_LINK } from '../../../links';
-import { execMonkey } from '../../ipc/exec';
-import { openAdbShell } from '../../ipc/send';
 import Console from '../Console';
+import { MONKEY_LINK } from '../../../links';
+import React from 'react';
+import { typedIpcRenderer as ipc } from '../../../ipcIndex';
 
 const MonkeyConsole = (props: { id: string; onExit?: VoidFunction }) => {
   const { id, onExit } = props;
   return (
     <Console
-      id={id}
+      serial={id}
       tag={`${id}-monkey`}
-      exec={(opt, cb) => {
-        const { id, cmd } = opt;
-        execMonkey(id, cmd, cb);
-      }}
-      openShell={openAdbShell}
+      exec={(_, cmd) => ipc.invoke('execMonkey', id, cmd)}
+      openShell={() => ipc.send('openAdb')}
       onExit={() => {
-        execMonkey(id, 'quit');
+        ipc.invoke('execMonkey', id, 'quit').catch(() => {});
         onExit?.();
       }}
       links={[MONKEY_LINK]}

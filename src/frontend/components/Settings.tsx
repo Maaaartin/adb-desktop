@@ -7,24 +7,27 @@ import {
   Divider,
   TextField,
 } from '@material-ui/core';
-import { AdbClientOptions } from 'adb-ts';
-import { isEqual as eql } from 'lodash';
-import React, { ChangeEvent, Component } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
-import { FaSync } from 'react-icons/fa';
-import { connect, ConnectedProps } from 'react-redux';
-import { renewToken } from '../ipc/send';
+import { ConnectedProps, connect } from 'react-redux';
+import React, { ChangeEvent, Component } from 'react';
+import { isEqual as eql, identity, noop } from 'lodash';
 import {
   writeAdbSettings,
   writeConsoleSettings,
   writeToken,
 } from '../redux/actions';
+
+import { AdbClientOptions } from 'adb-ts';
+import CollapseButton from './subcomponents/CollapseButton';
+import { FaSync } from 'react-icons/fa';
 import { GlobalState } from '../redux/reducers';
-import CollapseButton from './CollapseButton';
-import IconBtn from './IconBtn';
+import I from 'immutable';
+import IconBtn from './subcomponents/IconBtn';
+import { getColor } from '../colors';
+import { typedIpcRenderer as ipc } from '../../ipcIndex';
 
 type State = {
-  adb: AdbClientOptions;
+  adb: I.Record<AdbClientOptions>;
   token: string;
   lines: number;
   openAdb: boolean;
@@ -37,7 +40,7 @@ class Settings extends Component<any, State> {
   constructor(props: Record<string, any>) {
     super(props);
     this.state = {
-      adb: {},
+      adb: I.Record({})(),
       token: '',
       openAdb: false,
       openEmulator: false,
@@ -53,6 +56,7 @@ class Settings extends Component<any, State> {
     this.resetAdbSettings = this.resetAdbSettings.bind(this);
     this.resetToken = this.resetToken.bind(this);
     this.resetConsole = this.resetConsole.bind(this);
+    this.renewToken = this.renewToken.bind(this);
   }
 
   componentDidUpdate(prevProps: PropsRedux, prevState: State) {
@@ -87,7 +91,7 @@ class Settings extends Component<any, State> {
     }
 
     if (prevOpenAdb && !openAdb && !eql(adb, adbProp)) {
-      writeAdbSettings(adb);
+      writeAdbSettings(adb.toJSON());
     }
 
     if (prevOpenEmulator && !openEmulator && !eql(token, tokenProp)) {
@@ -123,7 +127,7 @@ class Settings extends Component<any, State> {
       historyLen: historyLenProp,
     } = this.props as PropsRedux;
     if (openAdb && !eql(adb, adbProp)) {
-      writeAdbSettings(adb);
+      writeAdbSettings(adb.toJSON());
     }
 
     if (openEmulator && !eql(token, tokenProp)) {
@@ -143,14 +147,25 @@ class Settings extends Component<any, State> {
     this.setState({ adb, token, lines, historyLen });
   }
 
+  private renewToken() {
+    const { writeToken } = this.props as PropsRedux;
+    ipc
+      .invoke('renewToken')
+      .then(({ output }) => output && writeToken(output), noop);
+  }
+
   onChangeFile(event: ChangeEvent<HTMLInputElement>) {
     const { adb } = this.state;
-    this.setState({ adb: { ...adb, bin: event.target.files?.[0].path } });
+    this.setState({
+      adb: adb.update('bin', () => event.target.files?.[0].path),
+    });
   }
 
   onPortChange(event: ChangeEvent<HTMLInputElement>) {
     const { adb } = this.state;
-    this.setState({ adb: { ...adb, port: Number(event.target.value) } });
+    this.setState({
+      adb: adb.update('port', () => Number(event.target.value)),
+    });
   }
 
   onTokenChange(event: ChangeEvent<HTMLInputElement>) {
@@ -183,7 +198,7 @@ class Settings extends Component<any, State> {
 
   render() {
     const {
-      adb: { bin, port },
+      adb,
       token,
       openAdb,
       openEmulator,
@@ -191,8 +206,9 @@ class Settings extends Component<any, State> {
       lines,
       historyLen,
     } = this.state;
+
     return (
-      <Card style={{ backgroundColor: '#dddd' }} className="w-full">
+      <Card style={{ backgroundColor: getColor('card') }} className="w-full">
         <CardHeader title={'Settings'} />
         <CardContent>
           <Divider />
@@ -222,13 +238,13 @@ class Settings extends Component<any, State> {
                 </Button>
               </Col>
               <Col className="ml-3" style={{ lineHeight: '40px' }}>
-                {bin || 'ADB path not set!'}
+                {adb.get('bin') || 'ADB path not set!'}
               </Col>
               <Col className="ml-3" sm={4}>
                 <TextField
                   label="port"
                   type="number"
-                  value={port}
+                  value={adb.get('port')}
                   InputLabelProps={{
                     shrink: true,
                   }}
@@ -259,7 +275,7 @@ class Settings extends Component<any, State> {
                 <IconBtn
                   tag="Renew token"
                   IconEl={FaSync}
-                  onClick={() => renewToken()}
+                  onClick={this.renewToken}
                 />
               </Col>
             </Row>
@@ -300,8 +316,8 @@ class Settings extends Component<any, State> {
 
 const mapStateToProps = (state: GlobalState) => {
   return {
-    adb: state.adb.settings,
-    token: state.emulator.token,
+    adb: state.adb.settings.withMutations(identity),
+    token: '',
     lines: state.console.lines,
     historyLen: state.console.historyLen,
   };
