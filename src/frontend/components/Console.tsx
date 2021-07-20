@@ -1,13 +1,16 @@
-import { Fireworks } from 'fireworks/lib/react';
-import { isEmpty as emp } from 'lodash';
+import { ConnectedProps, connect } from 'react-redux';
 import React, { Component } from 'react';
+
+import { CommandResponse } from '../../ipcIndex';
 import { FaLink } from 'react-icons/fa';
-import { connect, ConnectedProps } from 'react-redux';
-import { openLink } from '../ipc/send';
-import { addHistory } from '../redux/actions';
+import { Fireworks } from 'fireworks/lib/react';
 import { GlobalState } from '../redux/reducers';
-import HiddenInput from './HiddenInput';
-import IconBtn from './IconBtn';
+import HiddenInput from './subcomponents/HiddenInput';
+import IconBtn from './subcomponents/IconBtn';
+import Scrollable from './subcomponents/Scrollable';
+import { addHistory } from '../redux/actions';
+import { isEmpty as emp } from 'lodash';
+import { typedIpcRenderer as ipc } from '../../ipcIndex';
 
 type State = {
   logs: { isCommand?: boolean; value: string; isLink?: boolean }[];
@@ -16,12 +19,9 @@ type State = {
 };
 
 type Props = {
-  id: string;
+  serial: string;
   openShell: (id: string) => void;
-  exec: (
-    opt: { id: string; cmd: string },
-    cb: (error: Error, output: string) => void
-  ) => void;
+  exec: (serial: string, cmd: string) => Promise<CommandResponse<string>>;
   tag?: string;
   onExit?: VoidFunction;
   links?: string[];
@@ -29,7 +29,6 @@ type Props = {
 
 class Console extends Component<Props, State> {
   private input = React.createRef<HiddenInput>();
-  private list = React.createRef<HTMLUListElement>();
   constructor(props: any) {
     super(props);
     this.state = {
@@ -65,7 +64,6 @@ class Console extends Component<Props, State> {
   }
 
   focus() {
-    this.list.current?.scrollTo(0, this.list.current.scrollHeight);
     this.input.current?.focus();
   }
 
@@ -110,7 +108,7 @@ class Console extends Component<Props, State> {
         break;
       case 'help':
         {
-          const { id, addHistory, exec, links } = this.props as PropsRedux;
+          const { serial, addHistory, exec, links } = this.props as PropsRedux;
           logs.push({ value: cmd, isCommand: true });
           logs.push(
             { value: `${this.formatHelp('exit', 'close the console')}` },
@@ -123,11 +121,12 @@ class Console extends Component<Props, State> {
           }
           logs.push({ value: '\r\n' });
           this.setState({ logs, execution: true });
-          addHistory(cmd);
-          exec({ id, cmd }, (error, output) => {
+          if (cmd) {
+            addHistory(cmd);
+          }
+          exec(serial, cmd).then(({ error, output }) => {
             if (error) {
               this.setState({ execution: false }, () => this.focus());
-              return;
             } else {
               logs.push(...this.parseExec(output));
               this.setState({ logs, execution: false }, () => this.focus());
@@ -137,12 +136,13 @@ class Console extends Component<Props, State> {
         break;
       default:
         {
-          const { id, addHistory, exec } = this.props as PropsRedux;
+          const { serial, addHistory, exec } = this.props as PropsRedux;
           logs.push({ value: cmd, isCommand: true });
-          exec({ id, cmd }, (error, output) => {
+          exec(serial, cmd).then(({ error, output }) => {
             if (error) {
               logs.push(...this.parseExec(error.message));
-            } else {
+            }
+            if (output) {
               logs.push(...this.parseExec(output));
             }
             this.setState({ logs, execution: false }, () => this.focus());
@@ -157,7 +157,7 @@ class Console extends Component<Props, State> {
 
   render() {
     const { logs, firework, execution } = this.state;
-    const { id, openShell, tag, history } = this.props as PropsRedux;
+    const { serial, openShell, tag, history } = this.props as PropsRedux;
     return (
       <div className="font-mono h-full w-full">
         {firework && (
@@ -176,47 +176,47 @@ class Console extends Component<Props, State> {
         )}
         <IconBtn
           tag="Open dedicated console"
-          onClick={() => openShell(id)}
+          onClick={() => openShell(serial)}
           IconEl={FaLink}
         />
-        <ul
-          ref={this.list}
-          className="border border-solid border-white-500 bg-black overflow-scroll overflow-x-hidden whitespace-pre-wrap"
-          style={{ width: '100%', height: 'calc(100% - 60px)' }}
-        >
-          {logs.map((line, index) => {
-            return (
-              <li key={index}>
-                {line.isCommand && (
-                  <span className="text-gray-500">{`${tag || id}> `}</span>
-                )}
-                <span>
-                  {line.isLink ? (
-                    <span
-                      className="underline cursor-pointer"
-                      onClick={() => openLink(line.value)}
-                    >
-                      {line.value}
-                    </span>
-                  ) : (
-                    line.value
+        <Scrollable className="border border-solid border-white-500 bg-black whitespace-pre-wrap">
+          <ul style={{ width: '100%', height: 'calc(100% - 60px)' }}>
+            {logs.map((line, index) => {
+              return (
+                <li key={index}>
+                  {line.isCommand && (
+                    <span className="text-gray-500">{`${
+                      tag || serial
+                    }> `}</span>
                   )}
-                </span>
-              </li>
-            );
-          })}
-          <li onClick={() => this.focus()}>
-            <div>
-              <span className="text-gray-500">{`${tag || id}> `}</span>
-              <HiddenInput
-                disabled={execution}
-                ref={this.input}
-                history={history}
-                onEnter={(value) => this.onEnter(value)}
-              ></HiddenInput>
-            </div>
-          </li>
-        </ul>
+                  <span>
+                    {line.isLink ? (
+                      <span
+                        className="underline cursor-pointer"
+                        onClick={() => ipc.send('openLink', line.value)}
+                      >
+                        {line.value}
+                      </span>
+                    ) : (
+                      line.value
+                    )}
+                  </span>
+                </li>
+              );
+            })}
+            <li onClick={() => this.focus()}>
+              <div>
+                <span className="text-gray-500">{`${tag || serial}> `}</span>
+                <HiddenInput
+                  disabled={execution}
+                  ref={this.input}
+                  history={history}
+                  onEnter={(value) => this.onEnter(value)}
+                ></HiddenInput>
+              </div>
+            </li>
+          </ul>
+        </Scrollable>
       </div>
     );
   }

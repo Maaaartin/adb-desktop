@@ -1,74 +1,67 @@
 import { Card, CardContent, CardHeader, Typography } from '@material-ui/core';
-import React from 'react';
 import { Col, Row } from 'react-flexbox-grid';
+import { ConnectedProps, connect } from 'react-redux';
 import { FaMobileAlt, FaRobot, FaTerminal } from 'react-icons/fa';
-import { connect, ConnectedProps } from 'react-redux';
-import { isEmpty as emp } from 'lodash';
-import { Tab, tabAdd, tabDel } from '../redux/actions';
-import { GlobalState } from '../redux/reducers';
+import { tabAdd, tabDel } from '../redux/actions';
+
 import DeviceConsole from './consoles/DeviceConsole';
 import EmulatorConsole from './consoles/EmulatorConsole';
+import { GlobalState } from '../redux/reducers';
+import IconBtn from './subcomponents/IconBtn';
 import MonkeyConsole from './consoles/MonkeyConsole';
-import IconBtn from './IconBtn';
-import Scrollable from './Scrollable';
+import React from 'react';
+import Scroll from './subcomponents/Scrollable';
+import { isEmpty as emp } from 'lodash';
+import { getColor } from '../colors';
 
-const DeviceCards = (props: any) => {
-  const { devices, tabAdd, tabDel } = props as PropsRedux;
+const DeviceCards = (props: PropsRedux) => {
+  const { adbRunning, devices, tabAdd, tabDel } = props;
   return (
-    <Scrollable className="pt-1 pb-1">
-      <div
-        className="overflow-hidden overflow-y-scroll pr-1"
-        style={{ height: 'calc(77vh - 80px)' }}
-      >
-        {emp(devices) ? (
+    <Scroll className="pt-1 pb-1">
+      <div className="pr-1" style={{ height: 'calc(77vh - 80px)' }}>
+        {!adbRunning ? (
+          <Typography className="pl-1">ADB is not running</Typography>
+        ) : emp(devices) ? (
           <Typography className="pl-1">No devices connected</Typography>
         ) : (
           devices.map((device, index) => {
-            const { id, state } = device;
+            const { id: serial, state } = device;
             const isEmulator = state === 'emulator';
             return (
               <Card
                 key={index}
                 style={{
-                  backgroundColor: '#dddd',
+                  backgroundColor: getColor('card'),
                   marginBottom: '5px',
                 }}
               >
-                <CardHeader title={id} className="break-all" />
+                <CardHeader title={serial} className="break-all" />
                 <CardContent>
                   {device.state}
                   <Row>
                     <Col sm={isEmulator ? 3 : 6}>
                       <IconBtn
                         onClick={() => {
-                          const tab = new Tab(
-                            id,
-                            (
-                              <DeviceConsole
-                                onExit={() => tabDel(tab.getId())}
-                                id={id}
-                              />
-                            )
-                          );
-                          tabAdd(tab);
+                          tabAdd(serial, (id) => (
+                            <DeviceConsole
+                              onExit={() => tabDel(id)}
+                              id={serial}
+                            />
+                          ));
                         }}
                         IconEl={FaTerminal}
-                        tag="Shell console"
+                        tag="Device console"
                       />
                     </Col>
                     <Col sm={isEmulator ? 3 : 6}>
                       <IconBtn
                         onClick={() => {
-                          const tab = new Tab(
-                            id,
-                            (
-                              <MonkeyConsole
-                                onExit={() => tabDel(tab.getId())}
-                                id={id}
-                              />
-                            )
-                          );
-                          tabAdd(tab);
+                          tabAdd(serial, (id) => (
+                            <MonkeyConsole
+                              onExit={() => tabDel(id)}
+                              id={serial}
+                            />
+                          ));
                         }}
                         IconEl={FaRobot}
                         tag="Monkey console"
@@ -78,16 +71,12 @@ const DeviceCards = (props: any) => {
                       <Col sm={3}>
                         <IconBtn
                           onClick={() => {
-                            const tab = new Tab(
-                              id,
-                              (
-                                <EmulatorConsole
-                                  onExit={() => tabDel(tab.getId())}
-                                  id={id}
-                                />
-                              )
-                            );
-                            tabAdd(tab);
+                            tabAdd(serial, (id) => (
+                              <EmulatorConsole
+                                onExit={() => tabDel(id)}
+                                id={id}
+                              />
+                            ));
                           }}
                           IconEl={FaMobileAlt}
                           tag="Emulator console"
@@ -101,13 +90,17 @@ const DeviceCards = (props: any) => {
           })
         )}
       </div>
-    </Scrollable>
+    </Scroll>
   );
 };
 
 const mapStateToProps = (state: GlobalState) => {
   return {
-    devices: state.devices.list,
+    devices: state.devices
+      .get('list')
+      .toArray()
+      .map(([_i, value]) => value),
+    adbRunning: state.adb.get('status').get('running'),
   };
 };
 

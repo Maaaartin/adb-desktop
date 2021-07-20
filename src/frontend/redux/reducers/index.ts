@@ -1,15 +1,16 @@
 import { Reducer, ReducerAction } from 'react';
-import { reducer as notifications } from 'react-notification-system-redux';
-import { combineReducers } from 'redux';
+
 import adb from './adb';
+import { combineReducers } from 'redux';
 import console from './console';
 import devices from './devices';
 import emulator from './emulator';
-import tabs from './tabs';
+import { reducer as notifications } from 'react-notification-system-redux';
+import ui from './ui';
 
 const reducers = combineReducers({
+  ui,
   devices,
-  tabs,
   console,
   emulator,
   adb,

@@ -1,52 +1,35 @@
+import { Map, Record } from 'immutable';
+
+import { DeviceAction } from '../actionTypes';
 import { IAdbDevice } from 'adb-ts';
-import { clone } from 'lodash';
-import { Action } from '.';
-import {
-  DEVICE_ADD,
-  DEVICE_CHANGE,
-  DEVICE_REMOVE,
-  DEVICE_REMOVE_ALL,
-} from '../actionTypes';
 
-type State = {
-  list: IAdbDevice[];
+export type DevicesStateProps = {
+  list: Map<string, IAdbDevice>;
 };
 
-const initialState: State = {
-  list: [],
-};
+export type DevicesState = Record<DevicesStateProps> &
+  Readonly<DevicesStateProps>;
+
+export const DeviceStateConstructor = Record<DevicesStateProps>({
+  list: Map<string, IAdbDevice>(),
+});
 
 export default function (
-  state = initialState,
-  action: Action<IAdbDevice>
-): State {
-  const list = clone(state.list);
+  state = DeviceStateConstructor(),
+  action: DeviceAction
+): DevicesState {
   switch (action.type) {
-    case DEVICE_ADD:
-    case DEVICE_CHANGE: {
-      const index = list.findIndex((d) => d.id === action.payload.id);
-      if (index > -1) {
-        list[index] = action.payload;
-      } else {
-        list.push(action.payload);
-      }
-      return {
-        ...state,
-        list,
-      };
-    }
-    case DEVICE_REMOVE: {
-      list.splice(
-        list.findIndex((d) => d.id === action.payload.id),
-        1
+    case 'DeviceAdd':
+    case 'DeviceChange': {
+      return state.update('list', (list) =>
+        list.update(action.payload.id, () => action.payload)
       );
-      return {
-        ...state,
-        list,
-      };
     }
-    case DEVICE_REMOVE_ALL:
-      return { ...state, list: [] };
+    case 'DeviceRemove': {
+      return state.update('list', (list) => list.delete(action.payload.id));
+    }
+    case 'DeviceRemoveAll':
+      return state.update('list', (list) => list.clear());
     default:
       return state;
   }
