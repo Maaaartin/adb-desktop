@@ -1,21 +1,25 @@
-import { Col, Row } from 'react-flexbox-grid';
-import { CollectionFunctions, ItemMaker } from '../../shared';
-import { ConnectedProps, connect } from 'react-redux';
+import { TextField, Typography } from '@material-ui/core';
+import { Autocomplete } from '@material-ui/lab';
 import { Dictionary, isEmpty as emp } from 'lodash';
 import React, { Component } from 'react';
-
-import { GlobalState } from '../redux/reducers';
-import RefreshSearch from './subcomponents/RefreshSearch';
-import Scrollable from './subcomponents/Scrollable';
-import SettableLi from './subcomponents/SettableLi';
-import { Typography } from '@material-ui/core';
+import { Col, Row } from 'react-flexbox-grid';
+import { FaSync } from 'react-icons/fa';
 import { error as notifError } from 'react-notification-system-redux';
+import { connect, ConnectedProps } from 'react-redux';
+import { GlobalState } from '../redux/reducers';
+import { ItemMaker } from '../types';
+import IconBtn from './IconBtn';
+import Scrollable from './Scrollable';
+import SettableLi from './SettableLi';
 
 type Props<T> = {
+  getter: (cb: (output: Dictionary<T>) => void) => void;
+  onSearch: (item: [string, T], text: string) => boolean;
+  valueToString: (item: [string, T]) => string;
   tag: string;
   serial: string;
   itemMaker: ItemMaker<T>;
-} & CollectionFunctions<T>;
+};
 
 type State<T> = {
   search: string;
@@ -64,14 +68,38 @@ class MetaWindow<T> extends Component<Props<T>, State<T>> {
             </Typography>
           </Col>
           <Col xs={12} sm={7}>
-            <RefreshSearch
-              collection={arr.map((i) => valueToString(i))}
-              search={search}
-              onRefrestClick={() =>
-                getter((output) => this.setState({ collection: output }))
-              }
-              onSearchChange={(value) => this.setState({ search: value })}
-            />
+            <Row end="xs">
+              <Col>
+                <IconBtn
+                  tag="Refresh"
+                  IconEl={FaSync}
+                  onClick={() =>
+                    getter((output) => this.setState({ collection: output }))
+                  }
+                />
+              </Col>
+              <Col>
+                <Autocomplete
+                  style={{ width: '300px' }}
+                  options={arr}
+                  getOptionLabel={(option) => valueToString(option)}
+                  onSelect={(e) =>
+                    this.setState({ search: (e.target as any).value })
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      value={search}
+                      onChange={(e) =>
+                        this.setState({ search: e.target.value })
+                      }
+                      label="Search"
+                      variant="standard"
+                    />
+                  )}
+                />
+              </Col>
+            </Row>
           </Col>
         </Row>
         <Scrollable style={{ height: '90%' }}>
@@ -94,7 +122,7 @@ class MetaWindow<T> extends Component<Props<T>, State<T>> {
                                 position: 'tr',
                               });
                             } else
-                              itemGetter(item[0], (output) => {
+                              itemGetter(item[0], (err, output) => {
                                 if (!emp(output)) {
                                   this.setState({
                                     collection: {

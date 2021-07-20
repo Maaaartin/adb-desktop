@@ -1,8 +1,6 @@
-import React, { Component, KeyboardEvent } from 'react';
-
-import BlinkCursor from './BlinkCursor';
 import { Button } from '@material-ui/core';
-import { List } from 'immutable';
+import React, { Component, KeyboardEvent, useEffect, useState } from 'react';
+import BlinkCursor from './BlinkCursor';
 
 type State = {
   start: string;
@@ -15,7 +13,7 @@ type State = {
 type Props = {
   ref?: React.RefObject<HiddenInput>;
   initValue?: string;
-  history?: List<string>;
+  history?: string[];
   onEnter?: (value: string) => void;
   onEscape?: (value?: string) => void;
   markedColor?: string;
@@ -112,8 +110,7 @@ class HiddenInput extends Component<Props, State> {
           const { history } = this.props;
           if (history) {
             const index = history.indexOf(this.getValue());
-            const start = history.get(index + 1, '');
-
+            const start = history[index + 1] || '';
             this.setState({ start, end: '' });
           }
         }
@@ -125,9 +122,9 @@ class HiddenInput extends Component<Props, State> {
             const value = this.getValue();
             const index = history.indexOf(value);
             if (!value) {
-              this.setState({ start: history.last('') });
+              this.setState({ start: history[history.length - 1] });
             } else {
-              this.setState({ start: history.get(index - 1, '') });
+              this.setState({ start: history[index - 1] || '' });
             }
           }
         }
@@ -143,7 +140,6 @@ class HiddenInput extends Component<Props, State> {
             newStart = start.slice(0, start.length - 1);
             newEnd = start
               .slice(start.length - 1)
-
               .concat(end.concat(this.getMarked()));
           }
           this.setState({

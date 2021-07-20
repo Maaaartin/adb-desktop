@@ -10,18 +10,11 @@
  */
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
-
-import { BrowserWindow, app, shell } from 'electron';
-
-import Root from './backend/menu';
+import path from 'path';
+import { app, BrowserWindow, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import path from 'path';
-import { registerIpc } from './backend/ipc';
-
-registerIpc();
-
-const gotTheLock = app.requestSingleInstanceLock();
+import MenuBuilder from './backend/menu';
 
 export default class AppUpdater {
   constructor() {
@@ -32,7 +25,7 @@ export default class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
-let root: Root | null = null;
+let menuBuilder: MenuBuilder | null = null;
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -87,8 +80,8 @@ const createWindow = async () => {
 
   mainWindow.loadURL(`file://${__dirname}/index.html`);
 
-  root = new Root(mainWindow);
-  root.buildMenu();
+  menuBuilder = new MenuBuilder(mainWindow);
+  menuBuilder.buildMenu();
 
   mainWindow.webContents.on('did-finish-load', () => {
     if (!mainWindow) {
@@ -103,9 +96,9 @@ const createWindow = async () => {
   });
 
   mainWindow.on('closed', () => {
-    root?.destroy();
+    menuBuilder?.destroy();
     mainWindow = null;
-    root = null;
+    menuBuilder = null;
   });
 
   // Open urls in the user's browser
@@ -118,17 +111,6 @@ const createWindow = async () => {
   // eslint-disable-next-line
   new AppUpdater();
 };
-
-if (!gotTheLock) {
-  app.quit();
-} else {
-  app.on('second-instance', () => {
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      mainWindow.focus();
-    }
-  });
-}
 
 /**
  * Add event listeners...
@@ -149,11 +131,3 @@ app.on('activate', () => {
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) createWindow();
 });
-
-export const getRoot = () => {
-  if (root) {
-    return Promise.resolve(root);
-  } else {
-    return Promise.reject(new Error('Internal error'));
-  }
-};

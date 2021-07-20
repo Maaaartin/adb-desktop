@@ -5,24 +5,38 @@ import {
   Collapse,
   Divider,
 } from '@material-ui/core';
-import { Col, Row } from 'react-flexbox-grid';
-import { ConnectedProps, connect } from 'react-redux';
-import { Dictionary, noop } from 'lodash';
-import { FaFolder, FaMobileAlt, FaRobot, FaTerminal } from 'react-icons/fa';
-import React, { useState } from 'react';
-import { tabAdd, tabDel } from '../redux/actions';
-
-import CollapseButton from './subcomponents/CollapseButton';
-import DeviceConsole from './consoles/DeviceConsole';
-import DeviceItem from './DeviceItem';
-import EmulatorConsole from './consoles/EmulatorConsole';
-import FileSystem from './FileSystem';
 import { IAdbDevice } from 'adb-ts';
-import IconBtn from './subcomponents/IconBtn';
+import { Dictionary } from 'lodash';
+import React, { useState } from 'react';
+import { Col, Row } from 'react-flexbox-grid';
+import { FaMobileAlt, FaRobot, FaTerminal } from 'react-icons/fa';
+import { connect, ConnectedProps } from 'react-redux';
+import {
+  getBattery,
+  getFeatures,
+  getPackages,
+  getProp,
+  getProps,
+  getSettingGlobal,
+  getSettingSecure,
+  getSettingsGlobal,
+  getSettingsSecure,
+  getSettingsSystem,
+  getSettingSystem,
+} from '../ipc/getters';
+import {
+  putSettingGlobal,
+  putSettingSecure,
+  putSettingSystem,
+  setProp,
+} from '../ipc/setters';
+import { Tab, tabAdd, tabDel } from '../redux/actions';
+import CollapseButton from './CollapseButton';
+import DeviceConsole from './consoles/DeviceConsole';
+import EmulatorConsole from './consoles/EmulatorConsole';
 import MonkeyConsole from './consoles/MonkeyConsole';
-import Scrollable from './subcomponents/Scrollable';
-import { getColor } from '../colors';
-import { typedIpcRenderer as ipc } from '../../ipcIndex';
+import DeviceItem from './DeviceItem';
+import IconBtn from './IconBtn';
 
 type Props = { device: IAdbDevice };
 
@@ -30,284 +44,226 @@ const Device = (props: Props) => {
   const [open, setOpen] = useState(false);
   const {
     tabAdd,
-    device: { id: serial, state, model, transport },
+    device: { id, state, model, transport },
   } = props as PropsRedux;
   const isEmulator = state === 'emulator';
   return (
-    <Scrollable>
-      <Card
-        style={{ backgroundColor: getColor('card') }}
-        className="w-full mb-1"
-      >
-        <CardHeader title={serial} />
-        <CardContent>
-          <Row>
-            <Col sm={6}>
-              <ul>
-                <li>ID: {serial}</li>
-                <li>State: {state}</li>
-                <li>Model: {model}</li>
-                <li>Transport: {transport}</li>
-              </ul>
-            </Col>
-            <Col sm={6}>
-              <Row>
-                <Col sm={isEmulator ? 3 : 6}>
-                  <IconBtn
-                    onClick={() => {
-                      tabAdd(serial, (id) => {
-                        return (
-                          <DeviceConsole
-                            onExit={() => tabDel(id)}
-                            id={serial}
-                          />
-                        );
-                      });
-                    }}
-                    IconEl={FaTerminal}
-                    tag="Shell console"
-                  />
-                </Col>
-                <Col sm={isEmulator ? 3 : 6}>
-                  <IconBtn
-                    onClick={() => {
-                      tabAdd(serial, (id) => (
-                        <MonkeyConsole onExit={() => tabDel(id)} id={serial} />
-                      ));
-                    }}
-                    IconEl={FaRobot}
-                    tag="Monkey console"
-                  />
-                </Col>
-                {isEmulator && (
-                  <Col sm={3}>
-                    <IconBtn
-                      onClick={() => {
-                        tabAdd(serial, (id) => (
-                          <EmulatorConsole
-                            onExit={() => tabDel(id)}
-                            id={serial}
-                          />
-                        ));
-                      }}
-                      IconEl={FaMobileAlt}
-                      tag="Emulator console"
-                    />
-                  </Col>
-                )}
-              </Row>
-              <Row>
+    <Card style={{ backgroundColor: '#dddd' }} className="w-full mb-1">
+      <CardHeader title={id} />
+      <CardContent>
+        <Row>
+          <Col sm={6}>
+            <ul>
+              <li>ID: {id}</li>
+              <li>State: {state}</li>
+              <li>Model: {model}</li>
+              <li>Transport: {transport}</li>
+            </ul>
+          </Col>
+          <Col sm={6}>
+            <Row>
+              <Col sm={isEmulator ? 3 : 6}>
                 <IconBtn
-                  onClick={() =>
-                    tabAdd(serial, () => (
-                      <FileSystem serial={serial}></FileSystem>
-                    ))
-                  }
-                  IconEl={FaFolder}
-                  tag="File System"
+                  onClick={() => {
+                    const tab = new Tab(
+                      id,
+                      (
+                        <DeviceConsole
+                          onExit={() => tabDel(tab.getId())}
+                          id={id}
+                        />
+                      )
+                    );
+                    tabAdd(tab);
+                  }}
+                  IconEl={FaTerminal}
+                  tag="Shell console"
                 />
-              </Row>
-            </Col>
-          </Row>
-        </CardContent>
-        <CollapseButton onClick={() => setOpen(!open)} open={open} />
+              </Col>
+              <Col sm={isEmulator ? 3 : 6}>
+                <IconBtn
+                  onClick={() => {
+                    const tab = new Tab(
+                      id,
+                      (
+                        <MonkeyConsole
+                          onExit={() => tabDel(tab.getId())}
+                          id={id}
+                        />
+                      )
+                    );
+                    tabAdd(tab);
+                  }}
+                  IconEl={FaRobot}
+                  tag="Monkey console"
+                />
+              </Col>
+              {isEmulator && (
+                <Col sm={3}>
+                  <IconBtn
+                    onClick={() => {
+                      const tab = new Tab(
+                        id,
+                        (
+                          <EmulatorConsole
+                            onExit={() => tabDel(tab.getId())}
+                            id={id}
+                          />
+                        )
+                      );
+                      tabAdd(tab);
+                    }}
+                    IconEl={FaMobileAlt}
+                    tag="Emulator console"
+                  />
+                </Col>
+              )}
+            </Row>
+          </Col>
+        </Row>
+      </CardContent>
+      <CollapseButton onClick={() => setOpen(!open)} open={open} />
 
-        <Divider />
-        <Collapse in={open}>
-          <DeviceItem
-            serial={serial}
-            tag="Battery"
-            getter={(cb) => {
-              ipc.invoke('getBattery', serial).then(({ output }) => {
-                if (output) {
-                  cb(output);
-                }
-              }, noop);
-            }}
-            itemMaker={{
-              createKey: (item: [string, any]) => item[0],
-              createValue: (item: [string, any]) => item[1],
-              delimiter: ': ',
-              styleValue: true,
-            }}
-            onSearch={(item, text) => item[0].includes(text)}
-            valueToString={(item) => item[0]}
-          />
-          <DeviceItem
-            serial={serial}
-            tag="Properties"
-            getter={(cb) => {
-              ipc.invoke('getProps', serial).then(({ output }) => {
-                if (output) {
-                  cb(output);
-                }
-              }, noop);
-            }}
-            itemMaker={{
-              createKey: (item: [string, any]) => item[0],
-              createValue: (item: [string, any]) => item[1],
-              delimiter: ': ',
-              styleValue: true,
-              itemGetter: (key, cb) => {
-                ipc.invoke('getProp', serial, key).then(({ output }) => {
-                  cb?.(output);
-                }, noop);
-              },
-              itemSetter: (key, value, cb) => {
-                ipc.invoke('setProp', serial, key, value).then(({ error }) => {
-                  cb?.(error);
-                }, noop);
-              },
-            }}
-            onSearch={(item, text) => item[0].includes(text)}
-            valueToString={(item) => item[0]}
-          />
+      <Divider />
+      <Collapse in={open}>
+        <DeviceItem
+          serial={id}
+          tag="Battery"
+          getter={(cb) => {
+            getBattery(id, (err, output: Dictionary<any>) => {
+              cb(output);
+            });
+          }}
+          itemMaker={{
+            createKey: (item: [string, any]) => item[0],
+            createValue: (item: [string, any]) => item[1],
+            delimiter: ': ',
+            styleValue: true,
+          }}
+          onSearch={(item, text) => item[0].includes(text)}
+          valueToString={(item) => item[0]}
+        />
+        <DeviceItem
+          serial={id}
+          tag="Properties"
+          getter={(cb) => {
+            getProps(id, (err, output: Dictionary<any>) => {
+              cb(output);
+            });
+          }}
+          itemMaker={{
+            createKey: (item: [string, any]) => item[0],
+            createValue: (item: [string, any]) => item[1],
+            delimiter: ': ',
+            styleValue: true,
+            itemGetter: (key, cb) => getProp(id, key, cb),
+            itemSetter: (key, value, cb) => setProp(id, key, value, cb),
+          }}
+          onSearch={(item, text) => item[0].includes(text)}
+          valueToString={(item) => item[0]}
+        />
 
-          <DeviceItem tag="Settings" serial={serial}>
-            <DeviceItem
-              serial={serial}
-              tag="Global"
-              style={{ marginLeft: '5px' }}
-              getter={(cb) => {
-                ipc.invoke('getSettingsGlobal', serial).then(({ output }) => {
-                  if (output) {
-                    cb(output);
-                  }
-                }, noop);
-              }}
-              itemMaker={{
-                createKey: (item: [string, any]) => item[0],
-                createValue: (item: [string, any]) => item[1],
-                delimiter: ': ',
-                styleValue: true,
-                itemGetter: (key, cb) => {
-                  ipc
-                    .invoke('getSettingGlobal', serial, key)
-                    .then(({ output }) => {
-                      cb?.(output);
-                    }, noop);
-                },
-                itemSetter: (key, value, cb) => {
-                  ipc
-                    .invoke('putSettingGlobal', serial, key, value)
-                    .then(({ error }) => {
-                      cb?.(error);
-                    }, noop);
-                },
-              }}
-              onSearch={(item, text) => item[0].includes(text)}
-              valueToString={(item) => item[0]}
-            />
-            <DeviceItem
-              serial={serial}
-              style={{ marginLeft: '5px' }}
-              tag="System"
-              getter={(cb) => {
-                ipc.invoke('getSettingsSystem', serial).then(({ output }) => {
-                  if (output) {
-                    cb(output);
-                  }
-                }, noop);
-              }}
-              itemMaker={{
-                createKey: (item: [string, any]) => item[0],
-                createValue: (item: [string, any]) => item[1],
-                delimiter: ': ',
-                styleValue: true,
-                itemGetter: (key, cb) => {
-                  ipc
-                    .invoke('getSettingSystem', serial, key)
-                    .then(({ output }) => {
-                      cb?.(output);
-                    }, noop);
-                },
-                itemSetter: (key, value, cb) => {
-                  ipc
-                    .invoke('putSettingSystem', serial, key, value)
-                    .then(({ error }) => {
-                      cb?.(error);
-                    }, noop);
-                },
-              }}
-              onSearch={(item, text) => item[0].includes(text)}
-              valueToString={(item) => item[0]}
-            />
-            <DeviceItem
-              serial={serial}
-              style={{ marginLeft: '5px' }}
-              tag="Secure"
-              getter={(cb) => {
-                ipc.invoke('getSettingsSecure', serial).then(({ output }) => {
-                  if (output) {
-                    cb(output);
-                  }
-                }, noop);
-              }}
-              itemMaker={{
-                createKey: (item: [string, any]) => item[0],
-                createValue: (item: [string, any]) => item[1],
-                delimiter: ': ',
-                styleValue: true,
-                itemGetter: (key, cb) => {
-                  ipc
-                    .invoke('getSettingSecure', serial, key)
-                    .then(({ output }) => {
-                      cb?.(output);
-                    }, noop);
-                },
-                itemSetter: (key, value, cb) => {
-                  ipc
-                    .invoke('putSettingSecure', serial, key, value)
-                    .then(({ error }) => {
-                      cb?.(error);
-                    }, noop);
-                },
-              }}
-              onSearch={(item, text) => item[0].includes(text)}
-              valueToString={(item) => item[0]}
-            />
-          </DeviceItem>
+        <DeviceItem tag="Settings" serial={id}>
           <DeviceItem
-            serial={serial}
-            tag="Features"
+            serial={id}
+            tag="Global"
+            style={{ marginLeft: '5px' }}
             getter={(cb) => {
-              ipc.invoke('getFeatures', serial).then(({ output }) => {
-                if (output) {
-                  cb(output);
-                }
-              }, noop);
+              getSettingsGlobal(id, (err, output: Dictionary<any>) => {
+                cb(output);
+              });
             }}
             itemMaker={{
               createKey: (item: [string, any]) => item[0],
-              createValue: (item: [string, any]) =>
-                item[1] !== true ? item[1] : '',
+              createValue: (item: [string, any]) => item[1],
               delimiter: ': ',
               styleValue: true,
+              itemGetter: (key, cb) => getSettingGlobal(id, key, cb),
+              itemSetter: (key, value, cb) =>
+                putSettingGlobal(id, key, value, cb),
             }}
             onSearch={(item, text) => item[0].includes(text)}
             valueToString={(item) => item[0]}
           />
           <DeviceItem
-            serial={serial}
-            tag="Packages"
-            getter={(cb: (output: Dictionary<string>) => void) => {
-              ipc.invoke('getPackages', serial).then(({ output }) => {
-                if (output) {
-                  const map: Dictionary<string> = {};
-                  Object.assign(map, [...output]);
-                  cb(map);
-                }
-              }, noop);
+            serial={id}
+            style={{ marginLeft: '5px' }}
+            tag="System"
+            getter={(cb) => {
+              getSettingsSystem(id, (err, output: Dictionary<any>) => {
+                cb(output);
+              });
             }}
             itemMaker={{
+              createKey: (item: [string, any]) => item[0],
               createValue: (item: [string, any]) => item[1],
+              delimiter: ': ',
+              styleValue: true,
+              itemGetter: (key, cb) => getSettingSystem(id, key, cb),
+              itemSetter: (key, value, cb) =>
+                putSettingSystem(id, key, value, cb),
             }}
-            onSearch={(item, text) => (item[1] as string).includes(text)}
-            valueToString={(item) => item[1] as string}
+            onSearch={(item, text) => item[0].includes(text)}
+            valueToString={(item) => item[0]}
           />
-        </Collapse>
-      </Card>
-    </Scrollable>
+          <DeviceItem
+            serial={id}
+            style={{ marginLeft: '5px' }}
+            tag="Secure"
+            getter={(cb) => {
+              getSettingsSecure(id, (err, output: Dictionary<any>) => {
+                cb(output);
+              });
+            }}
+            itemMaker={{
+              createKey: (item: [string, any]) => item[0],
+              createValue: (item: [string, any]) => item[1],
+              delimiter: ': ',
+              styleValue: true,
+              itemGetter: (key, cb) => getSettingSecure(id, key, cb),
+              itemSetter: (key, value, cb) =>
+                putSettingSecure(id, key, value, cb),
+            }}
+            onSearch={(item, text) => item[0].includes(text)}
+            valueToString={(item) => item[0]}
+          />
+        </DeviceItem>
+        <DeviceItem
+          serial={id}
+          tag="Features"
+          getter={(cb) => {
+            getFeatures(id, (err, output: Dictionary<any>) => {
+              cb(output);
+            });
+          }}
+          itemMaker={{
+            createKey: (item: [string, any]) => item[0],
+            createValue: (item: [string, any]) =>
+              item[1] !== true ? item[1] : '',
+            delimiter: ': ',
+            styleValue: true,
+          }}
+          onSearch={(item, text) => item[0].includes(text)}
+          valueToString={(item) => item[0]}
+        />
+        <DeviceItem
+          serial={id}
+          tag="Packages"
+          getter={(cb: (output: Dictionary<string>) => void) => {
+            getPackages(id, (err, output) => {
+              const map: Dictionary<string> = {};
+              Object.assign(map, [...output]);
+              cb(map);
+            });
+          }}
+          itemMaker={{
+            createValue: (item: [string, any]) => item[1],
+          }}
+          onSearch={(item, text) => (item[1] as string).includes(text)}
+          valueToString={(item) => item[1] as string}
+        />
+      </Collapse>
+    </Card>
   );
 };
 

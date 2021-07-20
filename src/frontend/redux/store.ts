@@ -1,12 +1,6 @@
-import { Store, applyMiddleware, createStore } from 'redux';
-import rootReducer, { Action, GlobalState } from './reducers';
-
-import { Actions } from './actionTypes';
+import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
+import rootReducer from './reducers';
 
-const store = createStore<GlobalState, Action, {}, GlobalState>(
-  rootReducer,
-  applyMiddleware<{ type: string }, GlobalState>(thunk)
-);
-
-export default store as Store<GlobalState, Actions>;
+const store = createStore(rootReducer, applyMiddleware(thunk));
+export default store;

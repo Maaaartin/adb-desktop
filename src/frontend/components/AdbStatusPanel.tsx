@@ -1,14 +1,16 @@
 import { Button, Card, Typography } from '@material-ui/core';
-import { Col, Row } from 'react-flexbox-grid';
-import { ConnectedProps, connect } from 'react-redux';
-
-import { GlobalState } from '../redux/reducers';
 import React from 'react';
-import { typedIpcRenderer as ipc } from '../../ipcIndex';
+import { Col, Row } from 'react-flexbox-grid';
+import { connect, ConnectedProps } from 'react-redux';
+import { toggleAdb } from '../ipc/send';
+import { setAdbStatus } from '../redux/actions';
+import { GlobalState } from '../redux/reducers';
 
-const AdbStatusPanel = (props: PropsRedux) => {
-  const { status, running } = props;
-
+const AdbStatusPanel = (props: any) => {
+  const {
+    status: { status },
+  } = props as PropsRedux;
+  const start = status === 'error' || status === 'stopped';
   const color =
     status === 'running'
       ? '#a9c9ac'
@@ -31,12 +33,8 @@ const AdbStatusPanel = (props: PropsRedux) => {
           Status: {status}
         </Col>
         <Col xs={6}>
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => ipc.send('toggleAdb')}
-          >
-            {!running ? 'Start' : 'Stop'}
+          <Button variant="contained" size="small" onClick={() => toggleAdb()}>
+            {start ? 'Start' : 'Stop'}
           </Button>
         </Col>
       </Row>
@@ -46,13 +44,16 @@ const AdbStatusPanel = (props: PropsRedux) => {
 
 const mapStateToProps = (state: GlobalState) => {
   return {
-    status: state.adb.get('status').get('status'),
-    running: state.adb.get('status').get('running'),
+    status: state.adb.status,
   };
 };
 
-const connector = connect(mapStateToProps);
+const mapDispatchToProps = {
+  setAdbStatus,
+};
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
 
 type PropsRedux = ConnectedProps<typeof connector>;
 
-export default connector(AdbStatusPanel);
+export default connector(AdbStatusPanel as any);

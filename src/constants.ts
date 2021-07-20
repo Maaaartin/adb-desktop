@@ -3,6 +3,7 @@ export const EXEC_ADB = 'EXEC_ADB';
 export const OPEN_ADB_SHELL = 'OPEN_ADB_SHELL';
 export const OPEN_ADB = 'OPEN_ADB';
 export const OPEN_EMULATOR = 'OPEN_EMULATOR';
+export const EXEC_LIST_SETTINGS = 'EXEC_LIST_SETTINGS';
 export const EXEC_MONKEY = 'EXEC_MONKEY';
 export const EXEC_EMULATOR = 'EXEC_EMULATOR';
 
@@ -14,7 +15,6 @@ export const GET_SETTINGS_GLOBAL = 'GET_SETTINGS_GLOBAL';
 export const GET_SETTINGS_SECURE = 'GET_SETTINGS_SECURE';
 export const GET_FEATURES = 'GET_FEATURES';
 export const GET_PACKAGES = 'GET_PACKAGES';
-export const GET_DIR = 'GET_DIR';
 
 export const PUT_SETTING_SYSTEM = 'PUT_SETTING_SYSTEM';
 export const PUT_SETTING_GLOBAL = 'PUT_SETTING_GLOBAL';
@@ -30,8 +30,3 @@ export const TOGGLE_ADB = 'TOGGLE_ADB';
 export const RENEW_TOKEN = 'RENEW_TOKEN';
 export const DISPLAY_ERROR = 'DISPLAY_ERROR';
 export const OPEN_LINK = 'OPEN_LINK';
-
-export const PULL_FILE = 'PULL_FILE';
-export const DELETE_FILE = 'DELETE_FILE';
-export const MKDIR = 'MKDIR';
-export const CP = 'CP';

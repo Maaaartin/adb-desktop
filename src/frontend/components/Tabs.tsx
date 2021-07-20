@@ -1,13 +1,11 @@
-import { ConnectedProps, connect } from 'react-redux';
-import React, { Component } from 'react';
-import { Tab, tabAdd, tabDel } from '../redux/actions';
-import { isEmpty as emp, floor, get as getProp, sortBy } from 'lodash';
-
 import { Chip } from '@material-ui/core';
+import { floor, get as getProp, isEmpty as emp, sortBy } from 'lodash';
+import React, { Component } from 'react';
 import Draggable from 'react-draggable';
-import { GlobalState } from '../redux/reducers';
 import { Row } from 'react-flexbox-grid';
-import Scroll from './subcomponents/Scrollable';
+import { connect, ConnectedProps } from 'react-redux';
+import { Tab, tabAdd, tabDel } from '../redux/actions';
+import { GlobalState } from '../redux/reducers';
 
 type Props = { tabs: Tab[] };
 type State = { tabs: Tab[]; selected: string; dragged: string };
@@ -30,7 +28,6 @@ class Tabs extends Component<Props, State> {
   componentDidUpdate(prevProps: PropsRedux) {
     const { tabs: prevTabs } = prevProps;
     const { tabs } = this.props;
-
     if (prevTabs.length < tabs.length) {
       this.setState({ tabs: tabs, selected: tabs[tabs.length - 1].id });
     } else if (prevTabs.length > tabs.length)
@@ -77,51 +74,49 @@ class Tabs extends Component<Props, State> {
     return (
       <div style={{ height: '100%' }}>
         <Row>
-          <Scroll>
-            <ul className=" flex">
-              {tabs.map((tab, index) => {
-                return (
-                  <Draggable
+          <ul className="overflow-scroll table">
+            {tabs.map((tab, index) => {
+              return (
+                <Draggable
+                  key={index}
+                  axis="both"
+                  handle=".handle"
+                  defaultPosition={{ x: 0, y: 0 }}
+                  position={{ x: 0, y: 0 }}
+                  grid={[25, 25]}
+                  scale={1}
+                  onStop={this.onStop}
+                  onDrag={() => this.onDrag(tab.id)}
+                >
+                  <li
                     key={index}
-                    axis="both"
-                    handle=".handle"
-                    defaultPosition={{ x: 0, y: 0 }}
-                    position={{ x: 0, y: 0 }}
-                    grid={[25, 25]}
-                    scale={1}
-                    onStop={this.onStop}
-                    onDrag={() => this.onDrag(tab.id)}
+                    className="float-left handle cursor-pointer p-2 overflow-hidden"
+                    id={tab.id}
+                    onClick={() => this.onSelect(tab.id)}
                   >
-                    <li
-                      key={index}
-                      className="float-left handle cursor-pointer p-2"
-                      id={tab.id}
-                      onClick={() => this.onSelect(tab.id)}
-                    >
-                      {dragged === tab.id ? (
-                        '|'
-                      ) : (
-                        <Chip
-                          style={
-                            dragged && dragged != tab.id
-                              ? {
-                                  backgroundColor: 'transparent',
-                                  border: 'solid 1px',
-                                }
-                              : selected === tab.id
-                              ? { backgroundColor: '#b1b3b5' }
-                              : {}
-                          }
-                          label={tab.name}
-                          onDelete={() => this.onClose(tab.id)}
-                        />
-                      )}
-                    </li>
-                  </Draggable>
-                );
-              })}
-            </ul>
-          </Scroll>
+                    {dragged === tab.id ? (
+                      '|'
+                    ) : (
+                      <Chip
+                        style={
+                          dragged && dragged != tab.id
+                            ? {
+                                backgroundColor: 'transparent',
+                                border: 'solid 1px',
+                              }
+                            : selected === tab.id
+                            ? { backgroundColor: '#b1b3b5' }
+                            : {}
+                        }
+                        label={tab.name}
+                        onDelete={() => this.onClose(tab.id)}
+                      />
+                    )}
+                  </li>
+                </Draggable>
+              );
+            })}
+          </ul>
         </Row>
         <Row style={{ height: 'calc(100% - 115px)' }}>
           {tabs.map((tab, index) => (
@@ -143,7 +138,7 @@ class Tabs extends Component<Props, State> {
 
 const mapStateToProps = (state: GlobalState) => {
   return {
-    tabs: state.ui.tabs.toArray(),
+    tabs: state.tabs.list,
   };
 };
 
@@ -156,4 +151,4 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 
 type PropsRedux = Props & ConnectedProps<typeof connector>;
 
-export default connector(Tabs as any);
+export default connector(Tabs);

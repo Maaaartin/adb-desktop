@@ -1,123 +1,127 @@
-import {
-  AdbAction,
-  ConsoleAction,
-  DeviceAction,
-  EmulatorAction,
-  UiAction,
-} from './actionTypes';
 import { AdbClientOptions, IAdbDevice } from 'adb-ts';
-import {
-  AdbRuntimeStatus,
-  ConsoleSettings,
-  ConsoleSettingsUpdate,
-} from '../../shared';
-
+import { ipcRenderer as ipc } from 'electron';
+import { Dictionary } from 'lodash';
 import Notifications from 'react-notification-system-redux';
-import { typedIpcRenderer as ipc } from '../../ipcIndex';
+import {
+  ADB_SETTINGS_WRITE,
+  ADB_STATUS,
+  ADD_HISTORY,
+  DEVICE_ADD,
+  DEVICE_CHANGE,
+  DEVICE_REMOVE,
+  DEVICE_REMOVE_ALL,
+  LOAD_TOKEN,
+  TAB_ADD,
+  TAB_DEL,
+  WRITE_CONSOLE_SETTINGS,
+  WRITE_TOKEN,
+} from './actionTypes';
 import store from './store';
 
-export type Tab = {
-  id: string;
-  name: string;
-  content: JSX.Element;
-};
+export class Tab {
+  id: string = '';
+  content: any;
+  name: string = '';
+  constructor(name: string, content: any, id?: string) {
+    this.content = content;
+    this.name = name;
+    this.id = id || '';
+  }
 
-function createTab(
-  name: string,
-  cb: (id: string) => JSX.Element
-): Readonly<Tab> {
-  const id = Math.random().toString(36).substring(7);
-  const content = cb(id);
-  return {
-    name,
-    content,
-    id,
-  };
+  getId() {
+    return this.id;
+  }
 }
+
+export type AdbState = 'starting' | 'running' | 'stopped' | 'error';
+
+export type AdbStatus = {
+  status: AdbState;
+  running: boolean;
+  error: Error | null;
+};
 
 const SettingsAction = Notifications.success({ title: 'Settings saved' });
 
-export const writeAdbSettings = (data: AdbClientOptions): AdbAction => {
+export const writeAdbSettings = (data: AdbClientOptions) => {
   if (process.env.NODE_ENV != 'test') {
-    ipc.send('writeAdbSettings', data);
+    ipc.send(ADB_SETTINGS_WRITE, data);
   }
   store.dispatch(SettingsAction);
   return {
-    type: 'AdbSettingsWrite',
+    type: ADB_SETTINGS_WRITE,
     payload: data,
   };
 };
 
-export const loadAdbSettings = (payload: AdbClientOptions): AdbAction => ({
-  type: 'AdbSettingsLoad',
-  payload,
+export const deviceAdd = (content: IAdbDevice) => {
+  store.dispatch(Notifications.info({ title: `${content.id} plugged in` }));
+  return {
+    type: DEVICE_ADD,
+    payload: content,
+  };
+};
+
+export const deviceChange = (content: IAdbDevice) => ({
+  type: DEVICE_CHANGE,
+  payload: content,
 });
 
-export const setAdbStatus = (data: AdbRuntimeStatus): AdbAction => {
+export const deviceRemove = (content: IAdbDevice) => {
+  store.dispatch(Notifications.info({ title: `${content.id} plugged out` }));
+  return {
+    type: DEVICE_REMOVE,
+    payload: content,
+  };
+};
+
+export const tabAdd = (tab: Tab) => ({
+  type: TAB_ADD,
+  payload: tab,
+});
+
+export const tabDel = (id: string) => ({
+  type: TAB_DEL,
+  payload: id,
+});
+
+export const addHistory = (content: string) => ({
+  type: ADD_HISTORY,
+  payload: content,
+});
+
+export const writeToken = (token: string) => {
+  if (process.env.NODE_ENV != 'test') {
+    ipc.send(WRITE_TOKEN, token);
+  }
+  store.dispatch(SettingsAction);
+  return {
+    type: LOAD_TOKEN,
+    payload: token,
+  };
+};
+
+export const setAdbStatus = (data: AdbStatus) => {
   if (data.status === 'stopped') {
-    store.dispatch(Notifications.warning({ title: 'ADB stopped' }));
+    store.dispatch({ type: DEVICE_REMOVE_ALL });
   } else if (data.status === 'error') {
-    store.dispatch(Notifications.error({ title: 'ADB stopped with error' }));
+    store.dispatch(Notifications.error({ title: 'ADB stopped' }));
   } else if (data.status === 'running') {
     store.dispatch(Notifications.success({ title: 'ADB started' }));
   }
   return {
-    type: 'AdbStatus',
+    type: ADB_STATUS,
     payload: data,
   };
 };
 
-export const deviceAdd = (device: IAdbDevice): DeviceAction => ({
-  type: 'DeviceAdd',
-  payload: device,
-});
-
-export const deviceChange = (device: IAdbDevice): DeviceAction => ({
-  type: 'DeviceChange',
-  payload: device,
-});
-
-export const deviceRemove = (device: IAdbDevice): DeviceAction => ({
-  type: 'DeviceRemove',
-  payload: device,
-});
-
-export const deviceRemoveAll = (): DeviceAction => ({
-  type: 'DeviceRemoveAll',
-});
-
-export const tabAdd = (name: string, cb: (id: string) => JSX.Element) => ({
-  type: 'TabAdd',
-  payload: createTab(name, cb),
-});
-
-export const tabDel = (id: string): UiAction => ({
-  type: 'TabDel',
-  payload: id,
-});
-
-export const addHistory = (payload: string): ConsoleAction => ({
-  type: 'ConsoleAddHistory',
-  payload,
-});
-
-export const writeConsoleSettings = (
-  payload: ConsoleSettingsUpdate
-): ConsoleAction => ({ type: 'ConsoleWriteSettings', payload });
-
-export const loadConsoleSettings = (
-  payload: ConsoleSettings
-): ConsoleAction => ({
-  type: 'ConsoleLoadSettings',
-  payload,
-});
-
-export const writeToken = (token: string): EmulatorAction => ({
-  type: 'TokenWrite',
-  payload: token,
-});
-
-export const loadToken = (token: string): EmulatorAction => ({
-  type: 'TokenLoad',
-  payload: token,
-});
+export const writeConsoleSettings = (data: Dictionary<any>) => {
+  if (process.env.NODE_ENV != 'test') {
+    ipc.send(WRITE_CONSOLE_SETTINGS, data);
+  }
+  store.dispatch(SettingsAction);
+  return {
+    type: WRITE_CONSOLE_SETTINGS,
+    payload: data,
+  };
+};

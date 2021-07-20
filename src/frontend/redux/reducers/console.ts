@@ -1,57 +1,82 @@
-import { List, Record } from 'immutable';
+import { clone, Dictionary } from 'lodash';
+import { Action } from '.';
+import {
+  LOAD_CONSOLE_SETTINGS,
+  WRITE_CONSOLE_SETTINGS,
+  WRITE_LINES,
+  ADD_HISTORY,
+  LOAD_HISTORY,
+  WRITE_HISTORY_LEN,
+} from '../actionTypes';
 
-import { ConsoleAction } from '../actionTypes';
+type State = { lines: number; history: string[]; historyLen: number };
 
-type ConsoleStateProps = {
-  lines: number;
-  historyLen: number;
-  history: List<string>;
+const initialState: State = {
+  lines: 500,
+  history: [],
+  historyLen: 20,
 };
 
-export type ConsoleState = Record<ConsoleStateProps> &
-  Readonly<ConsoleStateProps>;
+function trimHistory(historyLen: number) {
+  if (!historyLen || historyLen < 0 || historyLen > 100) return 20;
+  return historyLen;
+}
 
-export const ConsoleStateConstructor = Record<ConsoleStateProps>({
-  lines: 20,
-  historyLen: 500,
-  history: List<string>(),
-});
+function trimLines(lines: number) {
+  if (!lines || lines < 0 || lines > 2000) return 500;
+  return lines;
+}
 
 export default function (
-  state = ConsoleStateConstructor(),
-  action: ConsoleAction
-): ConsoleState {
+  state = initialState,
+  action: Action<Dictionary<any> | number | string[] | string>
+): State {
   switch (action.type) {
-    case 'ConsoleLoadSettings':
-    case 'ConsoleWriteSettings': {
-      let { lines, history, historyLen } = action.payload;
-      return state
-        .update('lines', (prev) => lines || prev)
-        .update('history', (prev) => prev.clear().concat(history || prev))
-        .update('historyLen', (prev) => historyLen || prev);
+    case LOAD_CONSOLE_SETTINGS:
+    case WRITE_CONSOLE_SETTINGS: {
+      let { lines, history, historyLen } = action.payload as Dictionary<any>;
+      return {
+        ...state,
+        lines: lines || state.lines,
+        history: history || state.history,
+        historyLen: historyLen || state.historyLen,
+      };
     }
-
-    case 'ConsoleAddHistory': {
-      const { historyLen, history } = state;
-      return state.update('history', (prev) =>
-        prev
-          .remove(history.indexOf(action.payload))
-          .skipUntil(
-            (_value, key, history) => key < history.count() - historyLen
-          )
-          .push(action.payload)
-      );
+    case WRITE_HISTORY_LEN: {
+      return {
+        ...state,
+        historyLen: trimHistory(action.payload as number),
+      };
     }
-    case 'ConsoleLoadHistory': {
-      return state.update('history', (history) =>
-        history.clear().concat(action.payload)
-      );
+    case WRITE_LINES: {
+      return {
+        ...state,
+        lines: trimLines(action.payload as number),
+      };
     }
-    case 'ConsoleWriteLines': {
-      return state.update('lines', () => action.payload);
+    case ADD_HISTORY: {
+      let history = clone(state.history || []);
+      const { payload } = action as { payload: string };
+      const index = history.indexOf(payload);
+      if (index > -1) {
+        history.splice(index, 1);
+      }
+      history.push(payload);
+      if (history.length > state.historyLen) {
+        const diff = history.length - state.historyLen;
+        history = history.slice(diff);
+      }
+      return {
+        ...state,
+        history,
+      };
     }
-    case 'ConsoleWriteHistoryLen':
-      return state.update('historyLen', () => action.payload);
+    case LOAD_HISTORY: {
+      return {
+        ...state,
+        history: action.payload as string[],
+      };
+    }
     default:
       return state;
   }

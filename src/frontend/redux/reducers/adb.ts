@@ -1,39 +1,37 @@
-import { AdbAction } from '../actionTypes';
 import { AdbClientOptions } from 'adb-ts';
-import { AdbRuntimeStatus } from '../../../shared';
-import { Record } from 'immutable';
+import { Action } from '.';
+import { AdbStatus } from '../actions';
+import {
+  ADB_SETTINGS_LOAD,
+  ADB_SETTINGS_WRITE,
+  ADB_STATUS,
+} from '../actionTypes';
 
-export type AdbStateProps = {
-  status: Record<AdbRuntimeStatus>;
-  settings: Record<AdbClientOptions>;
+type State = { status: AdbStatus; settings: AdbClientOptions };
+
+const initialState: State = {
+  status: {
+    running: false,
+    status: '' as any,
+    error: null,
+  },
+  settings: {},
 };
 
-export type AdbRedState = Record<AdbStateProps> & Readonly<AdbStateProps>;
-
-export const AdbStateConstructor = Record<AdbStateProps>({
-  status: Record<AdbRuntimeStatus>({
-    status: 'stopped',
-    running: false,
-    error: null,
-  })(),
-  settings: Record<AdbClientOptions>({})(),
-});
-
 export default function (
-  state = AdbStateConstructor(),
-  action: AdbAction
-): AdbRedState {
+  state = initialState,
+  action: Action<AdbStatus | AdbClientOptions>
+): State {
   switch (action.type) {
-    case 'AdbStatus': {
-      return state.update('status', (prev) =>
-        prev.clear().merge(action.payload)
-      );
+    case ADB_STATUS: {
+      return {
+        ...state,
+        status: action.payload as AdbStatus,
+      };
     }
-    case 'AdbSettingsLoad':
-    case 'AdbSettingsWrite': {
-      return state.update('settings', (prev) =>
-        prev.clear().merge(action.payload)
-      );
+    case ADB_SETTINGS_LOAD:
+    case ADB_SETTINGS_WRITE: {
+      return { ...state, settings: action.payload as AdbClientOptions };
     }
     default:
       return state;

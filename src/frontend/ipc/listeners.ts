@@ -1,3 +1,9 @@
+import { AdbClientOptions, IAdbDevice } from 'adb-ts';
+import { ipcRenderer as ipc } from 'electron';
+import { Dictionary, get as getProp, isEmpty as emp } from 'lodash';
+import Notifications from 'react-notification-system-redux';
+import { DISPLAY_ERROR } from '../../constants';
+import { AdbStatus } from '../redux/actions';
 import {
   ADB_SETTINGS_LOAD,
   ADB_STATUS,
@@ -8,32 +14,25 @@ import {
   LOAD_CONSOLE_SETTINGS,
   LOAD_TOKEN,
 } from '../redux/actionTypes';
-import { AdbClientOptions, IAdbDevice } from 'adb-ts';
-import { Dictionary, isEmpty as emp, get as getProp } from 'lodash';
-
 import { Action } from '../redux/reducers';
-import { AdbStatus } from '../../shared';
-import { DISPLAY_ERROR } from '../../constants';
-import Notifications from 'react-notification-system-redux';
-import { ipcRenderer as ipc } from 'electron';
 import store from '../redux/store';
 
 const hookIpc = () => {
-  ipc.on(DEVICE_ADD, (_e, data: IAdbDevice) => {
+  ipc.on(DEVICE_ADD, (event, data: IAdbDevice) => {
     store.dispatch<Action<IAdbDevice>>({ type: DEVICE_ADD, payload: data });
     store.dispatch(Notifications.info({ title: `${data.id} plugged in` }));
   });
 
-  ipc.on(DEVICE_CHANGE, (_e, data: IAdbDevice) => {
+  ipc.on(DEVICE_CHANGE, (event, data: IAdbDevice) => {
     store.dispatch<Action<IAdbDevice>>({ type: DEVICE_CHANGE, payload: data });
   });
 
-  ipc.on(DEVICE_REMOVE, (_e, data: IAdbDevice) => {
+  ipc.on(DEVICE_REMOVE, (event, data: IAdbDevice) => {
     store.dispatch<Action<IAdbDevice>>({ type: DEVICE_REMOVE, payload: data });
     store.dispatch(Notifications.info({ title: `${data.id} plugged out` }));
   });
 
-  ipc.on(LOAD_TOKEN, (_e, data: string) => {
+  ipc.on(LOAD_TOKEN, (event, data: string) => {
     if (emp(data)) {
       store.dispatch(
         Notifications.error({
@@ -51,7 +50,7 @@ const hookIpc = () => {
     }
   });
 
-  ipc.on(ADB_STATUS, (_e, data: AdbStatus) => {
+  ipc.on(ADB_STATUS, (event, data: AdbStatus) => {
     if (data.status === 'stopped') {
       store.dispatch({ type: DEVICE_REMOVE_ALL });
     } else if (data.status === 'error') {
@@ -62,14 +61,14 @@ const hookIpc = () => {
     store.dispatch<Action<AdbStatus>>({ type: ADB_STATUS, payload: data });
   });
 
-  ipc.on(LOAD_CONSOLE_SETTINGS, (_e, data) => {
+  ipc.on(LOAD_CONSOLE_SETTINGS, (event, data) => {
     store.dispatch<Action<Dictionary<any>>>({
       type: LOAD_CONSOLE_SETTINGS,
       payload: data,
     });
   });
 
-  ipc.on(ADB_SETTINGS_LOAD, (_e, data: AdbClientOptions) => {
+  ipc.on(ADB_SETTINGS_LOAD, (event, data: AdbClientOptions) => {
     if (emp(getProp(data, 'bin'))) {
       store.dispatch(
         Notifications.error({
@@ -86,7 +85,7 @@ const hookIpc = () => {
   });
 };
 
-ipc.on(DISPLAY_ERROR, (_e, data: Error) => {
+ipc.on(DISPLAY_ERROR, (event, data: Error) => {
   store.dispatch(
     Notifications.error({
       title: 'Error',
