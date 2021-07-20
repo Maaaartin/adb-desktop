@@ -3,7 +3,7 @@ import {
   ConsoleAction,
   DeviceAction,
   EmulatorAction,
-  TabAction,
+  UiAction,
 } from './actionTypes';
 import { AdbClientOptions, IAdbDevice } from 'adb-ts';
 import {
@@ -86,15 +86,12 @@ export const deviceRemoveAll = (): DeviceAction => ({
   type: 'DeviceRemoveAll',
 });
 
-export const tabAdd = (
-  name: string,
-  cb: (id: string) => JSX.Element
-): TabAction => ({
+export const tabAdd = (name: string, cb: (id: string) => JSX.Element) => ({
   type: 'TabAdd',
   payload: createTab(name, cb),
 });
 
-export const tabDel = (id: string): TabAction => ({
+export const tabDel = (id: string): UiAction => ({
   type: 'TabDel',
   payload: id,
 });

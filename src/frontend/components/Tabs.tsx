@@ -143,7 +143,7 @@ class Tabs extends Component<Props, State> {
 
 const mapStateToProps = (state: GlobalState) => {
   return {
-    tabs: state.tabs.list.toArray(),
+    tabs: state.ui.tabs.toArray(),
   };
 };
 

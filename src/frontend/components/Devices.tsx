@@ -40,4 +40,4 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 
 type PropsRedux = ConnectedProps<typeof connector>;
 
-export default connector(Devices as any);
+export default connector(Devices);

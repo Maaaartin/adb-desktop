@@ -11,14 +11,14 @@ type ConsoleStateProps = {
 export type ConsoleState = Record<ConsoleStateProps> &
   Readonly<ConsoleStateProps>;
 
-const StateConstructor = Record<ConsoleStateProps>({
+export const ConsoleStateConstructor = Record<ConsoleStateProps>({
   lines: 20,
   historyLen: 500,
   history: List<string>(),
 });
 
 export default function (
-  state = StateConstructor(),
+  state = ConsoleStateConstructor(),
   action: ConsoleAction
 ): ConsoleState {
   switch (action.type) {

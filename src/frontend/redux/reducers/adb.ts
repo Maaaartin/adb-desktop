@@ -10,7 +10,7 @@ export type AdbStateProps = {
 
 export type AdbRedState = Record<AdbStateProps> & Readonly<AdbStateProps>;
 
-export const StateConstructor = Record<AdbStateProps>({
+export const AdbStateConstructor = Record<AdbStateProps>({
   status: Record<AdbRuntimeStatus>({
     status: 'stopped',
     running: false,
@@ -20,7 +20,7 @@ export const StateConstructor = Record<AdbStateProps>({
 });
 
 export default function (
-  state = StateConstructor(),
+  state = AdbStateConstructor(),
   action: AdbAction
 ): AdbRedState {
   switch (action.type) {

@@ -52,7 +52,7 @@ export type ConsoleAction = Readonly<
   | { type: 'ConsoleWriteSettings'; payload: ConsoleSettingsUpdate }
 >;
 
-export type TabAction = Readonly<
+export type UiAction = Readonly<
   { type: 'TabAdd'; payload: Tab } | { type: 'TabDel'; payload: string }
 >;
 
@@ -65,5 +65,5 @@ export type Actions =
   | DeviceAction
   | ConsoleAction
   | AdbAction
-  | TabAction
+  | UiAction
   | EmulatorAction;

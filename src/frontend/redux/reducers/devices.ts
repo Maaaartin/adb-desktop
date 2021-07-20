@@ -10,12 +10,12 @@ export type DevicesStateProps = {
 export type DevicesState = Record<DevicesStateProps> &
   Readonly<DevicesStateProps>;
 
-const StateConstructor = Record<DevicesStateProps>({
+export const DeviceStateConstructor = Record<DevicesStateProps>({
   list: Map<string, IAdbDevice>(),
 });
 
 export default function (
-  state = StateConstructor(),
+  state = DeviceStateConstructor(),
   action: DeviceAction
 ): DevicesState {
   switch (action.type) {

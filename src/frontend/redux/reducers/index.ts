@@ -6,12 +6,11 @@ import console from './console';
 import devices from './devices';
 import emulator from './emulator';
 import { reducer as notifications } from 'react-notification-system-redux';
-import tabs from './tabs';
+import ui from './ui';
 
 const reducers = combineReducers({
-  tabs,
+  ui,
   devices,
-
   console,
   emulator,
   adb,

@@ -8,12 +8,12 @@ export type EmulatorStateProps = {
 export type EmulatorState = Record<EmulatorStateProps> &
   Readonly<EmulatorStateProps>;
 
-const StateConstructor = Record<EmulatorStateProps>({
+export const EmulatorStateConstructor = Record<EmulatorStateProps>({
   token: '',
 });
 
 export default function (
-  state = StateConstructor(),
+  state = EmulatorStateConstructor(),
   action: EmulatorAction
 ): EmulatorState {
   switch (action.type) {

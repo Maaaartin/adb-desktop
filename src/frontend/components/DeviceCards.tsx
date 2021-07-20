@@ -15,11 +15,13 @@ import { isEmpty as emp } from 'lodash';
 import { getColor } from '../colors';
 
 const DeviceCards = (props: PropsRedux) => {
-  const { devices, tabAdd, tabDel } = props;
+  const { adbRunning, devices, tabAdd, tabDel } = props;
   return (
     <Scroll className="pt-1 pb-1">
       <div className="pr-1" style={{ height: 'calc(77vh - 80px)' }}>
-        {emp(devices) ? (
+        {!adbRunning ? (
+          <Typography className="pl-1">ADB is not running</Typography>
+        ) : emp(devices) ? (
           <Typography className="pl-1">No devices connected</Typography>
         ) : (
           devices.map((device, index) => {
@@ -98,6 +100,7 @@ const mapStateToProps = (state: GlobalState) => {
       .get('list')
       .toArray()
       .map(([_i, value]) => value),
+    adbRunning: state.adb.get('status').get('running'),
   };
 };
 
