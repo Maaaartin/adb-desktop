@@ -1,9 +1,10 @@
+import React, * as react from 'react';
 import Scroll, { ScrollBarProps } from 'react-perfect-scrollbar';
 import { get as getProp, set as setProp } from 'lodash';
 
-import React from 'react';
-
-const Scrollable: React.FunctionComponent<any> = (props: ScrollBarProps) => {
+const Scrollable = (
+  props: ScrollBarProps & { ref?: react.LegacyRef<Scroll> }
+) => {
   let lastY: string | null = null;
   let lastX: string | null = null;
   return (

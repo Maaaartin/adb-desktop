@@ -1,13 +1,21 @@
 import { ConnectedProps, connect } from 'react-redux';
 import React, { Component } from 'react';
 import { Tab, tabAdd, tabDel } from '../redux/actions';
-import { isEmpty as emp, floor, get as getProp, sortBy } from 'lodash';
+import {
+  isEmpty as emp,
+  floor,
+  get as getProp,
+  set as setProp,
+  slice,
+  sortBy,
+  tap,
+} from 'lodash';
 
 import { Chip } from '@material-ui/core';
 import Draggable from 'react-draggable';
 import { GlobalState } from '../redux/reducers';
 import { Row } from 'react-flexbox-grid';
-import Scroll from './subcomponents/Scrollable';
+import Scrollable from './subcomponents/Scrollable';
 
 type Props = { tabs: Tab[] };
 type State = { tabs: Tab[]; selected: string; dragged: string };
@@ -64,7 +72,18 @@ class Tabs extends Component<Props, State> {
       .map((tab1) => tabs.find((tab2) => tab1.id === tab2.id))
       .filter((tab) => tab) as Tab[];
 
-    this.setState({ tabs: newTabs, dragged: '' });
+    this.setState({ tabs: newTabs, dragged: '' }, () => {
+      tap(
+        document.getElementById('tab-scrollbar'),
+        (el) =>
+          el &&
+          setProp(
+            el,
+            'classList',
+            slice(el.className, 0, el.className.indexOf('ps')).join('')
+          )
+      );
+    });
   }
 
   onDrag(id: string) {
@@ -77,7 +96,7 @@ class Tabs extends Component<Props, State> {
     return (
       <div style={{ height: '100%' }}>
         <Row>
-          <Scroll>
+          <Scrollable id="tab-scrollbar" className="hello">
             <ul className=" flex">
               {tabs.map((tab, index) => {
                 return (
@@ -121,7 +140,7 @@ class Tabs extends Component<Props, State> {
                 );
               })}
             </ul>
-          </Scroll>
+          </Scrollable>
         </Row>
         <Row style={{ height: 'calc(100% - 115px)' }}>
           {tabs.map((tab, index) => (
