@@ -9,7 +9,7 @@ import {
   MenuList,
   Typography,
 } from '@material-ui/core';
-import { FaAndroid, FaCog, FaTerminal } from 'react-icons/fa';
+import { FaAndroid, FaCog, FaSync, FaTerminal } from 'react-icons/fa';
 import React, { Component } from 'react';
 import { tabAdd, tabDel, writeConsoleSettings } from './redux/actions';
 
@@ -22,6 +22,7 @@ import Notifications from 'react-notification-system-redux';
 import Settings from './components/Settings';
 import Tabs from './components/Tabs';
 import { typedIpcRenderer as ipc } from '../ipcIndex';
+import { isDev } from '../shared';
 import { version } from '../package.json';
 
 class Root extends Component {
@@ -49,6 +50,9 @@ class Root extends Component {
         break;
       case 'adb':
         tabAdd('ADB', (id) => <AdbConsole onExit={() => tabDel(id)} />);
+        break;
+      case 'reset':
+        ipc.send('reset');
         break;
       default:
         break;
@@ -82,6 +86,14 @@ class Root extends Component {
                 </ListItemIcon>
                 <Typography variant="inherit">ADB</Typography>
               </MenuItem>
+              {isDev && (
+                <MenuItem onClick={() => this.onSelect('reset')}>
+                  <ListItemIcon>
+                    <FaSync size="25" />
+                  </ListItemIcon>
+                  <Typography variant="inherit">Reset</Typography>
+                </MenuItem>
+              )}
             </MenuList>
             <Divider />
             <DeviceCards />

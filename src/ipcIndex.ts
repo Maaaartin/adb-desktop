@@ -19,7 +19,7 @@ type GetCallback = (serial: string) => CommandResponse<Dictionary<any>>;
 
 type GetItemCallback = (serial: string, key: string) => CommandResponse<any>;
 
-type EventCallback<T> = (data: T) => void;
+type EventCallback<T = void> = (data: T) => void;
 
 type SetCallback = (
   serial: string,
@@ -64,6 +64,11 @@ export type Events = {
   deviceChange: EventCallback<IAdbDevice>;
   deviceRemove: EventCallback<IAdbDevice>;
   adbStatus: EventCallback<AdbRuntimeStatus>;
+
+  /**
+   * dev
+   */
+  reset: EventCallback;
 };
 
 export type Commands = {

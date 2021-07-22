@@ -1,6 +1,9 @@
 import { Dictionary } from 'lodash';
 import { IFileStats } from 'adb-ts/lib/filestats';
 
+export const isDev =
+  process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'production';
+
 export type AdbState = 'starting' | 'running' | 'stopped' | 'error';
 
 export type AdbRuntimeStatus = {
