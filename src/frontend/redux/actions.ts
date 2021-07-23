@@ -10,6 +10,7 @@ import {
   AdbRuntimeStatus,
   ConsoleSettings,
   ConsoleSettingsUpdate,
+  isTest,
 } from '../../shared';
 
 import Notifications from 'react-notification-system-redux';
@@ -38,7 +39,7 @@ function createTab(
 const SettingsAction = Notifications.success({ title: 'Settings saved' });
 
 export const writeAdbSettings = (data: AdbClientOptions): AdbAction => {
-  if (process.env.NODE_ENV != 'test') {
+  if (!isTest) {
     ipc.send('writeAdbSettings', data);
   }
   store.dispatch(SettingsAction);
@@ -103,7 +104,13 @@ export const addHistory = (payload: string): ConsoleAction => ({
 
 export const writeConsoleSettings = (
   payload: ConsoleSettingsUpdate
-): ConsoleAction => ({ type: 'ConsoleWriteSettings', payload });
+): ConsoleAction => {
+  if (!isTest) {
+    ipc.send('writeConsoleSettings', payload);
+  }
+  store.dispatch(SettingsAction);
+  return { type: 'ConsoleWriteSettings', payload };
+};
 
 export const loadConsoleSettings = (
   payload: ConsoleSettings
@@ -112,10 +119,16 @@ export const loadConsoleSettings = (
   payload,
 });
 
-export const writeToken = (token: string): EmulatorAction => ({
-  type: 'TokenWrite',
-  payload: token,
-});
+export const writeToken = (token: string): EmulatorAction => {
+  if (!isTest) {
+    ipc.send('writeToken', token);
+  }
+  store.dispatch(SettingsAction);
+  return {
+    type: 'TokenWrite',
+    payload: token,
+  };
+};
 
 export const loadToken = (token: string): EmulatorAction => ({
   type: 'TokenLoad',

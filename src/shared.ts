@@ -4,6 +4,10 @@ import { IFileStats } from 'adb-ts/lib/filestats';
 export const isDev =
   process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'production';
 
+export const isTest =
+  process.env.NODE_ENV !== 'development' &&
+  process.env.NODE_ENV !== 'production';
+
 export type AdbState = 'starting' | 'running' | 'stopped' | 'error';
 
 export type AdbRuntimeStatus = {

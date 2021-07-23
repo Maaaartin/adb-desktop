@@ -72,6 +72,9 @@ export default function () {
       allWebContents((c) => {
         c.send('loadConsoleSettings', root.getConsoleSettings());
       });
+      allWebContents((c) => {
+        c.send('adbStatus', root.adbHandler.getAdbStatus());
+      });
     });
   });
 }

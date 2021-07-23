@@ -1,6 +1,6 @@
 import { AdbClientOptions } from 'adb-ts';
-import Path from 'path';
 import Executor from './Executor';
+import Path from 'path';
 import Preferences from './Preferences';
 
 export default class OpenShell {
