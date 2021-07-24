@@ -11,6 +11,7 @@ body {
   border: solid #6c7580 0.5px;
   background-color: gray;
   cursor: pointer;
+  z-index: 1;
 }
 
 .react-contextmenu-item {

@@ -1,7 +1,7 @@
 import { Col, Row } from 'react-flexbox-grid';
 import { CollectionFunctions, ItemMaker } from '../../shared';
 import { ConnectedProps, connect } from 'react-redux';
-import { Dictionary, isEmpty as emp } from 'lodash';
+import { Dictionary, isEmpty as emp, isNil } from 'lodash';
 import React, { Component } from 'react';
 
 import { GlobalState } from '../redux/reducers';
@@ -93,17 +93,19 @@ class MetaWindow<T> extends Component<Props<T>, State<T>> {
                                 message: err.message,
                                 position: 'tr',
                               });
-                            } else
+                            } else {
                               itemGetter(item[0], (output) => {
-                                if (!emp(output)) {
+                                if (!isNil(output)) {
+                                  const key = item[0];
                                   this.setState({
                                     collection: {
                                       ...collection,
-                                      [item[0]]: output,
+                                      [key]: output,
                                     },
                                   });
                                 }
                               });
+                            }
                           });
                         }
                       : undefined

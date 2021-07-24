@@ -184,16 +184,13 @@ const Device = (props: Props) => {
                   ipc
                     .invoke('getSettingGlobal', serial, key)
                     .then(({ output }) => {
-                      console.log(output);
                       cb?.(output);
                     }, noop);
                 },
                 itemSetter: (key, value, cb) => {
-                  console.log('object');
                   ipc
                     .invoke('putSettingGlobal', serial, key, value)
                     .then(({ error }) => {
-                      console.log(error);
                       cb?.(error);
                     }, noop);
                 },

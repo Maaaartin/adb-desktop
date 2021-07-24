@@ -2,9 +2,10 @@ import { CommandResponse, Events } from '../ipcIndex';
 
 import Root from './menu';
 import { TypedWebContents } from 'electron-typed-ipc';
+import _events from './ipc/events';
 import _exec from './ipc/commands/exec';
+import _fs from './ipc/commands/file-system';
 import _get from './ipc/commands/get';
-import _open from './ipc/events';
 import _set from './ipc/commands/set';
 import { callbackify } from 'util';
 import { getRoot } from '../main.dev';
@@ -30,9 +31,10 @@ let registered = false;
 export const registerIpc = () => {
   if (!registered) {
     _exec();
-    _open();
+    _events();
     _get();
     _set();
+    _fs();
     process.on('uncaughtException', (error) => {
       mainWebContent((c) => {
         c.send('displayError', error);

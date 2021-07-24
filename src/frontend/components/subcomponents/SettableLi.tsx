@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
 import { Col, Row } from 'react-flexbox-grid';
-import { ItemMaker } from '../../../shared';
+import React, { useState } from 'react';
+
 import HiddenInput from './HiddenInput';
+import { ItemMaker } from '../../../shared';
 import Li from './Li';
 import StyledValue from './StyledValue';
 

@@ -42,6 +42,7 @@ type State = {
   mkdirPath?: AdbFilePath;
   menuType: string;
   cpPath?: AdbFilePath;
+  touchPath?: AdbFilePath;
 };
 // TODO update after mkdir and cp
 // TODO modal enter
@@ -104,6 +105,7 @@ class FileSystem extends Component<Props, State> {
     this.setFiles = this.setFiles.bind(this);
     this.toggleDir = this.toggleDir.bind(this);
     this.handleMkdirModal = this.handleMkdirModal.bind(this);
+    this.handleTouchModal = this.handleTouchModal.bind(this);
   }
 
   componentDidMount() {
@@ -337,6 +339,9 @@ class FileSystem extends Component<Props, State> {
           }
         }
         break;
+      case 'touch':
+        this.setState({ touchPath: new AdbFilePath(triggerPath(target)) });
+        break;
       default:
         break;
     }
@@ -376,6 +381,23 @@ class FileSystem extends Component<Props, State> {
       }, noop);
   }
 
+  private handleTouchModal(dirName: string) {
+    const { serial, success } = this.props as PropsRedux;
+    const { touchPath } = this.state;
+    const newDir = touchPath?.clone().append(dirName);
+    ipc.invoke('mkdir', serial, newDir?.toString() || '').then(({ error }) => {
+      if (!error) {
+        this.updateFiles(touchPath?.getParent());
+        success({
+          title: 'File created',
+          position: 'tr',
+        });
+      }
+    }, noop);
+
+    this.setState({ touchPath: undefined });
+  }
+
   private handleMkdirModal(dirName: string) {
     const { serial, success } = this.props as PropsRedux;
     const { mkdirPath } = this.state;
@@ -405,7 +427,7 @@ class FileSystem extends Component<Props, State> {
           position: 'tr',
         });
       }
-    });
+    }, noop);
     this.setState({ delFilePath: undefined });
   }
 
@@ -419,11 +441,14 @@ class FileSystem extends Component<Props, State> {
           </MenuItem>
         ) : (
           menuType &&
-          /dir/.test(menuType) && (
+          /dir/.test(menuType) && [
             <MenuItem data={{ type: 'mkdir' }} onClick={this.handleClick}>
               New Directory
-            </MenuItem>
-          )
+            </MenuItem>,
+            <MenuItem data={{ type: 'touch' }} onClick={this.handleClick}>
+              New File
+            </MenuItem>,
+          ]
         )}
         <MenuItem data={{ type: 'delete' }} onClick={this.handleClick}>
           Delete
@@ -442,19 +467,26 @@ class FileSystem extends Component<Props, State> {
 
   render() {
     const { files } = this;
-    const { sort, search, delFilePath, mkdirPath } = this.state;
+    const { sort, search, delFilePath, mkdirPath, touchPath } = this.state;
     const { serial } = this.props;
     const entries = this.sortEntries(files);
     return (
       <div className="h-full">
         {this.getContextMenu()}
         <CreateDialog
+          open={!!touchPath}
+          title="Create File"
+          label="File Name"
+          onClose={() => this.setState({ touchPath: undefined })}
+          onConfirm={this.handleTouchModal}
+        />
+        <CreateDialog
           open={!!mkdirPath}
           title="Create Directory"
-          label="Directory name"
+          label="Directory Name"
           onClose={() => this.setState({ mkdirPath: undefined })}
           onConfirm={this.handleMkdirModal}
-        ></CreateDialog>
+        />
         <Dialog open={!!delFilePath}>
           <DialogTitle>Delete file</DialogTitle>
           <DialogContent>
