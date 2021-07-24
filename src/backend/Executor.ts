@@ -1,6 +1,7 @@
-import { exec } from 'child_process';
-import { app } from 'electron';
 import Path from 'path';
+import Shell from 'node-powershell';
+import { app } from 'electron';
+import { exec } from 'child_process';
 
 export default class Executor {
   private opt: { cmd: string; cwd: string };
@@ -28,21 +29,56 @@ export default class Executor {
     }
   }
 
+  private getScriptPath() {
+    switch (process.platform) {
+      case 'win32':
+        return 'script.bat';
+      default:
+        return `sh script.sh`;
+    }
+  }
+
   private getPath() {
-    const scriptPath = Path.join('assets', process.platform, `script.sh`);
+    const scriptPath = Path.join(
+      'assets',
+      process.platform,
+      this.getScriptPath()
+    );
     const p = app.isPackaged
       ? Path.join(process.resourcesPath, scriptPath)
       : Path.join(__dirname, '..', '..', scriptPath);
     return this.build(p);
   }
 
-  execute() {
-    const { cmd, cwd } = this.opt;
-    return new Promise<void>((resolve, reject) => {
-      exec(`${this.getPath()} "${this.formatCwd(cwd)}" "${cmd}"`, (err) => {
-        if (!err) return resolve();
-        else return reject(err);
-      });
+  private executeWin() {
+    const ps = new Shell({
+      executionPolicy: 'Bypass',
+      noProfile: true,
     });
+    const cwd = `""${this.opt.cwd}""`;
+    const cmd = `""${this.opt.cmd || 'start cmd'}""`;
+    const path = this.getPath();
+    ps.addCommand(`Start-Process -FilePath ${path} "${cwd} ${cmd}"`);
+    return ps
+      .invoke()
+      .then(() => {})
+      .finally(() => ps.dispose());
+  }
+
+  execute() {
+    if (process.platform === 'win32') {
+      return this.executeWin();
+    } else {
+      const { cmd, cwd } = this.opt;
+      return new Promise<void>((resolve, reject) => {
+        exec(`${this.getPath()} "${this.formatCwd(cwd)}" "${cmd}"`, (err) => {
+          if (!err) {
+            return resolve();
+          } else {
+            return reject(err);
+          }
+        });
+      });
+    }
   }
 }

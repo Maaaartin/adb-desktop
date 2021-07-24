@@ -75,7 +75,7 @@ class MetaWindow<T> extends Component<Props<T>, State<T>> {
           </Col>
         </Row>
         <Scrollable style={{ height: '90%' }}>
-          <ul className="overflow-y-scroll border-black border-2 break-all h-full">
+          <ul className="border-black border-2 break-all h-full">
             {arr.map((item, index) => {
               return (
                 <SettableLi

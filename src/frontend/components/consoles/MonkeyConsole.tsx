@@ -10,7 +10,7 @@ const MonkeyConsole = (props: { id: string; onExit?: VoidFunction }) => {
       serial={id}
       tag={`${id}-monkey`}
       exec={(_, cmd) => ipc.invoke('execMonkey', id, cmd)}
-      openShell={() => ipc.send('openAdb')}
+      openShell={() => ipc.send('openAdbShell', id)}
       onExit={() => {
         ipc.invoke('execMonkey', id, 'quit').catch(() => {});
         onExit?.();
