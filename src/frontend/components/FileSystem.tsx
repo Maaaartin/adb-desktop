@@ -18,6 +18,7 @@ import {
   get as getProp,
   noop,
   orderBy,
+  tap,
 } from 'lodash';
 import { FaCaretDown, FaCaretRight, FaSpinner } from 'react-icons/fa';
 import React, { Component } from 'react';
@@ -45,7 +46,6 @@ type State = {
   touchPath?: AdbFilePath;
 };
 // TODO update after mkdir and cp
-// TODO modal enter
 
 const triggerPath = (el: HTMLElement): string => {
   // id starting with slash is a path
@@ -381,19 +381,21 @@ class FileSystem extends Component<Props, State> {
       }, noop);
   }
 
-  private handleTouchModal(dirName: string) {
+  private handleTouchModal(fileName: string) {
     const { serial, success } = this.props as PropsRedux;
     const { touchPath } = this.state;
-    const newDir = touchPath?.clone().append(dirName);
-    ipc.invoke('mkdir', serial, newDir?.toString() || '').then(({ error }) => {
-      if (!error) {
-        this.updateFiles(touchPath?.getParent());
-        success({
-          title: 'File created',
-          position: 'tr',
-        });
-      }
-    }, noop);
+    tap(touchPath?.clone().append(fileName).toString(), (filePath) => {
+      filePath &&
+        ipc.invoke('touch', serial, filePath).then(({ error }) => {
+          if (!error) {
+            this.updateFiles(touchPath?.getParent());
+            success({
+              title: 'File created',
+              position: 'tr',
+            });
+          }
+        }, noop);
+    });
 
     this.setState({ touchPath: undefined });
   }
