@@ -388,7 +388,7 @@ class FileSystem extends Component<Props, State> {
       filePath &&
         ipc.invoke('touch', serial, filePath).then(({ error }) => {
           if (!error) {
-            this.updateFiles(touchPath?.getParent());
+            this.updateFiles(touchPath);
             success({
               title: 'File created',
               position: 'tr',
@@ -423,7 +423,7 @@ class FileSystem extends Component<Props, State> {
     const filePath = delFilePath?.toString() || '';
     ipc.invoke('rm', serial, filePath).then(({ error }) => {
       if (!error) {
-        this.updateFiles(delFilePath);
+        this.updateFiles(delFilePath?.getParent());
         success({
           title: 'File deleted',
           position: 'tr',
