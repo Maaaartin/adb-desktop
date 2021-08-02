@@ -12,14 +12,7 @@ import {
 import { Col, Row } from 'react-flexbox-grid';
 import { ConnectedProps, connect } from 'react-redux';
 import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
-import {
-  Dictionary,
-  isEmpty as emp,
-  get as getProp,
-  noop,
-  orderBy,
-  tap,
-} from 'lodash';
+import { Dictionary, isEmpty as emp, noop, orderBy, tap } from 'lodash';
 import { FaCaretDown, FaCaretRight, FaSpinner } from 'react-icons/fa';
 import React, { Component } from 'react';
 import { error as notifError, success } from 'react-notification-system-redux';
@@ -45,7 +38,6 @@ type State = {
   cpPath?: AdbFilePath;
   touchPath?: AdbFilePath;
 };
-// TODO update after mkdir and cp
 
 const triggerPath = (el: HTMLElement): string => {
   // id starting with slash is a path
@@ -184,7 +176,7 @@ class FileSystem extends Component<Props, State> {
         >
           <Row style={{ margin: 0 }}>
             <Col xs={4}>
-              {/dir/.test(getProp(stats, 'type', '')) && (
+              {/dir/.test(stats?.type || '') && (
                 <span
                   onClick={() => this.toggleDir(pathStr, file)}
                   className="cursor-pointer inline-block mr-1"
@@ -298,7 +290,7 @@ class FileSystem extends Component<Props, State> {
     target: HTMLElement
   ) {
     const { cpPath } = this.state;
-    const { serial, success } = this.props as PropsRedux;
+    const { serial, success, notifError } = this.props as PropsRedux;
     switch (data.type) {
       case 'pull':
         ipc.invoke('pull', serial, triggerPath(target)).then(({ error }) => {
@@ -306,6 +298,12 @@ class FileSystem extends Component<Props, State> {
             success({
               title: 'File pulled',
               position: 'tr',
+            });
+          } else {
+            notifError({
+              title: 'Could not pull file',
+              position: 'tr',
+              message: error.message,
             });
           }
         }, noop);
@@ -333,6 +331,13 @@ class FileSystem extends Component<Props, State> {
                   success({
                     title: 'File copied',
                     position: 'tr',
+                  });
+                } else {
+                  console.log(error.message);
+                  notifError({
+                    title: 'File not copied',
+                    position: 'tr',
+                    message: error.message,
                   });
                 }
               });
@@ -382,7 +387,7 @@ class FileSystem extends Component<Props, State> {
   }
 
   private handleTouchModal(fileName: string) {
-    const { serial, success } = this.props as PropsRedux;
+    const { serial, success, notifError } = this.props as PropsRedux;
     const { touchPath } = this.state;
     tap(touchPath?.clone().append(fileName).toString(), (filePath) => {
       filePath &&
@@ -393,6 +398,12 @@ class FileSystem extends Component<Props, State> {
               title: 'File created',
               position: 'tr',
             });
+          } else {
+            notifError({
+              title: 'Could not create file',
+              position: 'tr',
+              message: error.message,
+            });
           }
         }, noop);
     });
@@ -401,7 +412,7 @@ class FileSystem extends Component<Props, State> {
   }
 
   private handleMkdirModal(dirName: string) {
-    const { serial, success } = this.props as PropsRedux;
+    const { serial, success, notifError } = this.props as PropsRedux;
     const { mkdirPath } = this.state;
     const newDir = mkdirPath?.clone().append(dirName);
     ipc.invoke('mkdir', serial, newDir?.toString() || '').then(({ error }) => {
@@ -411,14 +422,20 @@ class FileSystem extends Component<Props, State> {
           title: 'Directory created',
           position: 'tr',
         });
+      } else {
+        notifError({
+          title: 'Directory not created',
+          position: 'tr',
+          message: error.message,
+        });
       }
-    }, noop);
+    });
 
     this.setState({ mkdirPath: undefined });
   }
 
   handleDelModalClick() {
-    const { serial, success } = this.props as PropsRedux;
+    const { serial, success, notifError } = this.props as PropsRedux;
     const { delFilePath } = this.state;
     const filePath = delFilePath?.toString() || '';
     ipc.invoke('rm', serial, filePath).then(({ error }) => {
@@ -427,6 +444,12 @@ class FileSystem extends Component<Props, State> {
         success({
           title: 'File deleted',
           position: 'tr',
+        });
+      } else {
+        notifError({
+          title: 'Could not delete file',
+          position: 'tr',
+          message: error.message,
         });
       }
     }, noop);
@@ -472,6 +495,7 @@ class FileSystem extends Component<Props, State> {
     const { sort, search, delFilePath, mkdirPath, touchPath } = this.state;
     const { serial } = this.props;
     const entries = this.sortEntries(files);
+
     return (
       <div className="h-full">
         {this.getContextMenu()}

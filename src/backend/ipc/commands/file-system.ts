@@ -25,36 +25,48 @@ const execHandler = ({
 
 export default function () {
   ipc.handle('cp', (_e, serial, srcPath, destPath) => {
-    return ipcExec((root) => {
-      return root.adbHandler.getClient().cp(serial, srcPath, destPath);
-    }).then(execHandler);
+    return ipcExec(
+      (root) => {
+        return root.adbHandler.getClient().cp(serial, srcPath, destPath);
+      },
+      { noDisplayErr: true }
+    ).then(execHandler);
   });
 
   ipc.handle('mkdir', (_e, serial, path) => {
-    return ipcExec((root) => {
-      return root.adbHandler.getClient().mkdir(serial, path);
-    }).then(execHandler);
+    return ipcExec(
+      (root) => {
+        return root.adbHandler.getClient().mkdir(serial, path);
+      },
+      { noDisplayErr: true }
+    ).then(execHandler);
   });
 
   ipc.handle('rm', (_e, serial, path) => {
-    return ipcExec((root) => {
-      return root.adbHandler.getClient().shell(serial, `rm -r ${path}`);
-    }).then(execHandler);
+    return ipcExec(
+      (root) => {
+        return root.adbHandler.getClient().shell(serial, `rm -r ${path}`);
+      },
+      { noDisplayErr: true }
+    ).then(execHandler);
   });
 
   ipc.handle('pull', (_e, serial, srcPath) => {
-    return ipcExec((root) => {
-      return dialog
-        .showOpenDialog(root.mainWindow, { properties: ['openDirectory'] })
-        .then((value) => {
-          const splitPath = srcPath.split('/');
-          const filePath = splitPath[splitPath.length - 1];
-          const destPath = Path.join(value.filePaths[0], filePath);
-          return root.adbHandler
-            .getClient()
-            .pullFile(serial, srcPath, destPath);
-        });
-    });
+    return ipcExec(
+      (root) => {
+        return dialog
+          .showOpenDialog(root.mainWindow, { properties: ['openDirectory'] })
+          .then((value) => {
+            const splitPath = srcPath.split('/');
+            const filePath = splitPath[splitPath.length - 1];
+            const destPath = Path.join(value.filePaths[0], filePath);
+            return root.adbHandler
+              .getClient()
+              .pullFile(serial, srcPath, destPath);
+          });
+      },
+      { noDisplayErr: true }
+    );
   });
 
   ipc.handle('touch', (_e, serial, path) => {
