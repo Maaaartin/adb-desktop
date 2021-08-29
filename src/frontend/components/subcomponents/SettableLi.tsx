@@ -1,7 +1,7 @@
 import { Col, Row } from 'react-flexbox-grid';
 import React, { useState } from 'react';
 
-import HiddenInput from './HiddenInput';
+import Input from './ResizeInput';
 import { ItemMaker } from '../../../shared';
 import Li from './Li';
 import StyledValue from './StyledValue';
@@ -45,18 +45,18 @@ const SettableLi = <T extends unknown>(props: {
         {createKey && <Col>{createKey(item)}</Col>}
         {createValue && delimiter && <Col>{delimiter}</Col>}
         {active && createValue && onSetValue ? (
-          <Col className="font-mono">
-            <HiddenInput
-              buttonText="Set"
-              onBtnClick={onSet}
+          <Col className="font-mono ml-3">
+            <Input
+              onBlur={() => setActive(false)}
               textColor="black"
-              markedColor="white"
-              initValue={`${value}`}
-              onEnter={onSet}
               onEscape={() => {
                 setActive(false);
                 setValue('');
               }}
+              buttonText="Set"
+              autofocus
+              onEnter={onSet}
+              initValue={`${value}`}
             />
           </Col>
         ) : (

@@ -333,7 +333,6 @@ class FileSystem extends Component<Props, State> {
                     position: 'tr',
                   });
                 } else {
-                  console.log(error.message);
                   notifError({
                     title: 'File not copied',
                     position: 'tr',

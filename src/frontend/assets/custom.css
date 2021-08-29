@@ -26,3 +26,7 @@ body {
 .ps--active-x {
   padding-bottom: 15px;
 }
+
+::selection {
+  background: white;
+}

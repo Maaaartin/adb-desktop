@@ -49,7 +49,6 @@ export const registerIpc = () => {
   }
 };
 
-// TODO params for error title
 export const ipcExec = <T>(
   caller: (root: Root) => Promise<T>,
   options?: { noDisplayErr?: boolean }

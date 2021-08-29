@@ -7,8 +7,10 @@ const Scrollable = (
 ) => {
   let lastY: string | null = null;
   let lastX: string | null = null;
+
   return (
     <Scroll
+      ref={props.ref}
       onScrollLeft={() => {
         if (lastX) {
           lastX = null;
