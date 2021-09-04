@@ -49,9 +49,6 @@ exports[`react console 1`] = `
           />
         </svg>
       </span>
-      <span
-        className="MuiTouchRipple-root"
-      />
     </button>
     <div
       className="MuiChip-root absolute"
@@ -72,89 +69,75 @@ exports[`react console 1`] = `
       </span>
     </div>
   </div>
-  <ul
-    className="border border-solid border-white-500 bg-black overflow-scroll overflow-x-hidden whitespace-pre-wrap"
-    style={
-      Object {
-        "height": "calc(100% - 60px)",
-        "width": "100%",
+  <div>
+    <ul
+      style={
+        Object {
+          "height": "calc(100% - 60px)",
+          "width": "100%",
+        }
       }
-    }
-  >
-    <li>
-      <span>
-        type 'help' for help
-      </span>
-    </li>
-    <li>
-      <span>
-        use 'Shift' + arrow keys to mark the text
-      </span>
-    </li>
-    <li
-      onClick={[Function]}
     >
-      <div>
-        <span
-          className="text-gray-500"
-        >
-          test&gt; 
+      <li>
+        <span>
+          type 'help' for help
         </span>
-        <span
-          className="break-all"
-          onClick={[Function]}
-          style={
-            Object {
-              "color": undefined,
-            }
-          }
-        >
-          <input
-            className="w-0"
-            disabled={false}
-            onBlur={[Function]}
-            onChange={[Function]}
-            onCopy={[Function]}
-            onCut={[Function]}
-            onKeyDown={[Function]}
-            onPaste={[Function]}
-            type="text"
-            value=""
-          />
-          <span>
-            
-          </span>
-          <span
-            className="bg-gray-400"
-            style={
-              Object {
-                "backgroundColor": undefined,
-              }
-            }
-          >
-            
-          </span>
-          <span
-            className=""
-          >
-            |
-          </span>
-          <span
-            className="bg-gray-400"
-            style={
-              Object {
-                "backgroundColor": undefined,
-              }
-            }
-          >
-            
-          </span>
-          <span>
-            
-          </span>
+      </li>
+      <li>
+        <span>
+          use 'Shift' + arrow keys to mark the text
         </span>
-      </div>
-    </li>
-  </ul>
+      </li>
+      <li
+        onClick={[Function]}
+      >
+        <div>
+          <div
+            className="row"
+          >
+            <div
+              className=""
+            >
+              <div
+                className="absolute"
+                style={
+                  Object {
+                    "marginTop": "1.5px",
+                  }
+                }
+              >
+                <span
+                  className="text-gray-500"
+                >
+                  test&gt; 
+                </span>
+              </div>
+              <div
+                className="outline-none border-none cursor-default"
+                contentEditable={true}
+                dangerouslySetInnerHTML={
+                  Object {
+                    "__html": "",
+                  }
+                }
+                disabled={false}
+                onBlur={[Function]}
+                onChange={[Function]}
+                onInput={[Function]}
+                onKeyDown={[Function]}
+                onKeyUp={[Function]}
+                style={
+                  Object {
+                    "color": "",
+                    "textIndent": "0px",
+                  }
+                }
+              />
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
 </div>
 `;

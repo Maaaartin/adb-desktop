@@ -99,7 +99,7 @@ class Root extends Component {
             <DeviceCards />
             <Divider />
           </Col>
-          <Col md={9} sm={7} xs={7} className="h-full">
+          <Col md={9} sm={7} xs={5} className="h-full">
             <Tabs />
           </Col>
         </Row>

@@ -160,7 +160,7 @@ class Console extends Component<Props, State> {
 
   render() {
     const { logs, firework, execution } = this.state;
-    const { serial, openShell, tag, history } = this.props as PropsRedux;
+    const { serial, openShell, tag } = this.props as PropsRedux;
 
     return (
       <div className="font-mono h-full w-full">
@@ -211,6 +211,7 @@ class Console extends Component<Props, State> {
             <li onClick={() => this.focus()}>
               <div>
                 <ResizeInput
+                  disabled={execution}
                   autofocus
                   tag={
                     <span className="text-gray-500">{`${
@@ -231,7 +232,6 @@ class Console extends Component<Props, State> {
 
 const mapStateToProps = (state: GlobalState) => {
   return {
-    history: state.console.history,
     lines: state.console.lines,
   };
 };

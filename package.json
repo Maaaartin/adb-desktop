@@ -16,7 +16,8 @@
     "test": "cross-env NODE_ENV=test && jest",
     "watch:css": "postcss src/frontend/assets/tailwind.css -o src/frontend/assets/main.css",
     "compile": "npx tsc",
-    "compile:watch": "npx tsc -w"
+    "compile:watch": "npx tsc -w",
+    "prepare": "husky install"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -220,7 +221,7 @@
     "eslint-plugin-react": "^7.20.6",
     "eslint-plugin-react-hooks": "^4.0.8",
     "file-loader": "^6.0.0",
-    "husky": "^7.0.1",
+    "husky": "^7.0.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^26.1.0",
     "lint-staged": "^10.2.11",

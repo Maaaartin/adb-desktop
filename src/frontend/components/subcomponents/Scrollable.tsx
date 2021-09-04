@@ -1,16 +1,15 @@
-import React, * as react from 'react';
 import Scroll, { ScrollBarProps } from 'react-perfect-scrollbar';
 import { get as getProp, set as setProp } from 'lodash';
 
-const Scrollable = (
-  props: ScrollBarProps & { ref?: react.LegacyRef<Scroll> }
-) => {
+import React from 'react';
+
+const Scrollable = (props: ScrollBarProps) => {
   let lastY: string | null = null;
   let lastX: string | null = null;
-
+  const dummyRef = React.createRef<Scroll>();
   return (
     <Scroll
-      ref={props.ref}
+      ref={dummyRef}
       onScrollLeft={() => {
         if (lastX) {
           lastX = null;
@@ -45,9 +44,9 @@ const Scrollable = (
           setProp(c, 'lastChild.style.top', lastY);
         }
       }}
-      {...props}
+      {...{ ...props, children: <div></div> }}
     >
-      {props.children}
+      {props.children || <div></div>}
     </Scroll>
   );
 };

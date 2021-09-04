@@ -40,12 +40,12 @@ const SettableLi = <T extends unknown>(props: {
       <Row
         onClick={() => setActive(false)}
         style={{ margin: 0 }}
-        className="pl-1 whitespace-pre-wrap"
+        className="pl-1"
       >
-        {createKey && <Col>{createKey(item)}</Col>}
+        {createKey && <Col xs={6}>{createKey(item)}</Col>}
         {createValue && delimiter && <Col>{delimiter}</Col>}
         {active && createValue && onSetValue ? (
-          <Col className="font-mono ml-3">
+          <Col className="font-mono ml-3" xs={5}>
             <Input
               onBlur={() => setActive(false)}
               textColor="black"
@@ -60,7 +60,7 @@ const SettableLi = <T extends unknown>(props: {
             />
           </Col>
         ) : (
-          <Col>
+          <Col xs={5}>
             {createValue &&
               (styleValue
                 ? StyledValue(createValue(item))
