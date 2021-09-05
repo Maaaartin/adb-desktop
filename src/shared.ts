@@ -38,7 +38,7 @@ export type ItemMaker<T> = {
     value: string,
     cb?: (err?: Error | null) => void
   ) => void;
-  itemGetter?: (key: string, cb?: (output: any) => void) => void;
+  itemGetter?: (key: string, cb?: (output: T) => void) => void;
 };
 
 export type CollectionFunctions<T> = {

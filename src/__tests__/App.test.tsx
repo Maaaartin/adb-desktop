@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import adbReducer, {
   AdbStateConstructor,
 } from '../frontend/redux/reducers/adb';
