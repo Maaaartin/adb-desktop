@@ -24,13 +24,14 @@ import emulatorReducer, {
 
 import { AdbRuntimeStatus } from '../shared';
 import Console from '../frontend/components/Console';
+import Executor from '../backend/Executor';
 import { IAdbDevice } from 'adb-ts';
+import Path from 'path';
 import { Provider } from 'react-redux';
 import React from 'react';
+import jest from 'jest';
 import renderer from 'react-test-renderer';
 import store from '../frontend/redux/store';
-import Executor from '../backend/Executor';
-import jest from 'jest';
 
 describe('reducers', () => {
   it('devices reducer', () => {
@@ -136,6 +137,8 @@ describe('react', () => {
 describe('backend', () => {
   it('executor darwin', () => {
     Object.defineProperty(process, 'platform', { value: 'darwin' });
+    // Needs to mock sep property
+    Object.defineProperty(Path, 'sep', { value: '/' });
     const scriptPath = new Executor({ cmd: 'cmd', cwd: 'cwd' }).buildCommand(
       'path'
     );
@@ -145,6 +148,7 @@ describe('backend', () => {
 
   it('executor win32', () => {
     Object.defineProperty(process, 'platform', { value: 'win32' });
+    Object.defineProperty(Path, 'sep', { value: '\\' });
     const scriptPath = new Executor({ cmd: 'cmd', cwd: 'cwd' }).buildCommand(
       'path'
     );
