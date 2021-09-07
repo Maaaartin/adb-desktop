@@ -6,10 +6,8 @@ import React from 'react';
 const Scrollable = (props: ScrollBarProps) => {
   let lastY: string | null = null;
   let lastX: string | null = null;
-  const dummyRef = React.createRef<Scroll>();
   return (
     <Scroll
-      ref={dummyRef}
       onScrollLeft={() => {
         if (lastX) {
           lastX = null;
@@ -44,9 +42,9 @@ const Scrollable = (props: ScrollBarProps) => {
           setProp(c, 'lastChild.style.top', lastY);
         }
       }}
-      {...{ ...props, children: <div></div> }}
+      {...props}
     >
-      {props.children || <div></div>}
+      {props.children}
     </Scroll>
   );
 };

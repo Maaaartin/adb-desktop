@@ -29,6 +29,8 @@ import { Provider } from 'react-redux';
 import React from 'react';
 import renderer from 'react-test-renderer';
 import store from '../frontend/redux/store';
+import Executor from '../backend/Executor';
+import jest from 'jest';
 
 describe('reducers', () => {
   it('devices reducer', () => {
@@ -128,5 +130,25 @@ describe('react', () => {
     );
     const tree = component.toJSON();
     expect(tree).toMatchSnapshot();
+  });
+});
+
+describe('backend', () => {
+  it('executor darwin', () => {
+    Object.defineProperty(process, 'platform', { value: 'darwin' });
+    const scriptPath = new Executor({ cmd: 'cmd', cwd: 'cwd' }).buildCommand(
+      'path'
+    );
+
+    expect(scriptPath).toBe('path "/cwd" "cmd"');
+  });
+
+  it('executor win32', () => {
+    Object.defineProperty(process, 'platform', { value: 'win32' });
+    const scriptPath = new Executor({ cmd: 'cmd', cwd: 'cwd' }).buildCommand(
+      'path'
+    );
+
+    expect(scriptPath).toBe('path "cwd" "cmd"');
   });
 });

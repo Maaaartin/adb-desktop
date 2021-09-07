@@ -4,7 +4,7 @@ import { app } from 'electron';
 import { exec } from 'child_process';
 
 export default class Executor {
-  private opt: { cmd: string; cwd: string };
+  public opt: { cmd: string; cwd: string };
   constructor(opt: { cmd?: string; cwd?: string }) {
     const cmd = opt.cmd || '';
     const cwd = opt.cwd || '';
@@ -20,7 +20,7 @@ export default class Executor {
     }
   }
 
-  private build(path: string) {
+  private buildScriptCommand(path: string) {
     switch (process.platform) {
       case 'win32':
         return path;
@@ -34,8 +34,13 @@ export default class Executor {
       case 'win32':
         return 'script.bat';
       default:
-        return `sh script.sh`;
+        return `script.sh`;
     }
+  }
+
+  public buildCommand(path: string) {
+    const { cmd, cwd } = this.opt;
+    return `${path} "${this.formatCwd(cwd)}" "${cmd}"`;
   }
 
   private getPath() {
@@ -47,7 +52,7 @@ export default class Executor {
     const p = app.isPackaged
       ? Path.join(process.resourcesPath, scriptPath)
       : Path.join(__dirname, '..', '..', scriptPath);
-    return this.build(p);
+    return this.buildScriptCommand(p);
   }
 
   private executeWin() {
@@ -69,9 +74,8 @@ export default class Executor {
     if (process.platform === 'win32') {
       return this.executeWin();
     } else {
-      const { cmd, cwd } = this.opt;
       return new Promise<void>((resolve, reject) => {
-        exec(`${this.getPath()} "${this.formatCwd(cwd)}" "${cmd}"`, (err) => {
+        exec(this.buildCommand(this.getPath()), (err) => {
           if (!err) {
             return resolve();
           } else {

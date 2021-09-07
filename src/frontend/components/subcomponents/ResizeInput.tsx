@@ -45,6 +45,7 @@ const ResizeInput = ({
     setOffset(refTag.current?.offsetWidth || 0);
     if (autofocus) {
       refContent.current?.scrollIntoView();
+      refContent.current?.focus();
     }
   });
   useEffect(() => {
@@ -61,6 +62,7 @@ const ResizeInput = ({
             className="absolute"
             style={{
               marginTop: '1.5px',
+              marginLeft: '10px',
             }}
           >
             {tag}
@@ -68,7 +70,9 @@ const ResizeInput = ({
         )}
         <ContentEditable
           innerRef={refContent}
-          className="outline-none border-none cursor-default"
+          className={'outline-none border-none cursor-default break-all pr-3'.concat(
+            !value ? ' w-screen' : ''
+          )}
           onBlur={onBlur}
           onKeyDown={(e) => {
             const key = Keyboard.getCode(e);
@@ -96,7 +100,7 @@ const ResizeInput = ({
               }
             }
           }}
-          style={{ textIndent: `${offset}px`, color: textColor || '' }}
+          style={{ marginLeft: `${offset + 10}px`, color: textColor || '' }}
           html={value}
           disabled={disabled}
           onChange={(e) => setValue(e.target.value)}

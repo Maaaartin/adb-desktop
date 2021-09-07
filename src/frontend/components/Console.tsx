@@ -183,7 +183,10 @@ class Console extends Component<Props, State> {
           onClick={() => openShell(serial)}
           IconEl={FaLink}
         />
-        <Scrollable className="border border-solid border-white-500 bg-black whitespace-pre-wrap">
+        <Scrollable
+          className="border border-solid border-white-500 bg-black whitespace-pre-wrap"
+          options={{ suppressScrollX: true }}
+        >
           <ul style={{ width: '100%', height: 'calc(100% - 60px)' }}>
             {logs.map((line, index) => {
               return (

@@ -102,6 +102,7 @@ exports[`react console 1`] = `
                 className="absolute"
                 style={
                   Object {
+                    "marginLeft": "10px",
                     "marginTop": "1.5px",
                   }
                 }
@@ -113,7 +114,7 @@ exports[`react console 1`] = `
                 </span>
               </div>
               <div
-                className="outline-none border-none cursor-default"
+                className="outline-none border-none cursor-default break-all pr-3 w-screen"
                 contentEditable={true}
                 dangerouslySetInnerHTML={
                   Object {
@@ -129,7 +130,7 @@ exports[`react console 1`] = `
                 style={
                   Object {
                     "color": "",
-                    "textIndent": "0px",
+                    "marginLeft": "10px",
                   }
                 }
               />
