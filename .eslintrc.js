@@ -12,7 +12,8 @@ module.exports = {
     '@typescript-eslint/no-shadow': 'off',
     'import/no-cycle': 'off',
     'no-restricted-syntax': 'off',
-    'react/jsx-key': 'off'
+    'react/jsx-key': 'off',
+    'no-plusplus': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,

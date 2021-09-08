@@ -29,7 +29,6 @@ import { IAdbDevice } from 'adb-ts';
 import Path from 'path';
 import { Provider } from 'react-redux';
 import React from 'react';
-import jest from 'jest';
 import renderer from 'react-test-renderer';
 import store from '../frontend/redux/store';
 
