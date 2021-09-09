@@ -1,6 +1,13 @@
 import { Dictionary } from 'lodash';
 import { IFileStats } from 'adb-ts/lib/filestats';
 
+export const isDev =
+  process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'production';
+
+export const isTest =
+  process.env.NODE_ENV !== 'development' &&
+  process.env.NODE_ENV !== 'production';
+
 export type AdbState = 'starting' | 'running' | 'stopped' | 'error';
 
 export type AdbRuntimeStatus = {
@@ -31,7 +38,7 @@ export type ItemMaker<T> = {
     value: string,
     cb?: (err?: Error | null) => void
   ) => void;
-  itemGetter?: (key: string, cb?: (output: any) => void) => void;
+  itemGetter?: (key: string, cb?: (output: T) => void) => void;
 };
 
 export type CollectionFunctions<T> = {

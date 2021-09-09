@@ -5,8 +5,8 @@ import { CommandResponse } from '../../ipcIndex';
 import { FaLink } from 'react-icons/fa';
 import { Fireworks } from 'fireworks/lib/react';
 import { GlobalState } from '../redux/reducers';
-import HiddenInput from './subcomponents/HiddenInput';
 import IconBtn from './subcomponents/IconBtn';
+import ResizeInput from './subcomponents/ResizeInput';
 import Scrollable from './subcomponents/Scrollable';
 import { addHistory } from '../redux/actions';
 import { isEmpty as emp } from 'lodash';
@@ -28,7 +28,7 @@ type Props = {
 };
 
 class Console extends Component<Props, State> {
-  private input = React.createRef<HiddenInput>();
+  private inputRef = React.createRef<HTMLDivElement>();
   constructor(props: any) {
     super(props);
     this.state = {
@@ -45,7 +45,7 @@ class Console extends Component<Props, State> {
   }
 
   componentDidMount() {
-    this.input.current?.focus();
+    this.inputRef.current?.focus();
   }
 
   componentDidUpdate() {
@@ -64,7 +64,7 @@ class Console extends Component<Props, State> {
   }
 
   focus() {
-    this.input.current?.focus();
+    this.inputRef.current?.scrollIntoView();
   }
 
   parseExec(value?: string) {
@@ -78,6 +78,7 @@ class Console extends Component<Props, State> {
 
   onEnter(cmd: string) {
     const { logs } = this.state;
+
     switch (cmd) {
       case 'exit':
         {
@@ -138,16 +139,18 @@ class Console extends Component<Props, State> {
         {
           const { serial, addHistory, exec } = this.props as PropsRedux;
           logs.push({ value: cmd, isCommand: true });
-          exec(serial, cmd).then(({ error, output }) => {
-            if (error) {
-              logs.push(...this.parseExec(error.message));
-            }
-            if (output) {
-              logs.push(...this.parseExec(output));
-            }
-            this.setState({ logs, execution: false }, () => this.focus());
-          });
-          addHistory(cmd);
+          if (cmd) {
+            exec(serial, cmd).then(({ error, output }) => {
+              if (error) {
+                logs.push(...this.parseExec(error.message));
+              }
+              if (output) {
+                logs.push(...this.parseExec(output));
+              }
+              this.setState({ logs, execution: false }, () => this.focus());
+            });
+            addHistory(cmd);
+          }
           this.setState({ logs, execution: true });
         }
         break;
@@ -157,7 +160,8 @@ class Console extends Component<Props, State> {
 
   render() {
     const { logs, firework, execution } = this.state;
-    const { serial, openShell, tag, history } = this.props as PropsRedux;
+    const { serial, openShell, tag } = this.props as PropsRedux;
+
     return (
       <div className="font-mono h-full w-full">
         {firework && (
@@ -179,7 +183,10 @@ class Console extends Component<Props, State> {
           onClick={() => openShell(serial)}
           IconEl={FaLink}
         />
-        <Scrollable className="border border-solid border-white-500 bg-black whitespace-pre-wrap">
+        <Scrollable
+          className="border border-solid border-white-500 bg-black whitespace-pre-wrap"
+          options={{ suppressScrollX: true }}
+        >
           <ul style={{ width: '100%', height: 'calc(100% - 60px)' }}>
             {logs.map((line, index) => {
               return (
@@ -206,13 +213,17 @@ class Console extends Component<Props, State> {
             })}
             <li onClick={() => this.focus()}>
               <div>
-                <span className="text-gray-500">{`${tag || serial}> `}</span>
-                <HiddenInput
+                <ResizeInput
                   disabled={execution}
-                  ref={this.input}
-                  history={history}
-                  onEnter={(value) => this.onEnter(value)}
-                ></HiddenInput>
+                  autofocus
+                  tag={
+                    <span className="text-gray-500">{`${
+                      tag || serial
+                    }> `}</span>
+                  }
+                  onEnter={(value: string) => this.onEnter(value)}
+                  withHistory
+                />
               </div>
             </li>
           </ul>
@@ -224,7 +235,6 @@ class Console extends Component<Props, State> {
 
 const mapStateToProps = (state: GlobalState) => {
   return {
-    history: state.console.history,
     lines: state.console.lines,
   };
 };

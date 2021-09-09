@@ -1,9 +1,9 @@
 import { AdbClient, AdbClientOptions, IAdbDevice, Tracker } from 'adb-ts';
+import { AdbRuntimeStatus, FileSystemData } from '../shared';
 import { Dictionary, clone, noop } from 'lodash';
 
 import AdbDevice from 'adb-ts/lib/device';
 import { EventEmitter } from 'events';
-import { FileSystemData } from '../shared';
 import { IFileStats } from 'adb-ts/lib/filestats';
 import Monkey from 'adb-ts/lib/monkey/client';
 import Preferences from './Preferences';
@@ -13,6 +13,11 @@ export default class AdbHandler extends EventEmitter {
   private adb: AdbClient;
   private monkeys: Dictionary<Monkey> = {};
   private tracker?: Tracker;
+  private status: Readonly<AdbRuntimeStatus> = {
+    status: 'stopped',
+    running: false,
+    error: null,
+  };
   public running = false;
   constructor() {
     super();
@@ -40,15 +45,35 @@ export default class AdbHandler extends EventEmitter {
   }
 
   private startInternal() {
+    this.status = {
+      error: null,
+      running: true,
+      status: 'starting',
+    };
     this.emit('starting');
     return this.adb.startServer((err) => {
-      if (err) this.emit('error', err);
-      else {
+      if (err) {
+        this.status = {
+          error: err,
+          running: false,
+          status: 'error',
+        };
+        this.emit('error', err);
+      } else {
+        this.status = {
+          error: null,
+          running: true,
+          status: 'running',
+        };
         this.running = true;
         this.track();
         this.emit('start');
       }
     });
+  }
+
+  getAdbStatus() {
+    return { ...this.status };
   }
 
   saveAndStart(options?: AdbClientOptions) {
@@ -69,6 +94,11 @@ export default class AdbHandler extends EventEmitter {
   stop(cb?: VoidFunction) {
     this.tracker?.end();
     this.adb.kill(() => {
+      this.status = {
+        error: null,
+        running: false,
+        status: 'stopped',
+      };
       this.running = false;
       this.emit('stopped');
       cb?.();

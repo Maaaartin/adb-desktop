@@ -9,9 +9,11 @@ import {
 import { DOCS_LINK, ISSUES_LINK } from '../links';
 
 import AdbHandler from './adb';
+import { ConsoleSettings } from '../shared';
 import EmulatorHandler from './emulator';
 import Preferences from './Preferences';
 import { allWebContents } from './ipc';
+import { thru } from 'lodash';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -116,6 +118,14 @@ export default class Root {
   destroy() {
     this.adbHandler.stop();
     ipc.removeAllListeners();
+  }
+
+  getConsoleSettings(): ConsoleSettings {
+    return thru(Preferences.get('console'), (consoleSett) => ({
+      lines: consoleSett.lines || 20,
+      history: consoleSett.history || [],
+      historyLen: consoleSett.historyLen || 50,
+    }));
   }
 
   buildMenu(): Menu {

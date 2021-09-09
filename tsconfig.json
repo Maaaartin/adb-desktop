@@ -2,9 +2,8 @@
   "compilerOptions": {
     "target": "ES2018",
     "module": "CommonJS",
-    "lib": ["dom", "esnext"],
-    "declaration": true,
-    "declarationMap": true,
+    "lib": ["dom", "esnext", "DOM.Iterable"],
+    "declaration": false,
     "noEmit": true,
     "jsx": "react",
     "strict": true,
@@ -20,14 +19,22 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "allowJs": true
+    "allowJs": true,
+    "skipLibCheck": true
   },
+  "include": [
+    "src/*"
+  ],
   "exclude": [
     "test",
     "release",
     "src/main.prod.js",
     "src/renderer.prod.js",
     "src/dist",
-    ".erb/dll"
+    ".erb/dll",
+      "node_modules",
+      "./node_modules",
+      "./node_modules/*",
+      "./node_modules/@types/node/index.d.ts",
   ]
 }

@@ -74,7 +74,7 @@ const DeviceCards = (props: PropsRedux) => {
                             tabAdd(serial, (id) => (
                               <EmulatorConsole
                                 onExit={() => tabDel(id)}
-                                id={id}
+                                id={serial}
                               />
                             ));
                           }}

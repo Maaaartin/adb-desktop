@@ -6,6 +6,7 @@ import { typedIpcRenderer as ipc } from '../../../ipcIndex';
 
 const EmulatorConsole = (props: { id: string; onExit?: VoidFunction }) => {
   const { id, onExit } = props;
+  console.log(id);
   return (
     <Console
       serial={id}

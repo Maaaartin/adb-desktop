@@ -64,23 +64,6 @@ export default function () {
       },
       { noDisplayErr: true }
     );
-    // return getRoot().then((menu) => {
-    //   return new Promise((resolve) => {
-    //     menu.adbHandler.getMonkey(serial, (error, monkey) => {
-    //       if (error) {
-    //         resolve({ error, output: '' });
-    //       } else {
-    //         monkey.send(cmd, (error, value) => {
-    //           if (error) {
-    //             resolve({ error, output: '' });
-    //           } else {
-    //             resolve({ error, output: value || '' });
-    //           }
-    //         });
-    //       }
-    //     });
-    //   });
-    // });
   });
 
   ipc.handle('execEmulator', (_e, serial, cmd) => {

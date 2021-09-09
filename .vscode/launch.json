@@ -1,6 +1,16 @@
 {
   "version": "0.2.0",
   "configurations": [
+  {
+    "name": "File",
+    "port": 9229,
+    "request": "launch",
+    "skipFiles": [
+      "<node_internals>/**"
+    ],
+    "program": "${file}",
+    "type": "pwa-node"
+  },
     {
       "name": "Electron: Main",
       "type": "node",

@@ -5,7 +5,7 @@ import { Record } from 'immutable';
 
 export type AdbStateProps = {
   status: Record<AdbRuntimeStatus>;
-  settings: Record<AdbClientOptions>;
+  settings: AdbClientOptions;
 };
 
 export type AdbRedState = Record<AdbStateProps> & Readonly<AdbStateProps>;
@@ -16,7 +16,7 @@ export const AdbStateConstructor = Record<AdbStateProps>({
     running: false,
     error: null,
   })(),
-  settings: Record<AdbClientOptions>({})(),
+  settings: {},
 });
 
 export default function (
@@ -29,13 +29,12 @@ export default function (
         prev.clear().merge(action.payload)
       );
     }
-    case 'AdbSettingsLoad':
-    case 'AdbSettingsWrite': {
-      return state.update('settings', (prev) =>
-        prev.clear().merge(action.payload)
-      );
+    case 'AdbSettingsWrite':
+    case 'AdbSettingsLoad': {
+      return state.update('settings', () => action.payload);
     }
-    default:
+    default: {
       return state;
+    }
   }
 }

@@ -32,14 +32,16 @@ export default function (
     }
 
     case 'ConsoleAddHistory': {
-      const { historyLen, history } = state;
+      const { historyLen } = state;
       return state.update('history', (prev) =>
-        prev
-          .remove(history.indexOf(action.payload))
-          .skipUntil(
-            (_value, key, history) => key < history.count() - historyLen
-          )
-          .push(action.payload)
+        prev.update((t) => {
+          const index = t.indexOf(action.payload);
+          if (index > -1) {
+            t = t.remove(index);
+          }
+          const i = t.count() + 1 - historyLen;
+          return t.skip(i).push(action.payload);
+        })
       );
     }
     case 'ConsoleLoadHistory': {

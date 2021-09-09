@@ -3,7 +3,7 @@ import { get as getProp, set as setProp } from 'lodash';
 
 import React from 'react';
 
-const Scrollable: React.FunctionComponent<any> = (props: ScrollBarProps) => {
+const Scrollable = (props: ScrollBarProps) => {
   let lastY: string | null = null;
   let lastX: string | null = null;
   return (

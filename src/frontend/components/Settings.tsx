@@ -10,7 +10,7 @@ import {
 import { Col, Row } from 'react-flexbox-grid';
 import { ConnectedProps, connect } from 'react-redux';
 import React, { ChangeEvent, Component } from 'react';
-import { isEqual as eql, identity, noop } from 'lodash';
+import { isEqual as eql, noop } from 'lodash';
 import {
   writeAdbSettings,
   writeConsoleSettings,
@@ -90,7 +90,7 @@ class Settings extends Component<any, State> {
       this.setState({ token: tokenProp });
     }
 
-    if (prevOpenAdb && !openAdb && !eql(adb, adbProp)) {
+    if (prevOpenAdb && !openAdb && !adb.equals(adbProp)) {
       writeAdbSettings(adb.toJSON());
     }
 
@@ -316,8 +316,8 @@ class Settings extends Component<any, State> {
 
 const mapStateToProps = (state: GlobalState) => {
   return {
-    adb: state.adb.settings.withMutations(identity),
-    token: '',
+    adb: I.Record(state.adb.get('settings'))(),
+    token: state.emulator.get('token'),
     lines: state.console.lines,
     historyLen: state.console.historyLen,
   };

@@ -21,7 +21,6 @@ import { typedIpcRenderer as ipc } from './ipcIndex';
 import { render } from 'react-dom';
 import store from './frontend/redux/store';
 
-// TODO make CI take package.json version
 ipc.on('displayError', (_e, err) => {
   store.dispatch(
     Notifications.error({

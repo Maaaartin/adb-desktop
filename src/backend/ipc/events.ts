@@ -1,8 +1,9 @@
+import { allWebContents, mainWebContent } from '../ipc';
+
 import OpenShell from '../OpenShell';
 import Preferences from '../Preferences';
 import { getRoot } from '../../main.dev';
 import { typedIpcMain as ipc } from '../../ipcIndex';
-import { mainWebContent } from '../ipc';
 import { noop } from 'lodash';
 import open from 'open';
 
@@ -45,7 +46,6 @@ export default function () {
   ipc.on('openLink', (_e, link) => {
     open(link).catch(noop);
   });
-  // TODO display error?
   ipc.on('writeAdbSettings', (_e, data) => {
     getRoot().then((root) => {
       root.adbHandler.saveAndStart(data);
@@ -61,5 +61,19 @@ export default function () {
     getRoot().then((root) => {
       root.emulatorHandler.setToken(token).catch(noop);
     }, noop);
+  });
+
+  ipc.on('reset', () => {
+    getRoot().then((root) => {
+      allWebContents((c) => {
+        c.send('loadAdbSettings', root.adbHandler.getAdbOptions());
+      });
+      allWebContents((c) => {
+        c.send('loadConsoleSettings', root.getConsoleSettings());
+      });
+      allWebContents((c) => {
+        c.send('adbStatus', root.adbHandler.getAdbStatus());
+      });
+    });
   });
 }

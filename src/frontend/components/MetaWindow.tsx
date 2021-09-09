@@ -1,15 +1,15 @@
 import { Col, Row } from 'react-flexbox-grid';
 import { CollectionFunctions, ItemMaker } from '../../shared';
 import { ConnectedProps, connect } from 'react-redux';
-import { Dictionary, isEmpty as emp } from 'lodash';
+import { Dictionary, isEmpty as emp, isNil } from 'lodash';
 import React, { Component } from 'react';
+import { error as notifError, warning } from 'react-notification-system-redux';
 
 import { GlobalState } from '../redux/reducers';
 import RefreshSearch from './subcomponents/RefreshSearch';
 import Scrollable from './subcomponents/Scrollable';
 import SettableLi from './subcomponents/SettableLi';
 import { Typography } from '@material-ui/core';
-import { error as notifError } from 'react-notification-system-redux';
 
 type Props<T> = {
   tag: string;
@@ -50,6 +50,7 @@ class MetaWindow<T> extends Component<Props<T>, State<T>> {
       serial,
       itemMaker,
       itemMaker: { itemGetter, itemSetter },
+      warning,
     } = this.props as PropsRedux<T>;
     const arr = Object.entries(collection).filter((item) => {
       if (!onSearch || !search) return true;
@@ -74,8 +75,11 @@ class MetaWindow<T> extends Component<Props<T>, State<T>> {
             />
           </Col>
         </Row>
-        <Scrollable style={{ height: '90%' }}>
-          <ul className="overflow-y-scroll border-black border-2 break-all h-full">
+        <Scrollable
+          style={{ height: 'calc(90% - 100px)' }}
+          className="border-black border-2"
+        >
+          <ul className="break-all h-full">
             {arr.map((item, index) => {
               return (
                 <SettableLi
@@ -84,29 +88,37 @@ class MetaWindow<T> extends Component<Props<T>, State<T>> {
                   item={item}
                   itemMaker={itemMaker}
                   onSetValue={
-                    itemSetter && itemGetter
-                      ? (value) => {
-                          itemSetter(item[0], value, (err) => {
-                            if (err) {
-                              notifError({
-                                title: 'Operation failed',
-                                message: err.message,
+                    itemSetter &&
+                    itemGetter &&
+                    ((value) => {
+                      const key = item[0];
+                      itemSetter(key, value, (err) => {
+                        if (err) {
+                          notifError({
+                            title: 'Operation failed',
+                            message: err.message,
+                            position: 'tr',
+                          });
+                        } else {
+                          itemGetter(key, (output) => {
+                            const prevValue = collection[key];
+                            if (output === prevValue) {
+                              warning({
+                                title: 'Value could not be set.',
                                 position: 'tr',
                               });
-                            } else
-                              itemGetter(item[0], (output) => {
-                                if (!emp(output)) {
-                                  this.setState({
-                                    collection: {
-                                      ...collection,
-                                      [item[0]]: output,
-                                    },
-                                  });
-                                }
+                            } else if (!isNil(output)) {
+                              this.setState({
+                                collection: {
+                                  ...collection,
+                                  [key]: output,
+                                },
                               });
+                            }
                           });
                         }
-                      : undefined
+                      });
+                    })
                   }
                 />
               );
@@ -124,6 +136,7 @@ const mapStateToProps = (state: GlobalState) => {
 
 const mapDispatchToProps = {
   notifError,
+  warning,
 };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);

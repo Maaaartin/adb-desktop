@@ -1,6 +1,6 @@
 import { AdbClientOptions } from 'adb-ts';
-import Path from 'path';
 import Executor from './Executor';
+import Path from 'path';
 import Preferences from './Preferences';
 
 export default class OpenShell {
@@ -9,7 +9,7 @@ export default class OpenShell {
     const split = options.bin?.split(Path.sep) || [];
     const cmd = `${split[split.length - 1]} -s ${id} shell`;
     const cwd = Path.join(...split.splice(0, split.length - 1));
-    return new Executor({ cmd: `./${cmd}`, cwd }).execute();
+    return new Executor({ cmd, cwd }).execute();
   }
 
   static adb() {

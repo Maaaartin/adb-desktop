@@ -20,11 +20,20 @@ const CreateDialog = (props: {
   useEffect(() => {
     setValue('');
   }, [open]);
+  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter') {
+      onConfirm(value);
+    } else if (e.key === 'Escape') {
+      onClose();
+    }
+  };
   return (
     <Dialog open={open}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <TextField
+          autoFocus
+          onKeyDown={onKeyDown}
           label={label}
           value={value}
           onChange={(e) => setValue(e.target.value)}

@@ -5,7 +5,6 @@ import { UiAction } from '../actionTypes';
 
 export type UiStateProps = {
   tabs: List<Tab>;
-  hide: boolean;
 };
 
 export type UiState = Record<UiStateProps> & Readonly<UiStateProps>;

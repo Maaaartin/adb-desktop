@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import adbReducer, {
   AdbStateConstructor,
 } from '../frontend/redux/reducers/adb';
@@ -20,7 +23,14 @@ import emulatorReducer, {
 } from '../frontend/redux/reducers/emulator';
 
 import { AdbRuntimeStatus } from '../shared';
+import Console from '../frontend/components/Console';
+import Executor from '../backend/Executor';
 import { IAdbDevice } from 'adb-ts';
+import Path from 'path';
+import { Provider } from 'react-redux';
+import React from 'react';
+import renderer from 'react-test-renderer';
+import store from '../frontend/redux/store';
 
 describe('reducers', () => {
   it('devices reducer', () => {
@@ -104,14 +114,44 @@ describe('action', () => {
   });
 });
 
-// describe('react', () => {
-//   it('console', () => {
-//     const component = rederer.create(
-//       <Provider store={store}>
-//         <Console serial="test" exec={Promise.resolve} openShell={() => null} />
-//       </Provider>
-//     );
-//     const tree = component.toJSON();
-//     expect(tree).toMatchSnapshot();
-//   });
-// });
+describe('react', () => {
+  it('console', () => {
+    const component = renderer.create(
+      <Provider store={store}>
+        <Console
+          serial="test"
+          exec={() => Promise.resolve({ output: '' })}
+          openShell={() => null}
+        />
+      </Provider>,
+      {
+        createNodeMock: () => document.createElement('div'),
+      }
+    );
+    const tree = component.toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+});
+
+describe('backend', () => {
+  it('executor darwin', () => {
+    Object.defineProperty(process, 'platform', { value: 'darwin' });
+    // Needs to mock sep property
+    Object.defineProperty(Path, 'sep', { value: '/' });
+    const scriptPath = new Executor({ cmd: 'cmd', cwd: 'cwd' }).buildCommand(
+      'path'
+    );
+
+    expect(scriptPath).toBe('path "/cwd" "cmd"');
+  });
+
+  it('executor win32', () => {
+    Object.defineProperty(process, 'platform', { value: 'win32' });
+    Object.defineProperty(Path, 'sep', { value: '\\' });
+    const scriptPath = new Executor({ cmd: 'cmd', cwd: 'cwd' }).buildCommand(
+      'path'
+    );
+
+    expect(scriptPath).toBe('path "cwd" "cmd"');
+  });
+});
