@@ -54,7 +54,7 @@ const ResizeInput = ({
     }
   }, []);
   return (
-    <Row>
+    <Row className="cursor-text">
       <Col>
         {tag && (
           <div
@@ -70,7 +70,7 @@ const ResizeInput = ({
         )}
         <ContentEditable
           innerRef={refContent}
-          className={'outline-none border-none cursor-default break-all pr-3'.concat(
+          className={'outline-none border-none break-all pr-3'.concat(
             !value ? ' w-screen' : ''
           )}
           onBlur={onBlur}

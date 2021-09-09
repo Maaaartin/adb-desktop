@@ -441,12 +441,12 @@ class FileSystem extends Component<Props, State> {
       if (!error) {
         this.updateFiles(delFilePath?.getParent());
         success({
-          title: 'File deleted',
+          title: 'Item deleted',
           position: 'tr',
         });
       } else {
         notifError({
-          title: 'Could not delete file',
+          title: 'Could not delete the item',
           position: 'tr',
           message: error.message,
         });
