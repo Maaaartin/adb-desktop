@@ -2,7 +2,7 @@ import Path from 'path';
 import { clone } from 'lodash';
 import fs from 'fs';
 import getAppDataPath from 'appdata-path';
-import { stringToType } from 'adb-ts';
+import { isTest } from '../shared';
 
 function getAppData(path: string) {
   switch (process.platform) {
@@ -14,7 +14,7 @@ function getAppData(path: string) {
   }
 }
 
-function getPreferences(path: string) {
+function readPreferences(path: string) {
   let preferences: Record<string, any>;
   try {
     preferences = JSON.parse(fs.readFileSync(path).toString());
@@ -27,14 +27,10 @@ function getPreferences(path: string) {
 
 export default class Preferences {
   private static path = Path.join(getAppData('AdbDesktop'), 'settings.json');
-  private static preferences = getPreferences(Preferences.path);
+  private static preferences = isTest ? {} : readPreferences(Preferences.path);
 
   static get(key: string): Record<string, any> {
-    const value = clone(Preferences.preferences[key]) || {};
-    for (const item of Object.entries<any>(value)) {
-      value[item[0]] = stringToType(item[1]);
-    }
-    return value;
+    return clone(Preferences.preferences[key]) || {};
   }
 
   static save(key: string, data: Record<string, any>) {
@@ -43,15 +39,13 @@ export default class Preferences {
       ...Preferences.preferences[key],
       ...data,
     };
-    return new Promise<void>((resolve, reject) => {
-      fs.writeFile(
+    if (isTest) {
+      return Promise.resolve();
+    } else {
+      return fs.promises.writeFile(
         Preferences.path,
-        JSON.stringify(Preferences.preferences, null, 3.5),
-        (err) => {
-          if (err) return reject(err);
-          else return resolve();
-        }
+        JSON.stringify(Preferences.preferences, null, '\t')
       );
-    });
+    }
   }
 }

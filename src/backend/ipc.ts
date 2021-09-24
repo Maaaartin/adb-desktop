@@ -1,6 +1,6 @@
 import { CommandResponse, Events } from '../ipcIndex';
 
-import Root from './menu';
+import Root from './root';
 import { TypedWebContents } from 'electron-typed-ipc';
 import _events from './ipc/events';
 import _exec from './ipc/commands/exec';
@@ -14,7 +14,7 @@ import { webContents } from 'electron';
 
 export const mainWebContent = (cb: (c: TypedWebContents<Events>) => void) => {
   getRoot().then((menu) => {
-    cb(menu.mainWindow.webContents as TypedWebContents<Events>);
+    cb(menu.mainWindow.webContents);
   }, noop);
 };
 

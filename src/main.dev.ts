@@ -13,7 +13,7 @@ import 'regenerator-runtime/runtime';
 
 import { BrowserWindow, app, shell } from 'electron';
 
-import Root from './backend/menu';
+import Root from './backend/root';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import path from 'path';
