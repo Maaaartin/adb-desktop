@@ -14,22 +14,12 @@ import 'regenerator-runtime/runtime';
 import { BrowserWindow, app, shell } from 'electron';
 
 import Root from './backend/root';
-import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
 import path from 'path';
 import { registerIpc } from './backend/ipc';
 
 registerIpc();
 
 const gotTheLock = app.requestSingleInstanceLock();
-
-export default class AppUpdater {
-  constructor() {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
-  }
-}
 
 let mainWindow: BrowserWindow | null = null;
 let root: Root | null = null;
@@ -113,10 +103,6 @@ const createWindow = async () => {
     event.preventDefault();
     shell.openExternal(url);
   });
-
-  // Remove this if your app does not use auto updates
-  // eslint-disable-next-line
-  new AppUpdater();
 };
 
 if (!gotTheLock) {
