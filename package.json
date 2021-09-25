@@ -3,7 +3,7 @@
   "productName": "AdbDesktop",
   "description": "Tools for ADB operations with GUI",
   "scripts": {
-    "build": "yarn compile && concurrently \"yarn build:main\" \"yarn build:renderer\"",
+    "build": "yarn && yarn compile && concurrently \"yarn build:main\" \"yarn build:renderer\"",
     "build:main": "cross-env NODE_ENV=production webpack --config ./.erb/configs/webpack.config.main.prod.babel.js",
     "build:renderer": "yarn run watch:css && cross-env NODE_ENV=production webpack --config ./.erb/configs/webpack.config.renderer.prod.babel.js",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir src",
