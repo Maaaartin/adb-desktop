@@ -9,14 +9,17 @@
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir src",
     "lint": "cross-env NODE_ENV=development eslint . --cache --ext .js,.jsx,.ts,.tsx",
     "package": "shx rm -rf src/dist && yarn build && electron-builder build --publish never",
-    "postinstall": "node -r @babel/register .erb/scripts/CheckNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.babel.js && opencollective-postinstall && yarn-deduplicate yarn.lock && yarn prepare",
+    "postinstall": "node -r @babel/register .erb/scripts/CheckNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.babel.js && opencollective-postinstall && yarn-deduplicate yarn.lock",
     "start": "node -r @babel/register ./.erb/scripts/CheckPortInUse.js && yarn start:renderer",
     "start:main": "cross-env NODE_ENV=development electron -r ./.erb/scripts/BabelRegister ./src/main.dev.ts",
     "start:renderer": "yarn run watch:css && cross-env NODE_ENV=development webpack serve --config ./.erb/configs/webpack.config.renderer.dev.babel.js",
     "test": "cross-env NODE_ENV=test && npx jest",
     "watch:css": "postcss src/frontend/assets/tailwind.css -o src/frontend/assets/main.css",
     "compile": "npx tsc",
-    "prepare": "npx husky install"
+    "hooks:install":"run-script-os",
+    "hooks:install:darwin:linux": "chmod ug+x .husky/* && chmod ug+x .git/hooks/*",
+    "hooks:install:default": "echo skipping hook installation",
+    "prepare": "yarn hooks:install && npx husky install"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -233,6 +236,7 @@
     "react-refresh": "^0.9.0",
     "react-test-renderer": "^17.0.1",
     "rimraf": "^3.0.0",
+    "run-script-os": "^1.1.6",
     "sass-loader": "^10.1.0",
     "shx": "^0.3.3",
     "style-loader": "^2.0.0",
