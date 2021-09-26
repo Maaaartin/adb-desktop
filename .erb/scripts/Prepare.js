@@ -1,22 +1,31 @@
-const { exec } = require('child_process');
-const isCI = process.env.NODE_ENV === 'CI';
-
-if (!isCI) {
-  if (process.platform === 'win32') {
-    console.info('Skipping hook installation');
+const {
+    exec
+} = require('child_process');
+const {
+    isCI
+} = require('ci-info');
+if (isCI) {
+    console.info('CI - skipping hooks installation');
     process.exit(0);
-  } else {
-    exec('chmod ug+x .husky/* && chmod ug+x .git/hooks/*', (err) => {
-      if (err) {
-        console.error(err);
-        process.exit(1);
-      } else {
-        console.info('Hooks installed');
-        process.exit(0);
-      }
-    });
-  }
 } else {
-  console.info('Is CI, skipping hook installation');
-  process.exit(0);
+    exec('npx husky install', (err) => {
+        if (err) {
+            console.error(err);
+            process.exit(1);
+        } else if (process.platform === 'win32') {
+            console.info('win32 - skipping hooks installation');
+            process.exit(0);
+        } else {
+            exec('chmod ug+x .husky/* && chmod ug+x .git/hooks/*', (err) => {
+                if (err) {
+                    console.error(err);
+                    process.exit(1);
+                } else {
+                    console.info('Git hooks installed')
+                    process.exit(0);
+                }
+            })
+        }
+    })
+
 }

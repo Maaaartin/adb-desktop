@@ -19,7 +19,7 @@
     "hooks:install": "run-script-os",
     "hooks:install:darwin:linux": "chmod ug+x .husky/* && chmod ug+x .git/hooks/*",
     "hooks:install:default": "echo skipping hook installation",
-    "prepare": "npx husky install && node ./.erb/scripts/Prepare.js"
+    "prepare": "node ./.erb/scripts/Prepare.js"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -194,6 +194,7 @@
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "browserslist-config-erb": "^0.0.1",
     "chalk": "^4.1.0",
+    "ci-info": "^3.2.0",
     "concurrently": "^5.3.0",
     "core-js": "^3.6.5",
     "cross-env": "^7.0.2",
