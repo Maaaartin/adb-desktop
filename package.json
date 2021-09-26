@@ -16,10 +16,10 @@
     "test": "cross-env NODE_ENV=test && npx jest",
     "watch:css": "postcss src/frontend/assets/tailwind.css -o src/frontend/assets/main.css",
     "compile": "npx tsc",
-    "hooks:husky": "npx run-script-os",
+    "hooks:husky": "run-script-os",
     "hooks:husky:darwin:linux": "chmod ug+x .husky/*",
     "hooks:husky:default": "echo skipping hook installation",
-    "hooks:git": "npx run-script-os",
+    "hooks:git": "run-script-os",
     "hooks:git:darwin:linux": "chmod ug+x .git/hooks/*",
     "hooks:git:default": "echo skipping hook installation",
     "prepare": "yarn hooks:husky && npx husky install && yarn hooks:git"
