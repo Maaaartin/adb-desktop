@@ -16,10 +16,13 @@
     "test": "cross-env NODE_ENV=test && npx jest",
     "watch:css": "postcss src/frontend/assets/tailwind.css -o src/frontend/assets/main.css",
     "compile": "npx tsc",
-    "hooks:install": "run-script-os",
-    "hooks:install:darwin:linux": "chmod ug+x .husky/* && chmod ug+x .git/hooks/*",
-    "hooks:install:default": "echo skipping hook installation",
-    "prepare": "yarn hooks:install && npx husky install"
+    "hooks:husky": "npx run-script-os",
+    "hooks:husky:darwin:linux": "chmod ug+x .husky/*",
+    "hooks:husky:default": "echo skipping hook installation",
+    "hooks:git": "npx run-script-os",
+    "hooks:git:darwin:linux": "chmod ug+x .git/hooks/*",
+    "hooks:git:default": "echo skipping hook installation",
+    "prepare": "yarn hooks:husky && npx husky install && yarn hooks:git"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
