@@ -22,10 +22,6 @@ jobs:
         with:
           node-version: 15
 
-      - name: Install dependencies
-        run: |
-          yarn install && yarn postinstall
-
       - name: Build
         run: |
           yarn build
@@ -34,7 +30,7 @@ jobs:
         run: |
           yarn test
 
-      - name: Publish releases
+      - name: Package
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
