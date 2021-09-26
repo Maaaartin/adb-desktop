@@ -16,9 +16,6 @@
     "test": "cross-env NODE_ENV=test && npx jest",
     "watch:css": "postcss src/frontend/assets/tailwind.css -o src/frontend/assets/main.css",
     "compile": "npx tsc",
-    "hooks:install": "run-script-os",
-    "hooks:install:darwin:linux": "chmod ug+x .husky/* && chmod ug+x .git/hooks/*",
-    "hooks:install:default": "echo skipping hook installation",
     "prepare": "node ./.erb/scripts/Prepare.js"
   },
   "lint-staged": {
@@ -237,7 +234,6 @@
     "react-refresh": "^0.9.0",
     "react-test-renderer": "^17.0.1",
     "rimraf": "^3.0.0",
-    "run-script-os": "^1.1.6",
     "sass-loader": "^10.1.0",
     "shx": "^0.3.3",
     "style-loader": "^2.0.0",
