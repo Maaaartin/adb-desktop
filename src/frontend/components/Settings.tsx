@@ -10,7 +10,7 @@ import {
 import { Col, Row } from 'react-flexbox-grid';
 import { ConnectedProps, connect } from 'react-redux';
 import React, { ChangeEvent, Component } from 'react';
-import { identity, isEqual as eql, noop, tap } from 'lodash';
+import { isEqual as eql, noop } from 'lodash';
 import {
   writeAdbSettings,
   writeConsoleSettings,
