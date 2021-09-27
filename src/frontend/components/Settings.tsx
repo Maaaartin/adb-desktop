@@ -10,7 +10,7 @@ import {
 import { Col, Row } from 'react-flexbox-grid';
 import { ConnectedProps, connect } from 'react-redux';
 import React, { ChangeEvent, Component } from 'react';
-import { isEqual as eql, noop } from 'lodash';
+import { identity, isEqual as eql, noop, tap } from 'lodash';
 import {
   writeAdbSettings,
   writeConsoleSettings,
@@ -156,8 +156,9 @@ class Settings extends Component<any, State> {
 
   onChangeFile(event: ChangeEvent<HTMLInputElement>) {
     const { adb } = this.state;
+    // hack, adb.update does not update bin prop..?
     this.setState({
-      adb: adb.update('bin', () => event.target.files?.[0].path),
+      adb: I.Record({ ...adb.toJSON(), bin: event.target.files?.[0].path })(),
     });
   }
 
