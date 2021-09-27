@@ -66,29 +66,29 @@ Application provides UI for ADB, ADB shell and Emulator console.
 
 ADB Desktop show connected ADB devices and their state. In `Devices` view you can see device details, such as properties, settings ect.
 
-![ADB Devices](https://github.com/Maaaartin/adb-desktop/blob/master/docs/devices.PNG?raw=true "ADB Devices")
+![ADB Devices](https://github.com/Maaaartin/adb-desktop/blob/master/docs/devices.png?raw=true "ADB Devices")
 
 #### Change device settings and properties
 
 You can edit settings and properties of the device by clicking `Open in new tab` in `Devices` view.
 
-![ADB Devices](https://github.com/Maaaartin/adb-desktop/blob/master/docs/edit.PNG?raw=true "ADB Devices")
+![ADB Devices](https://github.com/Maaaartin/adb-desktop/blob/master/docs/edit.png?raw=true "ADB Devices")
 
 #### Android file system
 
 Access file system of the device by clicking `File system` icon in `Devices` view. File system view enables the user to read the file system, move, copy or create files/ folders on the device.
 
-![ADB Devices](https://github.com/Maaaartin/adb-desktop/blob/master/docs/fs.PNG?raw=true "ADB Devices")
+![ADB Devices](https://github.com/Maaaartin/adb-desktop/blob/master/docs/fs.png?raw=true "ADB Devices")
 
 #### Consoles
 
 ADB desktop provides build in consoles for ADB, ADB shell, ADB monkey and Emulator consoles. Choice of these consoles in available in the left pane view or `Devices` view. 
 
-![ADB Devices](https://github.com/Maaaartin/adb-desktop/blob/master/docs/consoles.PNG?raw=true "ADB Devices")
+![ADB Devices](https://github.com/Maaaartin/adb-desktop/blob/master/docs/consoles.png?raw=true "ADB Devices")
 
 You can also open native command line by clicking `Open dedicated console` in left top corner of the console view.
 
-![ADB Devices](https://github.com/Maaaartin/adb-desktop/blob/master/docs/console.PNG?raw=true "ADB Devices")
+![ADB Devices](https://github.com/Maaaartin/adb-desktop/blob/master/docs/console.png?raw=true "ADB Devices")
 
 For documentation for consoles see links:
 
