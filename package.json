@@ -133,7 +133,7 @@
     "setupFiles": [
       "./.erb/scripts/CheckBuildsExist.js"
     ],
-    "testTimeout": 30000
+    "testTimeout": 60000
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
