@@ -17,19 +17,19 @@ Version 29.0.5-5949299.
 
 Install dependencies
 
-``` bash
+```bash
 yarn install
 ```
 
 Start
 
-``` bash
+```bash
 yarn start
 ```
 
 Package
 
-``` bash
+```bash
 yarn package
 ```
 
@@ -62,9 +62,41 @@ ADB Desktop needs to be specified an absolute path to the ADB binary. To do so g
 
 Application provides UI for ADB, ADB shell and Emulator console.
 
-See links:
+#### Manage ADB Devices
+
+ADB Desktop show connected ADB devices and their state. In `Devices` view you can see device details, such as properties, settings ect.
+
+![ADB Devices](docs/devices.png?raw=true "ADB Devices")
+
+#### Change device settings and properties
+
+You can edit settings and properties of the device by clicking `Open in new tab` in `Devices` view.
+
+![ADB Devices](docs/edit.png?raw=true "ADB Devices")
+
+#### Android file system
+
+Access file system of the device by clicking `File system` icon in `Devices` view. File system view enables the user to read the file system, move, copy or create files/ folders on the device.
+
+![ADB Devices](docs/fs.png?raw=true "ADB Devices")
+
+#### Consoles
+
+ADB desktop provides build in consoles for ADB, ADB shell, ADB monkey and Emulator consoles. Choice of these consoles in available in the left pane view or `Devices` view. 
+
+![ADB Devices](docs/consoles.png?raw=true "ADB Devices")
+
+You can also open native command line by clicking `Open dedicated console` in left top corner of the console view.
+
+![ADB Devices](docs/console.png?raw=true "ADB Devices")
+
+For documentation for consoles see links:
 
 * [ADB](https://developer.android.com/studio/command-line/adb)
 * [Emulator console](https://developer.android.com/studio/run/emulator-console)
 * [adb-ts](https://www.npmjs.com/package/adb-ts)
 * [emulator-ts](https://www.npmjs.com/package/emulator-ts)
+
+#### ADB Desktop settings
+
+In `Settings` view you can edit settings for ADB environment and basic console settings.
