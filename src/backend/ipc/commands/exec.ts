@@ -80,8 +80,7 @@ export default function () {
   ipc.handle('renewToken', () => {
     return ipcExec((root) => {
       return EmulatorClient.readToken().then((output) => {
-        root.emulatorHandler.setToken(output);
-        return output;
+        return root.emulatorHandler.setToken(output).then(() => output);
       });
     });
   });
