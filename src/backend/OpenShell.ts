@@ -7,7 +7,7 @@ export default class OpenShell {
   static adbShell(id: string) {
     const options = Preferences.get('adb') as AdbClientOptions;
     const split = options.bin?.split(Path.sep) || [];
-    const cmd = `${split[split.length - 1]} -s ${id} shell`;
+    const cmd = `./${split[split.length - 1]} -s ${id} shell`;
     const cwd = Path.join(...split.splice(0, split.length - 1));
     return new Executor({ cmd, cwd }).execute();
   }
