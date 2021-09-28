@@ -5196,10 +5196,10 @@ emojis-list@^3.0.0:
   resolved "https://registry.yarnpkg.com/emojis-list/-/emojis-list-3.0.0.tgz#5570662046ad29e2e916e71aae260abdff4f6a78"
   integrity sha512-/kyM18EfinwXZbno9FyUGeFh87KC8HRQBQGildHZbEuRyWFOmv1U10o9BBp8XVZDVNNuQKyIGIu5ZYAAXJ0V2Q==
 
-emulator-ts@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/emulator-ts/-/emulator-ts-1.0.2.tgz#2937869a9b88ed03aab6aa1a0fb5e03cfe5b3329"
-  integrity sha512-H8qs+R6DsXgDKVvHYh6UZYFrVhdeGL0cHmR6sTzivrT2Lv2zUCmcvIuaIOLLd/2Ft1yVBGnqCgBzgBl79vmRMg==
+emulator-ts@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/emulator-ts/-/emulator-ts-1.0.4.tgz#a25ad46e4afdcd983285e28efa08741d6e097d14"
+  integrity sha512-GqAedM48sp7OrKVrNtrJ1BgrGV688N9r3qQEv7giqhf7M1WoHZa5e8IApz9WaWn3lc0Nc45Pm9Ki+gDXfa1Ehw==
   dependencies:
     bluebird "^3.7.2"
     events "^3.2.0"
