@@ -12,7 +12,7 @@ import {
 import { Col, Row } from 'react-flexbox-grid';
 import { ConnectedProps, connect } from 'react-redux';
 import { ContextMenu, ContextMenuTrigger, MenuItem } from 'react-contextmenu';
-import { Dictionary, isEmpty as emp, noop, orderBy, tap } from 'lodash';
+import { isEmpty as emp, noop, orderBy, tap } from 'lodash';
 import { FaCaretDown, FaCaretRight, FaSpinner } from 'react-icons/fa';
 import React, { Component } from 'react';
 import { error as notifError, success } from 'react-notification-system-redux';

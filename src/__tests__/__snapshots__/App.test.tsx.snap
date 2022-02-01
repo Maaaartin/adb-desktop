@@ -114,7 +114,7 @@ exports[`react console 1`] = `
                 </span>
               </div>
               <div
-                className="outline-none border-none cursor-default break-all pr-3 w-screen"
+                className="outline-none border-none cursor-default break-all pr-3"
                 contentEditable={true}
                 dangerouslySetInnerHTML={
                   Object {
