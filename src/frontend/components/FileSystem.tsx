@@ -25,13 +25,14 @@ import Scroll from './subcomponents/Scrollable';
 import bytes from 'bytes';
 import { typedIpcRenderer as ipc } from '../../ipcIndex';
 import moment from 'moment';
+import { Set as ISet } from 'immutable';
 
 type Props = { serial: string };
 
 type State = {
   search: string;
   sort: TableSort;
-  opened: Dictionary<boolean>;
+  opened: ISet<string>;
   delFilePath?: AdbFilePath;
   mkdirPath?: AdbFilePath;
   menuType: string;
@@ -85,7 +86,7 @@ class FileSystem extends Component<Props, State> {
     this.state = {
       search: '',
       sort: { type: 'asc', index: 0 },
-      opened: {},
+      opened: ISet(),
       menuType: '',
     };
 
@@ -134,10 +135,10 @@ class FileSystem extends Component<Props, State> {
   }
 
   private toggleDir(id: string, item: FileSystemData) {
-    const opened = { ...this.state.opened };
+    let { opened } = this.state;
     const { serial } = this.props;
-    if (!opened[id]) {
-      opened[id] = true;
+    if (!opened.has(id)) {
+      opened = opened.add(id);
       ipc.invoke('getFiles', serial, id).then(({ output }) => {
         if (output) {
           item.children = output.children;
@@ -146,13 +147,14 @@ class FileSystem extends Component<Props, State> {
       }, noop);
     } else {
       // closing subfolders
-      Object.entries(opened).forEach(([key, value]) => {
+      opened = opened.reduce((acc, value, key) => {
         if (value && AdbFilePath.isChildOf(id, key)) {
-          delete opened[key];
+          acc = acc.delete(key);
         }
-      });
+        return acc;
+      }, opened);
       delete item.children;
-      delete opened[id];
+      opened = opened.delete(id);
     }
     this.setState({ opened });
   }
@@ -163,9 +165,9 @@ class FileSystem extends Component<Props, State> {
     path: AdbFilePath,
     file: FileSystemData
   ) {
-    const opened = { ...this.state.opened };
+    const { opened } = this.state;
     const pathStr = path.toString();
-    const open = opened[pathStr];
+    const open = opened.has(pathStr);
     const stats = file.stats;
     const children = file.children;
     return (
@@ -265,13 +267,13 @@ class FileSystem extends Component<Props, State> {
       (file) => {
         switch (sort.index) {
           case 0:
-            return file.name;
+            return file.name.toLowerCase();
           case 1:
             return file.stats?.size || 0;
           case 2:
             return moment(file.stats?.mtime);
           case 3:
-            return file.stats?.type;
+            return file.stats?.type?.toLowerCase();
           default:
             return 0;
         }
@@ -286,7 +288,7 @@ class FileSystem extends Component<Props, State> {
 
   handleClick(
     _e: React.TouchEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>,
-    data: Dictionary<any>,
+    data: { type: string },
     target: HTMLElement
   ) {
     const { cpPath } = this.state;

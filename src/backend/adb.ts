@@ -128,19 +128,17 @@ export default class AdbHandler extends EventEmitter {
           .fileStat(serial, `${path.replace(/\/$/, '')}/${item.name}`)
           .then((data) => {
             // is symbolic link
-            if (data.name.length !== data.lname.length) {
-              const linkPath = data.lname
-                .split('->')[1]
-                .trim()
-                .replace(/'/g, '');
+            if (data.lname.includes('->')) {
+              const linkPath = data.lname.split('->')[1].replace(/\s|'|`/g, '');
               return this.adb.readDir(serial, linkPath).then((entries) => {
                 if (entries.length) {
                   data.type = 'directory';
                 }
                 return buildRes(data);
               });
+            } else {
+              return buildRes(data);
             }
-            return buildRes(data);
           })
           .catch(() => {
             return {
