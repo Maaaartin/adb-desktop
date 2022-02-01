@@ -70,9 +70,7 @@ const ResizeInput = ({
         )}
         <ContentEditable
           innerRef={refContent}
-          className={'outline-none border-none break-all pr-3'.concat(
-            !value ? ' w-screen' : ''
-          )}
+          className={'outline-none border-none cursor-default break-all pr-3'}
           onBlur={onBlur}
           onKeyDown={(e) => {
             const key = Keyboard.getCode(e);
